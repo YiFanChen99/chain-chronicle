@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
 import tkMessageBox
 import ttk
 import TabManager
+import RecordOfDrawLots
 
 
 class GUIMain(Frame):
@@ -26,62 +26,48 @@ class GUIMain(Frame):
         self.group_selector = ttk.Combobox(self, state='readonly')
         self.group_selector['values'] = self.tab_manager.groups
         self.group_selector.place(x=3, y=3)
-        self.group_selector.bind('<<ComboboxSelected>>', self.__selection_handler)
+        self.group_selector.bind('<<ComboboxSelected>>', self.do_selection_handler)
         # 設定初始選項
         self.group_selector.set(self.tab_manager.groups[0])
 
-    def __selection_handler(self, event):
+    def do_selection_handler(self, event):
         if self.current_group != self.group_selector.get():
             self.update_group()
 
-    # 未修改
     def update_group(self):
         self.current_group = self.group_selector.get()
-        # 清空並重新配置
-        self.__reset_empty_group()
-        if self.current_group == TabManager.GROUP_ACCOUNT:
-            self.__create_group_account()
-        elif self.current_group == TabManager.GROUP_CHARACTER:
-            self.__create_group_character()
-        else:
-            raise Exception("Wrong group selected!")
 
-    def __reset_empty_group(self):
+        # 清空舊的 note book
         if self.note_book is not None:
             self.note_book.destroy()
-        # 建立 note book 並設定位置
+
+        # 根據選擇，建立新的 note book 並設定位置
         self.note_book = ttk.Notebook(self, width=720, height=360)
+        if self.current_group == TabManager.GROUP_STATIC_INFO:
+            self.__create_group_static_info()
+        elif self.current_group == TabManager.GROUP_FUJI_ACCOUNT:
+            self.__create_group_fuji_account()
+        else:
+            raise Exception("Wrong group selected!")
         self.note_book.place(x=3, y=30)
 
-    def __create_group_account(self):
-        friend_list = Frame(self.note_book)
-        self.note_book.add(friend_list, text="FriendList")
-        resources = Frame(self.note_book)
-        self.note_book.add(resources, text="Resources")
-
-    def __create_group_character(self):
+    # TODO 未設計
+    def __create_group_static_info(self):
+        # 角色、酒場
         character_table = Frame(self.note_book)
-        self.note_book.add(character_table, text="CharacterTable")
+        self.note_book.add(character_table, text=" CharacterTable ")
+        place_draw_lots = Frame(self.note_book)
+        self.note_book.add(place_draw_lots, text=" 酒廠 ")
 
-
-class PopupEntry(object):
-    def __init__(self, master):
-        top = self.top_window = Toplevel(master)
-        self.input = ''
-        label = Label(top, text=u"請輸入事件名稱")
-        label.pack()
-        self.entry = Entry(top)
-        self.entry.pack()
-        self.entry.focus_force()
-        button = Button(top, text='OK', command=self.cleanup)
-        button.pack()
-
-    def cleanup(self):
-        self.input = self.entry.get()
-        self.top_window.destroy()
-
-    def get_input_in_utf8(self):
-        return self.input.encode('utf-8')
+    # TODO 好友、道具未設計，可參考抽卡
+    def __create_group_fuji_account(self):
+        # 好友、抽卡、道具
+        friend_list = Frame(self.note_book)
+        self.note_book.add(friend_list, text=" FriendList ")
+        record_of_draw_lots = RecordOfDrawLots.RecordOfDrawLots(self.note_book)
+        self.note_book.add(record_of_draw_lots, text=" RecordOfDrawLots ")
+        resources = Frame(self.note_book)
+        self.note_book.add(resources, text=" Resources ")
 
 
 if __name__ == "__main__":
@@ -89,21 +75,3 @@ if __name__ == "__main__":
     root.geometry("728x420+540+360")
     app = GUIMain(parent=root)
     app.mainloop()
-
-'''
-
-        self.note = None
-
-
-        note = ttk.Notebook(root, width=3200, height=500)
-
-        tab1 = Frame(note)
-        tab2 = Frame(note)
-        tab3 = Frame(note)
-        Button(tab1, text='Exit', command=root.destroy).pack(padx=100, pady=100)
-
-        note.add(tab1, text = "Tab One", compound=TOP)
-        note.add(tab2, text = "Tab Two")
-        note.add(tab3, text = "Tab Three")
-        note.place(x=30, y=30)
-'''
