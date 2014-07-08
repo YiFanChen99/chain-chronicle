@@ -8,11 +8,11 @@ import tkMessageBox
 from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
 
+ # RecordOfDrawLots 表格中的各欄位
+COLUMNS = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
+
 
 class RecordOfDrawLots(BaseTab):
-    # RecordOfDrawLots 表格中的各欄位
-    COLUMNS = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
-
     def __init__(self, parent=None):
         BaseTab.__init__(self, parent)
 
@@ -37,7 +37,7 @@ class RecordOfDrawLots(BaseTab):
                                       height=316, rowheaderwidth=0, cellwidth=90, editable=False)
         self.table_view.createTableFrame()
 
-        for column in RecordOfDrawLots.COLUMNS:
+        for column in COLUMNS:
             self.table_model.addColumn(column)
 
         result = self.execute('select * from RecordOfDrawLots')
@@ -47,7 +47,7 @@ class RecordOfDrawLots(BaseTab):
                                     Character=BaseTab.convert_to_str(row[4]),
                                     Cost=BaseTab.convert_to_str(row[5]))
 
-        self.table_model.setSortOrder(columnName=RecordOfDrawLots.COLUMNS[0], reverse=1)
+        self.table_model.setSortOrder(columnName=COLUMNS[0], reverse=1)
         self.table_view.adjustColumnWidths()
         self.table_view.redrawTable()
 
@@ -61,7 +61,7 @@ class AddRecordWindow(Frame):
         # 各 Column 的標題
         x = 3
         x_shifted = 90
-        for column in RecordOfDrawLots.COLUMNS:
+        for column in COLUMNS:
             label = Label(self.window, text=column, width=9, font=14)
             label.place(x=x, y=9)
             x += x_shifted
