@@ -2,9 +2,9 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-import tkMessageBox
 import ttk
 import TabManager
+import Character
 import RecordOfDrawLots
 
 
@@ -54,7 +54,7 @@ class GUIMain(Frame):
     # TODO 未設計
     def __create_group_static_info(self):
         # 角色、酒場
-        character_table = Frame(self.note_book)
+        character_table = Character.Character(self.note_book)
         self.note_book.add(character_table, text=" CharacterTable ")
         place_draw_lots = Frame(self.note_book)
         self.note_book.add(place_draw_lots, text=" 酒廠 ")
