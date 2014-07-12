@@ -30,6 +30,7 @@ class GUIMain(Frame):
         # 設定初始選項
         self.group_selector.set(self.tab_manager.groups[0])
 
+    # noinspection PyUnusedLocal
     def do_selection_handler(self, event):
         if self.current_group != self.group_selector.get():
             self.update_group()
