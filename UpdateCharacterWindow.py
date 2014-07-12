@@ -138,6 +138,7 @@ class UpdateCharacterWindow(Frame):
     # TODO 更新
     def do_submit(self):
         print 'submit'
+        #Static.execute()
         self.window.destroy()
 
     def do_cancel(self):

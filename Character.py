@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ricky Chen'
 
-from BaseTab import *
+from Tkinter import *
+import Static
 from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
 import UpdateCharacterWindow
@@ -13,9 +14,10 @@ COLUMNS = ['Character', 'FullName', 'Profession', 'Rank', 'Note',
            'HPGrown', 'AtkSpeed', 'WalkSpeed', 'CriticalRate']
 
 
-class Character(BaseTab):
+class Character(Frame):
     def __init__(self, parent=None):
-        BaseTab.__init__(self, parent)
+        Frame.__init__(self, parent)
+        self.pack(fill=BOTH, expand=1)
 
         # 新增記錄的按鈕
         button = Button(self, text="新增角色資訊", width=2, height=21, wraplength=1, font=14)
@@ -43,15 +45,15 @@ class Character(BaseTab):
         for column in COLUMNS:
             self.table_model.addColumn(column)
 
-        result = self.execute('select * from Character')
+        result = Static.execute('select * from Character')
         for row in result:
-            self.table_model.addRow(Character=BaseTab.convert_to_str(row[0]),
-                                    Profession=BaseTab.convert_to_str(row[2]), Rank=row[3],
-                                    Note=BaseTab.convert_to_str(row[4]),
-                                    Active=BaseTab.convert_to_str(row[5]), ActiveCost=row[6],
-                                    Passive1=BaseTab.convert_to_str(row[7]),
-                                    WeaponType=BaseTab.convert_to_str(row[9]),
-                                    ExpGrown=BaseTab.convert_to_str(row[10]), AttendanceCost=row[11],
+            self.table_model.addRow(Character=Static.convert_to_str(row[0]),
+                                    Profession=Static.convert_to_str(row[2]), Rank=row[3],
+                                    Note=Static.convert_to_str(row[4]),
+                                    Active=Static.convert_to_str(row[5]), ActiveCost=row[6],
+                                    Passive1=Static.convert_to_str(row[7]),
+                                    WeaponType=Static.convert_to_str(row[9]),
+                                    ExpGrown=Static.convert_to_str(row[10]), AttendanceCost=row[11],
                                     MaxAtk=row[12], MaxHP=row[13], AtkGrown=row[14], HPGrown=row[15],
                                     AtkSpeed=row[16], WalkSpeed=row[17], CriticalRate=row[18])
 

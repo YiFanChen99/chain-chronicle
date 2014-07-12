@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ricky Chen'
 
-from BaseTab import *
+from Tkinter import *
 import Static
 import ttk
 import tkMessageBox
@@ -12,9 +12,10 @@ from tkintertable.TableModels import TableModel
 COLUMNS = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
 
 
-class RecordOfDrawLots(BaseTab):
+class RecordOfDrawLots(Frame):
     def __init__(self, parent=None):
-        BaseTab.__init__(self, parent)
+        Frame.__init__(self, parent)
+        self.pack(fill=BOTH, expand=1)
 
         # 新增記錄的按鈕
         button = Button(self, text="新增記錄", width=2, height=21, wraplength=1, font=14)
@@ -40,12 +41,12 @@ class RecordOfDrawLots(BaseTab):
         for column in COLUMNS:
             self.table_model.addColumn(column)
 
-        result = self.execute('select * from RecordOfDrawLots')
+        result = Static.execute('select * from RecordOfDrawLots')
         for row in result:
-            self.table_model.addRow(Times=row[0], Event=BaseTab.convert_to_str(row[1]),
-                                    Profession=BaseTab.convert_to_str(row[2]), Rank=3,
-                                    Character=BaseTab.convert_to_str(row[4]),
-                                    Cost=BaseTab.convert_to_str(row[5]))
+            self.table_model.addRow(Times=row[0], Event=Static.convert_to_str(row[1]),
+                                    Profession=Static.convert_to_str(row[2]), Rank=3,
+                                    Character=Static.convert_to_str(row[4]),
+                                    Cost=Static.convert_to_str(row[5]))
 
         self.table_model.setSortOrder(columnName=COLUMNS[0], reverse=1)
         self.table_view.adjustColumnWidths()
@@ -67,18 +68,18 @@ class AddRecordWindow(Frame):
             x += x_shifted
 
         # 初始化，填入預設的記錄
-        self.__init_record(master)
+        self.__init_record()
 
         # 送交的按鈕
         button = Button(self.window, text="Finish", command=self.do_submit, width=70, borderwidth=3)
         button.place(x=30, y=79)
 
     # noinspection PyAttributeOutsideInit
-    def __init_record(self, master):
+    def __init_record(self):
         # 取得最近一筆資料，以作為預設值
         command = 'select * from RecordOfDrawLots' + \
                   ' where Times = (select max(Times) from RecordOfDrawLots)'
-        last_record = master.execute(command).fetchone()
+        last_record = Static.execute(command).fetchone()
 
         # 下一次的筆數
         self.times = last_record[0] + 1
@@ -87,7 +88,7 @@ class AddRecordWindow(Frame):
         # 選擇酒廠
         self.event_selector = ttk.Combobox(self.window, state='readonly', width=9, justify=CENTER)
         events = []
-        [events.append(element[0]) for element in master.execute('select Name from EventOfDrawLots').fetchall()]
+        [events.append(element[0]) for element in Static.execute('select Name from EventOfDrawLots').fetchall()]
         self.event_selector['values'] = events
         self.event_selector.place(x=95, y=40)
         self.event_selector.set(last_record[1])  # 設定初始選項
@@ -117,13 +118,13 @@ class AddRecordWindow(Frame):
 
     def do_submit(self):
         if self.is_new_record_legal():
-            self.master.execute('insert into RecordOfDrawLots(Times, Event, Profession, Rank, Character, Cost) values '
+            Static.execute('insert into RecordOfDrawLots(Times, Event, Profession, Rank, Character, Cost) values '
                                 + self.convert_data_to_sub_command())
-            self.master.commit()
-            BaseTab.destroy_frame(self.window)
+            Static.commit()
+            Static.destroy_frame(self.window)
 
             if self.master.table is not None:
-                BaseTab.destroy_frame(self.master.table)
+                Static.destroy_frame(self.master.table)
             self.master.update_table()
 
     def is_new_record_legal(self):
@@ -166,7 +167,7 @@ class AddRecordWindow(Frame):
         else:
             condition = ' where Profession = \"' + profession + '\" and Rank = \"' + str(rank) + '\"'
 
-        result = self.master.execute('select Character from RecordOfDrawLots' + condition).fetchall()
+        result = Static.execute('select Character from Character' + condition).fetchall()
         characters = []
         [characters.append(element[0]) for element in result]
         self.character_selector['values'] = characters
