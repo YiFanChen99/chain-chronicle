@@ -14,14 +14,6 @@ DATABASE = sqlite3.connect('ChainChronicle.sqlite')
 CURSOR = DATABASE.cursor()
 
 
-def commit():
-    DATABASE.commit()
-
-
-def execute(sql_commend):
-    return CURSOR.execute(sql_commend)
-
-
 def convert_to_str(value):
     if value is None:
         return ''

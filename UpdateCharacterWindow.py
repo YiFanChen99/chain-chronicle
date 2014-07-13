@@ -2,7 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-import Static
+from Static import *
 import ttk
 import tkMessageBox
 
@@ -27,7 +27,7 @@ class UpdateCharacterWindow(Frame):
 
         Label(self.window, width=4, text='等級').place(x=220, y=current_y)
         self.rank = ttk.Combobox(self.window, state='readonly', width=3, justify=CENTER)
-        self.rank['values'] = Static.RANKS
+        self.rank['values'] = RANKS
         self.rank.place(x=220, y=current_y + label_space - 2)
 
         Label(self.window, width=5, text='Cost').place(x=270, y=current_y)
@@ -36,17 +36,17 @@ class UpdateCharacterWindow(Frame):
 
         Label(self.window, width=6, text='職業').place(x=318, y=current_y)
         self.profession = ttk.Combobox(self.window, state='readonly', width=5, justify=CENTER)
-        self.profession['values'] = Static.PROFESSIONS
+        self.profession['values'] = PROFESSIONS
         self.profession.place(x=317, y=current_y + label_space - 2)
 
         Label(self.window, width=6, text='武器種類').place(x=386, y=current_y)
         self.weapon_type = ttk.Combobox(self.window, state='readonly', width=5, justify=CENTER)
-        self.weapon_type['values'] = Static.WEAPONS
+        self.weapon_type['values'] = WEAPONS
         self.weapon_type.place(x=384, y=current_y + label_space - 2)
 
         Label(self.window, width=6, text='成長類型').place(x=452, y=current_y)
         self.exp_grown = ttk.Combobox(self.window, state='readonly', width=5, justify=CENTER)
-        self.exp_grown['values'] = Static.EXP_GROWN
+        self.exp_grown['values'] = EXP_GROWN
         self.exp_grown.place(x=452, y=current_y + label_space - 2)
 
         # 第二個 Row
@@ -137,9 +137,34 @@ class UpdateCharacterWindow(Frame):
 
     # TODO 更新
     def do_submit(self):
-        print 'submit'
-        #Static.execute()
+        # a = self.full_name.get(), self.rank, self.attendance_cost, self.profession,
+        # self.weapon_type, self.exp_grown, self.max_atk, self.max_hp, self.atk_grown, self.hp_grown,
+        # self.critical_rate, self.atk_speed, self.walk_speed, self.active_cost, self.active,
+        # self.note, self.passive1, self.passive2,
+
+#         INSERT INTO TABLE_NAME (column1, column2, column3,...columnN)]
+# VALUES (value1, value2, value3,...valueN);
+        if self.is_character_exist():
+            DATABASE.execute('update Character set Note=1, DateAdded=\"你好\" where Account=\"Pig\"')
+        else:
+            DATABASE.execute('insert into Character (Character, FullName, Rank, AttendanceCost)'
+                           ' values (' + ')')
+            # Static.execute('insert into Character (Character, FullName, Rank, AttendanceCost, Profession,'
+            #                ' WeaponType, ExpGrown, MaxAtk, MaxHP, AtkGrown, HPGrown,'
+            #                ' CriticalRate, AtkSpeed, WalkSpeed, ActiveCost, Active, Note,'
+            #                ' Passive1, Passive2) values ()')
+
+#         Character, FullName, Rank, AttendanceCost, Profession, WeaponType, ExpGrown
+# MaxAtk, MaxHP, ?AtkGrown, ?HPGrown, CriticalRate, AtkSpeed, WalkSpeed
+# ActiveCost, Active, Note
+# Passive1, Passive2
+        CURSOR.commit()
         self.window.destroy()
+
+    def is_character_exist(self):
+        condition = ' where Character=\"' + self.id.get() + '\"'
+        the_character = DATABASE.execute('select Character from Character' + condition).fetchone()
+        return the_character is not None
 
     def do_cancel(self):
         self.window.destroy()

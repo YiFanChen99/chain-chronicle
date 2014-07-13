@@ -2,7 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-import Static
+from Static import *
 from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
 import UpdateCharacterWindow
@@ -29,7 +29,6 @@ class Character(Frame):
 
     # TODO 未完成
     def do_add_character(self):
-        print 'add character'
         popup = UpdateCharacterWindow.UpdateCharacterWindow(self)
         self.wait_window(popup)
 
@@ -45,15 +44,15 @@ class Character(Frame):
         for column in COLUMNS:
             self.table_model.addColumn(column)
 
-        result = Static.execute('select * from Character')
+        result = DATABASE.execute('select * from Character')
         for row in result:
-            self.table_model.addRow(Character=Static.convert_to_str(row[0]),
-                                    Profession=Static.convert_to_str(row[2]), Rank=row[3],
-                                    Note=Static.convert_to_str(row[4]),
-                                    Active=Static.convert_to_str(row[5]), ActiveCost=row[6],
-                                    Passive1=Static.convert_to_str(row[7]),
-                                    WeaponType=Static.convert_to_str(row[9]),
-                                    ExpGrown=Static.convert_to_str(row[10]), AttendanceCost=row[11],
+            self.table_model.addRow(Character=convert_to_str(row[0]),
+                                    Profession=convert_to_str(row[2]), Rank=row[3],
+                                    Note=convert_to_str(row[4]),
+                                    Active=convert_to_str(row[5]), ActiveCost=row[6],
+                                    Passive1=convert_to_str(row[7]),
+                                    WeaponType=convert_to_str(row[9]),
+                                    ExpGrown=convert_to_str(row[10]), AttendanceCost=row[11],
                                     MaxAtk=row[12], MaxHP=row[13], AtkGrown=row[14], HPGrown=row[15],
                                     AtkSpeed=row[16], WalkSpeed=row[17], CriticalRate=row[18])
 
