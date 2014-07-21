@@ -145,10 +145,11 @@ class UpdateCharacterWindow(Frame):
 #         INSERT INTO TABLE_NAME (column1, column2, column3,...columnN)]
 # VALUES (value1, value2, value3,...valueN);
         if self.is_character_exist():
-            DATABASE.execute('update Character set Note=1, DateAdded=\"你好\" where Account=\"Pig\"')
+            DATABASE.execute('update Character set FullName=\"哈哈\", Rank=3 where Character=' +
+                             datum_to_command_by_type(self.id.get()))
         else:
-            DATABASE.execute('insert into Character (Character, FullName, Rank, AttendanceCost)'
-                           ' values (' + ')')
+            DATABASE.execute('insert into Character (Character, FullName, Rank, AttendanceCost)' +
+                           data_to_insert_command(self.id.get(), self.full_name.get(), self.rank.get(), self.attendance_cost.get()))
             # Static.execute('insert into Character (Character, FullName, Rank, AttendanceCost, Profession,'
             #                ' WeaponType, ExpGrown, MaxAtk, MaxHP, AtkGrown, HPGrown,'
             #                ' CriticalRate, AtkSpeed, WalkSpeed, ActiveCost, Active, Note,'
@@ -158,11 +159,11 @@ class UpdateCharacterWindow(Frame):
 # MaxAtk, MaxHP, ?AtkGrown, ?HPGrown, CriticalRate, AtkSpeed, WalkSpeed
 # ActiveCost, Active, Note
 # Passive1, Passive2
-        CURSOR.commit()
+        DATABASE.commit()
         self.window.destroy()
 
     def is_character_exist(self):
-        condition = ' where Character=\"' + self.id.get() + '\"'
+        condition = ' where Character=' + datum_to_command_by_type(self.id.get())
         the_character = DATABASE.execute('select Character from Character' + condition).fetchone()
         return the_character is not None
 

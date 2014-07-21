@@ -11,7 +11,32 @@ WEAPONS = [u'斬', u'打', u'突', u'弓', u'魔', u'聖']
 EXP_GROWN = [u'1000', u'750', u'500', u'300', u'LH']
 
 DATABASE = sqlite3.connect('ChainChronicle.sqlite')
-CURSOR = DATABASE.cursor()
+
+
+# 組成「"x1,x2,...,xn"」的字串回傳
+def data_to_insert_command(*arguments):
+    command = ' values('
+    is_first = True
+    for each in arguments:
+        if is_first:
+            is_first = False
+        else:
+            command += ','
+        command += datum_to_command_by_type(each)
+    command += ')'
+
+    return command
+
+
+def datum_to_command_by_type(datum):
+    try:  # 若為數值類資訊，不必加「"」
+        int(datum)
+        return str(datum)
+    except (ValueError, AttributeError):  # 為字串資料時
+        if type(datum) is unicode:
+            return '\"' + convert_to_str(datum) + '\"'
+        else:
+            return '\"' + datum + '\"'
 
 
 def convert_to_str(value):

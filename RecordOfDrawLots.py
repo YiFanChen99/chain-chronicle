@@ -8,7 +8,7 @@ import tkMessageBox
 from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
 
- # RecordOfDrawLots 表格中的各欄位
+# RecordOfDrawLots 表格中的各欄位
 COLUMNS = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
 
 
@@ -44,7 +44,7 @@ class RecordOfDrawLots(Frame):
         result = DATABASE.execute('select * from RecordOfDrawLots')
         for row in result:
             self.table_model.addRow(Times=row[0], Event=convert_to_str(row[1]),
-                                    Profession=convert_to_str(row[2]), Rank=3,
+                                    Profession=convert_to_str(row[2]), Rank=row[3],
                                     Character=convert_to_str(row[4]),
                                     Cost=convert_to_str(row[5]))
 
@@ -119,8 +119,10 @@ class AddRecordWindow(Frame):
     def do_submit(self):
         if self.is_new_record_legal():
             DATABASE.execute('insert into RecordOfDrawLots(Times, Event, Profession, Rank, Character, Cost)'
-                             ' values ' + self.convert_data_to_sub_command())
-            CURSOR.commit()
+                             + data_to_insert_command(self.times, self.event_selector.get(),
+                                                      self.profession_selector.get(), self.rank_selector.get(),
+                                                      self.character_selector.get(), self.cost_selector.get()))
+            DATABASE.commit()
             destroy_frame(self.window)
 
             if self.master.table is not None:
@@ -142,16 +144,6 @@ class AddRecordWindow(Frame):
 
         return is_legal
 
-    def convert_data_to_sub_command(self):
-        command = '('
-        command += str(self.times) + ', '
-        command += '\"' + self.event_selector.get() + '\", '
-        command += '\"' + self.profession_selector.get() + '\", '
-        command += str(self.rank_selector.get()) + ', '
-        command += '\"' + self.character_selector.get() + '\", '
-        command += '\"' + self.cost_selector.get() + '\")'
-        return command
-
     # noinspection PyUnusedLocal
     def update_character_selector(self, event=None):
         # set condition
@@ -161,11 +153,12 @@ class AddRecordWindow(Frame):
         if profession == '' and rank == '':
             pass
         elif profession == '':
-            condition = ' where Rank=\"' + str(rank) + '\"'
+            condition = ' where Rank=' + datum_to_command_by_type(rank)
         elif rank == '':
-            condition = ' where Profession=\"' + profession + '\"'
+            condition = ' where Profession=' + datum_to_command_by_type(profession)
         else:
-            condition = ' where Profession = \"' + profession + '\" and Rank = \"' + str(rank) + '\"'
+            condition = ' where Profession=' + datum_to_command_by_type(profession) + \
+                        'and Rank=' + datum_to_command_by_type(rank)
 
         result = DATABASE.execute('select Character from Character' + condition).fetchall()
         characters = []
