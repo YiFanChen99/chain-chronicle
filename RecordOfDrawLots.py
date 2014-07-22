@@ -118,10 +118,10 @@ class AddRecordWindow(Frame):
 
     def do_submit(self):
         if self.is_new_record_legal():
-            DATABASE.execute('insert into RecordOfDrawLots(Times, Event, Profession, Rank, Character, Cost)'
-                             + data_to_insert_command(self.times, self.event_selector.get(),
-                                                      self.profession_selector.get(), self.rank_selector.get(),
-                                                      self.character_selector.get(), self.cost_selector.get()))
+            DATABASE.execute('insert into RecordOfDrawLots(' + ','.join(COLUMNS) + ')' +
+                             data_to_insert_command(self.times, self.event_selector.get(),
+                                                    self.profession_selector.get(), self.rank_selector.get(),
+                                                    self.character_selector.get(), self.cost_selector.get()))
             DATABASE.commit()
             destroy_frame(self.window)
 

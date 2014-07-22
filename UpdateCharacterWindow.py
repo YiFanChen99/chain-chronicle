@@ -6,9 +6,15 @@ from Static import *
 import ttk
 import tkMessageBox
 
+# Character 表格中的各欄位
+COLUMNS = ['Character', 'FullName', 'Profession', 'Rank', 'Note',
+           'Active', 'ActiveCost', 'Passive1', 'Passive2', 'WeaponType',
+           'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown',
+           'HPGrown', 'AtkSpeed', 'WalkSpeed', 'CriticalRate']
+
 
 class UpdateCharacterWindow(Frame):
-    def __init__(self, master):
+    def __init__(self, master, character=None):
         Frame.__init__(self, master)
         self.window = Toplevel(width=564, height=255)
         self.window.title('About character')
@@ -120,6 +126,8 @@ class UpdateCharacterWindow(Frame):
         Button(self.window, text="Submit", command=self.do_submit, width=33, borderwidth=3).place(x=24, y=current_y)
         Button(self.window, text="Cancel", command=self.do_cancel, width=33, borderwidth=3).place(x=290, y=current_y)
 
+        self.__init_character(character)
+
     # 若四格都有輸入，則會計算出每突的成長值
     def do_transform_grown(self):
         if (self.max_atk.get() != '') & (self.max_hp.get() != '') &\
@@ -135,143 +143,58 @@ class UpdateCharacterWindow(Frame):
     def calculate_grown(max_value, max_after_break):
         return str((int(max_after_break) - int(max_value)) / 4)
 
-    # TODO 更新
     def do_submit(self):
-        # a = self.full_name.get(), self.rank, self.attendance_cost, self.profession,
-        # self.weapon_type, self.exp_grown, self.max_atk, self.max_hp, self.atk_grown, self.hp_grown,
-        # self.critical_rate, self.atk_speed, self.walk_speed, self.active_cost, self.active,
-        # self.note, self.passive1, self.passive2,
+        # 存在時先刪除，接續之後的插入就是更新了
+        UpdateCharacterWindow.delete_character_if_exist(self.id.get())
 
-#         INSERT INTO TABLE_NAME (column1, column2, column3,...columnN)]
-# VALUES (value1, value2, value3,...valueN);
-        if self.is_character_exist():
-            DATABASE.execute('update Character set FullName=\"哈哈\", Rank=3 where Character=' +
-                             datum_to_command_by_type(self.id.get()))
-        else:
-            DATABASE.execute('insert into Character (Character, FullName, Rank, AttendanceCost)' +
-                           data_to_insert_command(self.id.get(), self.full_name.get(), self.rank.get(), self.attendance_cost.get()))
-            # Static.execute('insert into Character (Character, FullName, Rank, AttendanceCost, Profession,'
-            #                ' WeaponType, ExpGrown, MaxAtk, MaxHP, AtkGrown, HPGrown,'
-            #                ' CriticalRate, AtkSpeed, WalkSpeed, ActiveCost, Active, Note,'
-            #                ' Passive1, Passive2) values ()')
-
-#         Character, FullName, Rank, AttendanceCost, Profession, WeaponType, ExpGrown
-# MaxAtk, MaxHP, ?AtkGrown, ?HPGrown, CriticalRate, AtkSpeed, WalkSpeed
-# ActiveCost, Active, Note
-# Passive1, Passive2
+        DATABASE.execute('insert into Character(' + ','.join(COLUMNS) + ')' +
+                         data_to_insert_command(self.id.get(), self.full_name.get(),
+                                                self.profession.get(), self.rank.get(),
+                                                self.note.get(), self.active.get(),
+                                                self.active_cost.get(), self.passive1.get(),
+                                                self.passive2.get(), self.weapon_type.get(),
+                                                self.exp_grown.get(), self.attendance_cost.get(),
+                                                self.max_atk.get(), self.max_hp.get(),
+                                                self.atk_grown.get(), self.hp_grown.get(),
+                                                self.atk_speed.get(), self.walk_speed.get(),
+                                                self.critical_rate.get()))
         DATABASE.commit()
         self.window.destroy()
 
-    def is_character_exist(self):
-        condition = ' where Character=' + datum_to_command_by_type(self.id.get())
-        the_character = DATABASE.execute('select Character from Character' + condition).fetchone()
-        return the_character is not None
+    @staticmethod
+    def delete_character_if_exist(character):
+        if UpdateCharacterWindow.select_character(character) is not None:
+            DATABASE.execute('delete from Character where Character=' +
+                             datum_to_command_by_type(character))
+
+    @staticmethod
+    def select_character(character):
+        condition = ' where Character=' + datum_to_command_by_type(character)
+        return DATABASE.execute('select * from Character' + condition).fetchone()
+
+    # 當有特定的 character 時，讀取其資料並更新各元件
+    def __init_character(self, character):
+        if character is not None:
+            data = UpdateCharacterWindow.select_character(character)
+            self.id.set(convert_to_str(data[0]))
+            self.full_name.set(convert_to_str(data[1]))
+            self.profession.set(convert_to_str(data[2]))
+            self.rank.set(data[3])
+            self.note.set(convert_to_str(data[4]))
+            self.active.set(convert_to_str(data[5]))
+            self.active_cost.set(data[6])
+            self.passive1.set(convert_to_str(data[7]))
+            self.passive2.set(convert_to_str(data[8]))
+            self.weapon_type.set(convert_to_str(data[9]))
+            self.exp_grown.set(convert_to_str(data[10]))
+            self.attendance_cost.set(data[11])
+            self.max_atk.set(data[12])
+            self.max_hp.set(data[13])
+            self.atk_grown.set(data[14])
+            self.hp_grown.set(data[15])
+            self.atk_speed.set(data[16])
+            self.walk_speed.set(data[17])
+            self.critical_rate.set(data[18])
 
     def do_cancel(self):
         self.window.destroy()
-
-        # # noinspection PyAttributeOutsideInit
-        # def __init_record(self, master):
-        # # 取得最近一筆資料，以作為預設值
-        # command = 'select * from RecordOfDrawLots' + \
-        # ' where Times = (select max(Times) from RecordOfDrawLots)'
-        #     last_record = master.execute(command).fetchone()
-        #
-        #     # 下一次的筆數
-        #     self.times = last_record[0] + 1
-        #     Label(self.window, text=self.times, width=8, font=14).place(x=5, y=40)
-        #
-        #     # 選擇酒廠
-        #     self.event_selector = ttk.Combobox(self.window, state='readonly', width=9, justify=CENTER)
-        #     events = []
-        #     [events.append(element[0]) for element in master.execute('select Name from EventOfDrawLots').fetchall()]
-        #     self.event_selector['values'] = events
-        #     self.event_selector.place(x=95, y=40)
-        #     self.event_selector.set(last_record[1])  # 設定初始選項
-        #
-        #     # 選擇職業
-        #     self.profession_selector = ttk.Combobox(self.window, state='readonly', width=8, justify=CENTER)
-        #     self.profession_selector['values'] = Static.PROFESSIONS
-        #     self.profession_selector.place(x=189, y=40)
-        #     self.profession_selector.bind('<<ComboboxSelected>>', self.update_character_selector)
-        #
-        #     # 選擇等級
-        #     self.rank_selector = ttk.Combobox(self.window, state='readonly', width=8, justify=CENTER)
-        #     self.rank_selector['values'] = Static.RANKS_WHEN_DRAW_LOTS
-        #     self.rank_selector.place(x=280, y=40)
-        #     self.rank_selector.bind('<<ComboboxSelected>>', self.update_character_selector)
-        #
-        #     # 選擇角色
-        #     self.character_selector = ttk.Combobox(self.window, state='readonly', width=8, justify=CENTER)
-        #     self.update_character_selector()
-        #     self.character_selector.place(x=368, y=40)
-        #
-        #     # 選擇花費
-        #     self.cost_selector = ttk.Combobox(self.window, state='readonly', width=8, justify=CENTER)
-        #     self.cost_selector['values'] = Static.DRAW_LOTS_COST
-        #     self.cost_selector.place(x=463, y=40)
-        #     self.cost_selector.set(last_record[5])  # 設定初始選項
-        #
-        # def do_submit(self):
-        #     if self.is_new_record_legal():
-        #         self.master.execute('insert into RecordOfDrawLots(Times, Event, Profession, Rank, Character, Cost) values '
-        #                             + self.convert_data_to_sub_command())
-        #         self.master.commit()
-        #         BaseTab.destroy_frame(self.window)
-        #
-        #         if self.master.table is not None:
-        #             BaseTab.destroy_frame(self.master.table)
-        #         self.master.update_table()
-        #
-        # def is_new_record_legal(self):
-        #     error_message = ''
-        #     if self.profession_selector.get() == '':
-        #         error_message += '\"Profession\" 未填\n'
-        #     if self.rank_selector.get() == '':
-        #         error_message += '\"Rank\" 未填\n'
-        #     if self.character_selector.get() == '':
-        #         error_message += '\"Character\" 未填\n'
-        #
-        #     is_legal = (error_message == '')
-        #     if not is_legal:
-        #         tkMessageBox.showwarning("Can not add this record", error_message)
-        #
-        #     return is_legal
-        #
-        # def convert_data_to_sub_command(self):
-        #     command = '('
-        #     command += str(self.times) + ', '
-        #     command += '\"' + self.event_selector.get() + '\", '
-        #     command += '\"' + self.profession_selector.get() + '\", '
-        #     command += str(self.rank_selector.get()) + ', '
-        #     command += '\"' + self.character_selector.get() + '\", '
-        #     command += '\"' + self.cost_selector.get() + '\")'
-        #     return command
-        #
-        # # noinspection PyUnusedLocal
-        # def update_character_selector(self, event=None):
-        #     # set condition
-        #     profession = self.profession_selector.get()
-        #     rank = self.rank_selector.get()
-        #     condition = ''
-        #     if profession == '' and rank == '':
-        #         pass
-        #     elif profession == '':
-        #         condition = ' where Rank=\"' + str(rank) + '\"'
-        #     elif rank == '':
-        #         condition = ' where Profession=\"' + profession + '\"'
-        #     else:
-        #         condition = ' where Profession = \"' + profession + '\" and Rank = \"' + str(rank) + '\"'
-        #
-        #     result = self.master.execute('select Character from RecordOfDrawLots' + condition).fetchall()
-        #     characters = []
-        #     [characters.append(element[0]) for element in result]
-        #     self.character_selector['values'] = characters
-        #     self.character_selector.set('')
-
-
-if __name__ == "__main__":
-    root = Tk()
-    root.geometry("300x100+540+360")
-    app = UpdateCharacterWindow(master=root)
-    app.mainloop()

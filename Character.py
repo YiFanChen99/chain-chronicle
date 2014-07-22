@@ -27,7 +27,7 @@ class Character(Frame):
         # 呈現資料的表格
         self.update_table()
 
-    # TODO 未完成
+    # TODO 這個指令本身OK，現在差點擊事件讓該 character 傳過去
     def do_add_character(self):
         popup = UpdateCharacterWindow.UpdateCharacterWindow(self)
         self.wait_window(popup)

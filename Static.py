@@ -29,6 +29,9 @@ def data_to_insert_command(*arguments):
 
 
 def datum_to_command_by_type(datum):
+    if datum == 'None':
+        return '\"\"'
+
     try:  # 若為數值類資訊，不必加「"」
         int(datum)
         return str(datum)
