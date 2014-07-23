@@ -27,7 +27,6 @@ class Character(Frame):
         # 呈現資料的表格
         self.update_table()
 
-    # TODO 這個指令本身OK，現在差點擊事件讓該 character 傳過去
     def do_add_character(self):
         popup = UpdateCharacterWindow.UpdateCharacterWindow(self)
         self.wait_window(popup)
@@ -39,6 +38,7 @@ class Character(Frame):
         self.table_model = TableModel()
         self.table_view = TableCanvas(self.table, model=self.table_model, width=655,
                                       height=303, rowheaderwidth=0, cellwidth=50, editable=False)
+        self.table_view.bind("<Double-Button-1>", self.do_double_click)
         self.table_view.createTableFrame()
 
         for column in COLUMNS:
@@ -60,3 +60,10 @@ class Character(Frame):
         self.table_model.setSortOrder(columnName=COLUMNS[2])
         self.table_view.adjustColumnWidths()
         self.table_view.redrawTable()
+
+    def do_double_click(self, event):
+        row = self.table_view.get_row_clicked(event)
+        character = self.table_model.getCellRecord(row, 0)
+
+        popup = UpdateCharacterWindow.UpdateCharacterWindow(self, character)
+        self.wait_window(popup)
