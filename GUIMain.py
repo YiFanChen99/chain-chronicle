@@ -52,7 +52,7 @@ class GUIMain(Frame):
             raise Exception("Wrong group selected!")
         self.note_book.place(x=3, y=30)
 
-    # TODO 未設計
+    # TODO 酒場未設計，可參考角色
     def __create_group_static_info(self):
         # 角色、酒場
         character_table = Character.Character(self.note_book)
