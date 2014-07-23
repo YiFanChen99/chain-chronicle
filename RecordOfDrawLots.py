@@ -17,16 +17,26 @@ class RecordOfDrawLots(Frame):
         Frame.__init__(self, parent)
         self.pack(fill=BOTH, expand=1)
 
-        # 新增記錄的按鈕
-        button = Button(self, text="新增記錄", width=2, height=21, wraplength=1, font=14)
-        button.place(x=5, y=5)
-        button["command"] = self.do_add_record
+        self.__init_add_record_frame()
 
         # 呈現資料的表格
         self.update_table()
 
+    def __init_add_record_frame(self):
+        # 選擇是否允許記錄舊酒廠
+        self.is_show_old_events = BooleanVar()
+        check_button = Checkbutton(self, variable=self.is_show_old_events)
+        check_button.place(x=8, y=19)
+        label = Label(self, text='舊', font=("", 10))
+        label.place(x=10, y=6)
+
+        # 新增記錄的按鈕
+        button = Button(self, text="新增記錄", width=2, height=15, wraplength=1, font=("", 14))
+        button.place(x=5, y=45)
+        button["command"] = self.do_add_record
+
     def do_add_record(self):
-        popup = AddRecordWindow(self)
+        popup = AddRecordWindow(self, not self.is_show_old_events.get())
         self.wait_window(popup)
 
     # noinspection PyAttributeOutsideInit
@@ -54,18 +64,19 @@ class RecordOfDrawLots(Frame):
 
 
 class AddRecordWindow(Frame):
-    def __init__(self, master):
+    def __init__(self, master, is_limited):
         Frame.__init__(self, master)
         self.window = Toplevel(width=565, height=115)
         self.window.title('Add new record')
+        self.is_available_event_only = is_limited
 
         # 各 Column 的標題
-        x = 3
-        x_shifted = 90
-        for column in COLUMNS:
-            label = Label(self.window, text=column, width=9, font=14)
-            label.place(x=x, y=9)
-            x += x_shifted
+        Label(self.window, text=COLUMNS[0], width=6, font=("", 12)).place(x=3, y=9)
+        Label(self.window, text=COLUMNS[1], width=14, font=("", 12)).place(x=56, y=9)
+        Label(self.window, text=COLUMNS[2], width=7, font=("", 12)).place(x=200, y=9)
+        Label(self.window, text=COLUMNS[3], width=7, font=("", 12)).place(x=282, y=9)
+        Label(self.window, text=COLUMNS[4], width=9, font=("", 12)).place(x=363, y=9)
+        Label(self.window, text=COLUMNS[5], width=9, font=("", 12)).place(x=453, y=9)
 
         # 初始化，填入預設的記錄
         self.__init_record()
@@ -83,26 +94,24 @@ class AddRecordWindow(Frame):
 
         # 下一次的筆數
         self.times = last_record[0] + 1
-        Label(self.window, text=self.times, width=8, font=14).place(x=5, y=40)
+        Label(self.window, text=self.times, width=6, font=("", 12)).place(x=3, y=40)
 
         # 選擇酒廠
-        self.event_selector = ttk.Combobox(self.window, state='readonly', width=9, justify=CENTER)
-        events = []
-        [events.append(element[0]) for element in DATABASE.execute('select Name from EventOfDrawLots').fetchall()]
-        self.event_selector['values'] = events
-        self.event_selector.place(x=95, y=40)
+        self.event_selector = ttk.Combobox(self.window, state='readonly', width=14, justify=CENTER)
+        self.event_selector['values'] = self.get_event_names()
+        self.event_selector.place(x=63, y=40)
         self.event_selector.set(last_record[1])  # 設定初始選項
 
         # 選擇職業
-        self.profession_selector = ttk.Combobox(self.window, state='readonly', width=8, justify=CENTER)
+        self.profession_selector = ttk.Combobox(self.window, state='readonly', width=7, justify=CENTER)
         self.profession_selector['values'] = PROFESSIONS
-        self.profession_selector.place(x=189, y=40)
+        self.profession_selector.place(x=199, y=40)
         self.profession_selector.bind('<<ComboboxSelected>>', self.update_character_selector)
 
         # 選擇等級
-        self.rank_selector = ttk.Combobox(self.window, state='readonly', width=8, justify=CENTER)
+        self.rank_selector = ttk.Combobox(self.window, state='readonly', width=7, justify=CENTER)
         self.rank_selector['values'] = RANKS_WHEN_DRAW_LOTS
-        self.rank_selector.place(x=280, y=40)
+        self.rank_selector.place(x=285, y=40)
         self.rank_selector.bind('<<ComboboxSelected>>', self.update_character_selector)
 
         # 選擇角色
@@ -116,12 +125,25 @@ class AddRecordWindow(Frame):
         self.cost_selector.place(x=463, y=40)
         self.cost_selector.set(last_record[5])  # 設定初始選項
 
+    # 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
+    def get_event_names(self):
+        names = []
+        available_time = datetime.now() - timedelta(days=3)
+        events = DATABASE.execute('select Name, End from EventOfDrawLots').fetchall()
+
+        for each_event in events:
+            if self.is_available_event_only and convert_str_to_datetime(each_event[1]) < available_time:
+                pass
+            else:
+                names.append(each_event[0])
+        return names
+
     def do_submit(self):
         if self.is_new_record_legal():
             DATABASE.execute('insert into RecordOfDrawLots(' + ','.join(COLUMNS) + ')' +
-                             data_to_insert_command(self.times, self.event_selector.get(),
-                                                    self.profession_selector.get(), self.rank_selector.get(),
-                                                    self.character_selector.get(), self.cost_selector.get()))
+                             convert_data_to_insert_command(self.times, self.event_selector.get(),
+                                                            self.profession_selector.get(), self.rank_selector.get(),
+                                                            self.character_selector.get(), self.cost_selector.get()))
             DATABASE.commit()
             destroy_frame(self.window)
 
@@ -153,12 +175,12 @@ class AddRecordWindow(Frame):
         if profession == '' and rank == '':
             pass
         elif profession == '':
-            condition = ' where Rank=' + datum_to_command_by_type(rank)
+            condition = ' where Rank=' + convert_datum_to_command(rank)
         elif rank == '':
-            condition = ' where Profession=' + datum_to_command_by_type(profession)
+            condition = ' where Profession=' + convert_datum_to_command(profession)
         else:
-            condition = ' where Profession=' + datum_to_command_by_type(profession) + \
-                        'and Rank=' + datum_to_command_by_type(rank)
+            condition = ' where Profession=' + convert_datum_to_command(profession) + \
+                        'and Rank=' + convert_datum_to_command(rank)
 
         result = DATABASE.execute('select Character from Character' + condition).fetchall()
         characters = []

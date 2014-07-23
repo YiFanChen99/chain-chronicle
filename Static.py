@@ -2,6 +2,7 @@
 __author__ = 'Ricky Chen'
 
 import sqlite3
+from datetime import datetime, timedelta
 
 PROFESSIONS = [u'戰士', u'騎士', u'弓手', u'法師', u'僧侶']
 RANKS = [5, 4, 3, 2, 1]
@@ -14,7 +15,7 @@ DATABASE = sqlite3.connect('ChainChronicle.sqlite')
 
 
 # 組成「"x1,x2,...,xn"」的字串回傳
-def data_to_insert_command(*arguments):
+def convert_data_to_insert_command(*arguments):
     command = ' values('
     is_first = True
     for each in arguments:
@@ -22,13 +23,13 @@ def data_to_insert_command(*arguments):
             is_first = False
         else:
             command += ','
-        command += datum_to_command_by_type(each)
+        command += convert_datum_to_command(each)
     command += ')'
 
     return command
 
 
-def datum_to_command_by_type(datum):
+def convert_datum_to_command(datum):
     if datum == 'None':
         return '\"\"'
 
@@ -52,3 +53,7 @@ def convert_to_str(value):
 def destroy_frame(obj):
     if obj is not None:
         obj.destroy()
+
+
+def convert_str_to_datetime(date_str):
+    return datetime.strptime(date_str, "%Y/%m/%d")

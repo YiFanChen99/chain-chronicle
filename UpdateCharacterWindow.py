@@ -148,7 +148,7 @@ class UpdateCharacterWindow(Frame):
         UpdateCharacterWindow.delete_character_if_exist(self.id.get())
 
         DATABASE.execute('insert into Character(' + ','.join(COLUMNS) + ')' +
-                         data_to_insert_command(self.id.get(), self.full_name.get(),
+                         convert_data_to_insert_command(self.id.get(), self.full_name.get(),
                                                 self.profession.get(), self.rank.get(),
                                                 self.note.get(), self.active.get(),
                                                 self.active_cost.get(), self.passive1.get(),
@@ -165,11 +165,11 @@ class UpdateCharacterWindow(Frame):
     def delete_character_if_exist(character):
         if UpdateCharacterWindow.select_character(character) is not None:
             DATABASE.execute('delete from Character where Character=' +
-                             datum_to_command_by_type(character))
+                             convert_datum_to_command(character))
 
     @staticmethod
     def select_character(character):
-        condition = ' where Character=' + datum_to_command_by_type(character)
+        condition = ' where Character=' + convert_datum_to_command(character)
         return DATABASE.execute('select * from Character' + condition).fetchone()
 
     # 當有特定的 character 時，讀取其資料並更新各元件

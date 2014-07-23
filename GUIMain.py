@@ -52,13 +52,13 @@ class GUIMain(Frame):
             raise Exception("Wrong group selected!")
         self.note_book.place(x=3, y=30)
 
-    # TODO 酒場未設計，可參考角色
     def __create_group_static_info(self):
-        # 角色、酒場
+        # 角色
         character_table = Character.Character(self.note_book)
         self.note_book.add(character_table, text=" CharacterTable ")
-        place_draw_lots = Frame(self.note_book)
-        self.note_book.add(place_draw_lots, text=" 酒廠 ")
+        # 另一個tab的寫法
+        # new_tab = Frame(self.note_book)
+        # self.note_book.add(new_tab, text=" 名稱 ")
 
     # TODO 好友、道具未設計，可參考抽卡
     def __create_group_fuji_account(self):
