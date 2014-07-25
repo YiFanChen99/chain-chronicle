@@ -101,25 +101,25 @@ class UpdateCharacterWindow(Frame):
         Label(self.window, width=6, text='技能花費').place(x=12, y=current_y)
         self.active_cost = ttk.Combobox(self.window, state='readonly', width=5, justify=CENTER)
         self.active_cost['values'] = [3, 2, 1]
-        self.active_cost.place(x=10, y=current_y+label_space-2)
+        self.active_cost.place(x=10, y=current_y + label_space - 2)
 
         Label(self.window, width=39, text='主動技').place(x=78, y=current_y)
         self.active = StringVar(value='')
-        Entry(self.window, width=39, textvariable=self.active).place(x=78, y=current_y+label_space)
+        Entry(self.window, width=39, textvariable=self.active).place(x=78, y=current_y + label_space)
 
         Label(self.window, width=25, text='備註').place(x=370, y=current_y)
         self.note = StringVar(value='')
-        Entry(self.window, width=25, textvariable=self.note).place(x=370, y=current_y+label_space)
+        Entry(self.window, width=25, textvariable=self.note).place(x=370, y=current_y + label_space)
 
         # 第四個 Row
         current_y = 150
         Label(self.window, width=38, text='被動技1').place(x=10, y=current_y)
         self.passive1 = StringVar(value='')
-        Entry(self.window, width=38, textvariable=self.passive1).place(x=10, y=current_y+label_space)
+        Entry(self.window, width=38, textvariable=self.passive1).place(x=10, y=current_y + label_space)
 
         Label(self.window, width=37, text='被動技2').place(x=288, y=current_y)
         self.passive2 = StringVar(value='')
-        Entry(self.window, width=37, textvariable=self.passive2).place(x=288, y=current_y+label_space)
+        Entry(self.window, width=37, textvariable=self.passive2).place(x=288, y=current_y + label_space)
 
         # 最後一個 Row
         current_y = 215
@@ -130,7 +130,7 @@ class UpdateCharacterWindow(Frame):
 
     # 若四格都有輸入，則會計算出每突的成長值
     def do_transform_grown(self):
-        if (self.max_atk.get() != '') & (self.max_hp.get() != '') &\
+        if (self.max_atk.get() != '') & (self.max_hp.get() != '') & \
                 (self.max_atk_after_break.get() != '') & (self.max_hp_after_break.get() != ''):
             self.atk_grown.set(UpdateCharacterWindow.calculate_grown(
                 self.max_atk.get(), self.max_atk_after_break.get()))
@@ -149,17 +149,18 @@ class UpdateCharacterWindow(Frame):
 
         DATABASE.execute('insert into Character(' + ','.join(COLUMNS) + ')' +
                          convert_data_to_insert_command(self.id.get(), self.full_name.get(),
-                                                self.profession.get(), self.rank.get(),
-                                                self.note.get(), self.active.get(),
-                                                self.active_cost.get(), self.passive1.get(),
-                                                self.passive2.get(), self.weapon_type.get(),
-                                                self.exp_grown.get(), self.attendance_cost.get(),
-                                                self.max_atk.get(), self.max_hp.get(),
-                                                self.atk_grown.get(), self.hp_grown.get(),
-                                                self.atk_speed.get(), self.walk_speed.get(),
-                                                self.critical_rate.get()))
+                                                        self.profession.get(), self.rank.get(),
+                                                        self.note.get(), self.active.get(),
+                                                        self.active_cost.get(), self.passive1.get(),
+                                                        self.passive2.get(), self.weapon_type.get(),
+                                                        self.exp_grown.get(), self.attendance_cost.get(),
+                                                        self.max_atk.get(), self.max_hp.get(),
+                                                        self.atk_grown.get(), self.hp_grown.get(),
+                                                        self.atk_speed.get(), self.walk_speed.get(),
+                                                        self.critical_rate.get()))
         DATABASE.commit()
         self.window.destroy()
+        self.destroy()
 
     @staticmethod
     def delete_character_if_exist(character):
@@ -198,3 +199,4 @@ class UpdateCharacterWindow(Frame):
 
     def do_cancel(self):
         self.window.destroy()
+        self.destroy()

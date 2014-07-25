@@ -7,6 +7,7 @@ import ttk
 import tkMessageBox
 from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
+import UpdateCharacterWindow
 
 # RecordOfDrawLots 表格中的各欄位
 COLUMNS = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
@@ -66,7 +67,7 @@ class RecordOfDrawLots(Frame):
 class AddRecordWindow(Frame):
     def __init__(self, master, is_limited):
         Frame.__init__(self, master)
-        self.window = Toplevel(width=565, height=115)
+        self.window = Toplevel(width=565, height=118)
         self.window.title('Add new record')
         self.is_available_event_only = is_limited
 
@@ -82,8 +83,19 @@ class AddRecordWindow(Frame):
         self.__init_record()
 
         # 送交的按鈕
-        button = Button(self.window, text="Finish", command=self.do_submit, width=70, borderwidth=3)
-        button.place(x=30, y=79)
+        button = Button(self.window, text="新增此記錄", width=38, borderwidth=3)
+        button.place(x=28, y=79)
+        button["command"] = self.do_submit
+
+        # 新增角色的按鈕
+        button = Button(self.window, text="新增角色", width=12, borderwidth=3)
+        button.place(x=326, y=79)
+        button["command"] = self.do_add_character
+
+        # 取消並關閉的按鈕
+        button = Button(self.window, text="關閉視窗", width=12, borderwidth=3)
+        button.place(x=438, y=79)
+        button["command"] = self.do_close_window
 
     # noinspection PyAttributeOutsideInit
     def __init_record(self):
@@ -145,10 +157,10 @@ class AddRecordWindow(Frame):
                                                             self.profession_selector.get(), self.rank_selector.get(),
                                                             self.character_selector.get(), self.cost_selector.get()))
             DATABASE.commit()
-            destroy_frame(self.window)
 
-            if self.master.table is not None:
-                destroy_frame(self.master.table)
+            # 更新顯示的資料
+            self.__init_record()
+            destroy_frame(self.master.table)
             self.master.update_table()
 
     def is_new_record_legal(self):
@@ -187,3 +199,12 @@ class AddRecordWindow(Frame):
         [characters.append(element[0]) for element in result]
         self.character_selector['values'] = characters
         self.character_selector.set('')
+
+    def do_add_character(self):
+        popup = UpdateCharacterWindow.UpdateCharacterWindow(self)
+        self.wait_window(popup)
+        self.update_character_selector()
+
+    def do_close_window(self):
+        self.window.destroy()
+        self.destroy()
