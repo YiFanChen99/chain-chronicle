@@ -42,7 +42,8 @@ class Character(Frame):
         self.table_view.createTableFrame()
 
         for column in COLUMNS:
-            self.table_model.addColumn(column)
+            if column != 'FullName':
+                self.table_model.addColumn(column)
 
         result = DATABASE.execute('select * from Character')
         for row in result:
@@ -50,7 +51,7 @@ class Character(Frame):
                                     Profession=convert_to_str(row[2]), Rank=row[3],
                                     Note=convert_to_str(row[4]),
                                     Active=convert_to_str(row[5]), ActiveCost=row[6],
-                                    Passive1=convert_to_str(row[7]),
+                                    Passive1=convert_to_str(row[7]), Passive2=convert_to_str(row[8]),
                                     WeaponType=convert_to_str(row[9]),
                                     ExpGrown=convert_to_str(row[10]), AttendanceCost=row[11],
                                     MaxAtk=row[12], MaxHP=row[13], AtkGrown=row[14], HPGrown=row[15],
