@@ -21,7 +21,8 @@ class RecordOfDrawLots(Frame):
         self.__init_add_record_frame()
 
         # 呈現資料的表格
-        self.update_table()
+        self.table_model = None
+        self.__init_table()
 
     def __init_add_record_frame(self):
         # 選擇是否允許記錄舊酒廠
@@ -39,15 +40,20 @@ class RecordOfDrawLots(Frame):
     def do_add_record(self):
         popup = AddRecordWindow(self, not self.is_show_old_events.get())
         self.wait_window(popup)
+        self.update_table()
 
     # noinspection PyAttributeOutsideInit
-    def update_table(self):
+    def __init_table(self):
         self.table = Frame(self)
         self.table.place(x=35, y=7)
+        self.table_view = TableCanvas(self.table, width=633, height=316,
+                                      rowheaderwidth=0, cellwidth=90, editable=False)
+        self.table_view.deleteCells = do_nothing  # 按下 Delete 鍵時不做反應
+
+        self.update_table()
+
+    def update_table(self):
         self.table_model = TableModel()
-        self.table_view = TableCanvas(self.table, model=self.table_model, width=633,
-                                      height=316, rowheaderwidth=0, cellwidth=90, editable=False)
-        self.table_view.createTableFrame()
 
         for column in COLUMNS:
             self.table_model.addColumn(column)
@@ -60,8 +66,11 @@ class RecordOfDrawLots(Frame):
                                     Cost=convert_to_str(row[5]))
 
         self.table_model.setSortOrder(columnName=COLUMNS[0], reverse=1)
-        self.table_view.adjustColumnWidths()
+
+        self.table_view.setModel(self.table_model)
+        self.table_view.createTableFrame()
         self.table_view.redrawTable()
+        self.table_view.adjustColumnWidths()
 
 
 class AddRecordWindow(Frame):
@@ -160,7 +169,6 @@ class AddRecordWindow(Frame):
 
             # 更新顯示的資料
             self.__init_record()
-            destroy_frame(self.master.table)
             self.master.update_table()
 
     def is_new_record_legal(self):

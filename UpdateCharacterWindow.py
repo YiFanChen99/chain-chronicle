@@ -18,6 +18,7 @@ class UpdateCharacterWindow(Frame):
         Frame.__init__(self, master)
         self.window = Toplevel(width=564, height=255)
         self.window.title('About character')
+        self.window.geometry('+700+210')
 
         label_space = 22  # Label 與 輸入元件的距離
 

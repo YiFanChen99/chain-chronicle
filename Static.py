@@ -57,3 +57,7 @@ def destroy_frame(obj):
 
 def convert_str_to_datetime(date_str):
     return datetime.strptime(date_str, "%Y/%m/%d")
+
+
+def do_nothing(obj=None, event=None):
+    pass

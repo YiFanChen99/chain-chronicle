@@ -25,21 +25,22 @@ class Character(Frame):
         button["command"] = self.do_add_character
 
         # 呈現資料的表格
-        self.update_table()
-
-    def do_add_character(self):
-        popup = UpdateCharacterWindow.UpdateCharacterWindow(self)
-        self.wait_window(popup)
+        self.table_model = None
+        self.__init_table()
 
     # noinspection PyAttributeOutsideInit
-    def update_table(self):
+    def __init_table(self):
         self.table = Frame(self)
         self.table.place(x=35, y=7)
-        self.table_model = TableModel()
-        self.table_view = TableCanvas(self.table, model=self.table_model, width=655,
-                                      height=303, rowheaderwidth=0, cellwidth=50, editable=False)
+        self.table_view = TableCanvas(self.table, width=655, height=303,
+                                      rowheaderwidth=0, cellwidth=50, editable=False)
         self.table_view.bind("<Double-Button-1>", self.do_double_click)
-        self.table_view.createTableFrame()
+        self.table_view.deleteCells = do_nothing  # 按下 Delete 鍵時不做反應
+
+        self.update_table()
+
+    def update_table(self):
+        self.table_model = TableModel()
 
         for column in COLUMNS:
             if column != 'FullName':
@@ -59,8 +60,16 @@ class Character(Frame):
 
         self.table_model.setSortOrder(columnName=COLUMNS[3], reverse=1)
         self.table_model.setSortOrder(columnName=COLUMNS[2])
-        self.table_view.adjustColumnWidths()
+
+        self.table_view.setModel(self.table_model)
+        self.table_view.createTableFrame()
         self.table_view.redrawTable()
+        self.table_view.adjustColumnWidths()
+
+    def do_add_character(self):
+        popup = UpdateCharacterWindow.UpdateCharacterWindow(self)
+        self.wait_window(popup)
+        self.update_table()
 
     def do_double_click(self, event):
         row = self.table_view.get_row_clicked(event)
@@ -68,3 +77,4 @@ class Character(Frame):
 
         popup = UpdateCharacterWindow.UpdateCharacterWindow(self, character)
         self.wait_window(popup)
+        self.update_table()
