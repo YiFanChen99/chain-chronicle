@@ -197,6 +197,8 @@ class UpdateCharacterWindow(Frame):
             self.atk_speed.set(data[16])
             self.walk_speed.set(data[17])
             self.critical_rate.set(data[18])
+        else:
+            self.walk_speed.set(1.5)
 
     def do_cancel(self):
         self.window.destroy()
