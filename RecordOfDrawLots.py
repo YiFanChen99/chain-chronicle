@@ -80,12 +80,12 @@ class AddRecordWindow(Frame):
         self.window.title('Add new record')
         self.is_available_event_only = is_limited
 
-        # 各 Column 的標題
+        # 各 Column 的標題: 筆數, 酒廠, 職業, 等級, 角色, 花費
         Label(self.window, text=COLUMNS[0], width=6, font=("", 12)).place(x=3, y=9)
         Label(self.window, text=COLUMNS[1], width=14, font=("", 12)).place(x=56, y=9)
         Label(self.window, text=COLUMNS[2], width=7, font=("", 12)).place(x=200, y=9)
-        Label(self.window, text=COLUMNS[3], width=7, font=("", 12)).place(x=282, y=9)
-        Label(self.window, text=COLUMNS[4], width=9, font=("", 12)).place(x=363, y=9)
+        Label(self.window, text=COLUMNS[3], width=5, font=("", 12)).place(x=286, y=9)
+        Label(self.window, text=COLUMNS[4], width=11, font=("", 12)).place(x=349, y=9)
         Label(self.window, text=COLUMNS[5], width=9, font=("", 12)).place(x=453, y=9)
 
         # 初始化，填入預設的記錄
@@ -130,15 +130,15 @@ class AddRecordWindow(Frame):
         self.profession_selector.bind('<<ComboboxSelected>>', self.update_character_selector)
 
         # 選擇等級
-        self.rank_selector = ttk.Combobox(self.window, state='readonly', width=7, justify=CENTER)
+        self.rank_selector = ttk.Combobox(self.window, state='readonly', width=5, justify=CENTER)
         self.rank_selector['values'] = RANKS_WHEN_DRAW_LOTS
         self.rank_selector.place(x=285, y=40)
         self.rank_selector.bind('<<ComboboxSelected>>', self.update_character_selector)
 
         # 選擇角色
-        self.character_selector = ttk.Combobox(self.window, state='readonly', width=8, justify=CENTER)
+        self.character_selector = ttk.Combobox(self.window, state='readonly', width=10, justify=CENTER)
         self.update_character_selector()
-        self.character_selector.place(x=368, y=40)
+        self.character_selector.place(x=358, y=40)
 
         # 選擇花費
         self.cost_selector = ttk.Combobox(self.window, state='readonly', width=8, justify=CENTER)
