@@ -2,13 +2,14 @@
 __author__ = 'Ricky Chen'
 
 GROUP_STATIC_INFO = 'Static Info'
-GROUP_FUJI_ACCOUNT = 'Fuji Account'
+GROUP_ACCOUNT_JP = 'Fuji Account'
+GROUP_ACCOUNT_TW = 'Yama Account'
 
 
 class TabManager(object):
     def __init__(self):
         self.all_tabs = []
-        self.groups = [GROUP_STATIC_INFO, GROUP_FUJI_ACCOUNT]
+        self.groups = [GROUP_STATIC_INFO, GROUP_ACCOUNT_JP, GROUP_ACCOUNT_TW]
 
     def add_new_tab(self, group, name):
         # assertion

@@ -12,6 +12,7 @@ WEAPONS = [u'斬', u'打', u'突', u'弓', u'魔', u'聖', u'拳', u'銃', u'狙
 EXP_GROWN = [u'1000', u'750', u'500', u'300', u'LH']
 
 DATABASE = sqlite3.connect('ChainChronicle.sqlite')
+__ACCOUNT_SUFFIX = 'JP'  # 控制存取的資料庫
 
 
 # 組成「"x1,x2,...,xn"」的字串回傳
@@ -59,5 +60,15 @@ def convert_str_to_datetime(date_str):
     return datetime.strptime(date_str, "%Y/%m/%d")
 
 
+# noinspection PyUnusedLocal
 def do_nothing(obj=None, event=None):
     pass
+
+
+def get_suffix_of_account():
+    return __ACCOUNT_SUFFIX
+
+
+def set_suffix_of_account(value):
+    global __ACCOUNT_SUFFIX
+    __ACCOUNT_SUFFIX = value

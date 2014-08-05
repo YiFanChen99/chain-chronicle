@@ -2,6 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
+import Static
 import ttk
 import TabManager
 import Character
@@ -16,6 +17,7 @@ class GUIMain(Frame):
 
         self.current_group = 'Empty'  # 檢查用，避免重複讀取
         self.tab_manager = TabManager.TabManager()
+        self.group_selector = ttk.Combobox(self, state='readonly')
         self.__init_selector()
         self.note_book = None
 
@@ -23,7 +25,6 @@ class GUIMain(Frame):
 
     def __init_selector(self):
         # 建立下拉式選單 與 其事件
-        self.group_selector = ttk.Combobox(self, state='readonly')
         self.group_selector['values'] = self.tab_manager.groups
         self.group_selector.place(x=3, y=3)
         self.group_selector.bind('<<ComboboxSelected>>', self.do_selection_handler)
@@ -46,8 +47,12 @@ class GUIMain(Frame):
         self.note_book = ttk.Notebook(self, width=720, height=360)
         if self.current_group == TabManager.GROUP_STATIC_INFO:
             self.__create_group_static_info()
-        elif self.current_group == TabManager.GROUP_FUJI_ACCOUNT:
-            self.__create_group_fuji_account()
+        elif self.current_group == TabManager.GROUP_ACCOUNT_JP:
+            Static.set_suffix_of_account('JP')
+            self.__create_group_account()
+        elif self.current_group == TabManager.GROUP_ACCOUNT_TW:
+            Static.set_suffix_of_account('TW')
+            self.__create_group_account()
         else:
             raise Exception("Wrong group selected!")
         self.note_book.place(x=3, y=30)
@@ -61,7 +66,7 @@ class GUIMain(Frame):
         # self.note_book.add(new_tab, text=" 名稱 ")
 
     # TODO 好友、道具未設計，可參考抽卡
-    def __create_group_fuji_account(self):
+    def __create_group_account(self):
         # 好友、抽卡、道具
         friend_list = Frame(self.note_book)
         self.note_book.add(friend_list, text=" FriendList ")

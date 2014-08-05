@@ -24,6 +24,7 @@ class RecordOfDrawLots(Frame):
         self.table_model = None
         self.__init_table()
 
+    # noinspection PyAttributeOutsideInit
     def __init_add_record_frame(self):
         # 選擇是否允許記錄舊酒廠
         self.is_show_old_events = BooleanVar()
@@ -48,6 +49,7 @@ class RecordOfDrawLots(Frame):
         self.table.place(x=35, y=7)
         self.table_view = TableCanvas(self.table, width=633, height=316,
                                       rowheaderwidth=0, cellwidth=90, editable=False)
+        # noinspection PyPep8Naming
         self.table_view.deleteCells = do_nothing  # 按下 Delete 鍵時不做反應
 
         self.update_table()
@@ -58,7 +60,7 @@ class RecordOfDrawLots(Frame):
         for column in COLUMNS:
             self.table_model.addColumn(column)
 
-        result = DATABASE.execute('select * from RecordOfDrawLots')
+        result = DATABASE.execute('select * from RecordOfDrawLots' + get_suffix_of_account())
         for row in result:
             self.table_model.addRow(Times=row[0], Event=convert_to_str(row[1]),
                                     Profession=convert_to_str(row[2]), Rank=row[3],
@@ -109,8 +111,8 @@ class AddRecordWindow(Frame):
     # noinspection PyAttributeOutsideInit
     def __init_record(self):
         # 取得最近一筆資料，以作為預設值
-        command = 'select * from RecordOfDrawLots' + \
-                  ' where Times = (select max(Times) from RecordOfDrawLots)'
+        command = 'select * from RecordOfDrawLots' + get_suffix_of_account() + \
+                  ' where Times = (select max(Times) from RecordOfDrawLots' + get_suffix_of_account() + ')'
         last_record = DATABASE.execute(command).fetchone()
 
         # 下一次的筆數
@@ -150,7 +152,8 @@ class AddRecordWindow(Frame):
     def get_event_names(self):
         names = []
         available_time = datetime.now() - timedelta(days=3)
-        events = DATABASE.execute('select Name, End from EventOfDrawLots').fetchall()
+        events = DATABASE.execute('select Name, End from EventOfDrawLots' +
+                                  get_suffix_of_account()).fetchall()
 
         for each_event in events:
             if self.is_available_event_only and convert_str_to_datetime(each_event[1]) < available_time:
@@ -161,7 +164,8 @@ class AddRecordWindow(Frame):
 
     def do_submit(self):
         if self.is_new_record_legal():
-            DATABASE.execute('insert into RecordOfDrawLots(' + ','.join(COLUMNS) + ')' +
+            DATABASE.execute('insert into RecordOfDrawLots' + get_suffix_of_account() +
+                             '(' + ','.join(COLUMNS) + ')' +
                              convert_data_to_insert_command(self.times, self.event_selector.get(),
                                                             self.profession_selector.get(), self.rank_selector.get(),
                                                             self.character_selector.get(), self.cost_selector.get()))
