@@ -20,8 +20,8 @@ class Character(Frame):
         self.pack(fill=BOTH, expand=1)
 
         # 新增記錄的按鈕
-        button = Button(self, text="新增角色資訊", width=2, height=22, wraplength=1, font=("", 12))
-        button.place(x=5, y=13)
+        button = Button(self, text="新增角色資訊", width=2, height=17, wraplength=1, font=(MS_JH, 12))
+        button.place(x=5, y=15)
         button["command"] = self.do_add_character
 
         # 呈現資料的表格

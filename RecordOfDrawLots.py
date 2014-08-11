@@ -31,12 +31,12 @@ class RecordOfDrawLots(Frame):
         self.is_show_old_events = BooleanVar()
         check_button = Checkbutton(self, variable=self.is_show_old_events)
         check_button.place(x=8, y=44)
-        label = Label(self, text='舊', font=("", 10))
-        label.place(x=10, y=32)
+        label = Label(self, text='舊', font=(MS_JH, 10))
+        label.place(x=10, y=29)
 
         # 新增記錄的按鈕
-        button = Button(self, text="新增記錄", width=2, height=18, wraplength=1, font=("", 12))
-        button.place(x=5, y=70)
+        button = Button(self, text="新增記錄", width=2, height=14, wraplength=1, font=(MS_JH, 12))
+        button.place(x=5, y=74)
         button["command"] = self.do_add_record
 
     def do_add_record(self):
