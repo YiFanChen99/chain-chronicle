@@ -20,8 +20,8 @@ class Character(Frame):
         self.pack(fill=BOTH, expand=1)
 
         # 新增記錄的按鈕
-        button = Button(self, text="新增角色資訊", width=2, height=21, wraplength=1, font=("", 12))
-        button.place(x=5, y=5)
+        button = Button(self, text="新增角色資訊", width=2, height=22, wraplength=1, font=("", 12))
+        button.place(x=5, y=13)
         button["command"] = self.do_add_character
 
         # 呈現資料的表格
@@ -32,9 +32,9 @@ class Character(Frame):
     def __init_table(self):
         self.table = Frame(self)
         self.table.place(x=35, y=7)
-        self.table_view = TableCanvas(self.table, width=655, height=303,
-                                      rowheaderwidth=0, cellwidth=50, editable=False)
+        self.table_view = TableCanvas(self.table, rowheaderwidth=0, cellwidth=50, editable=False)
         self.table_view.bind("<Double-Button-1>", self.do_double_click)
+        # noinspection PyPep8Naming
         self.table_view.deleteCells = do_nothing  # 按下 Delete 鍵時不做反應
 
         self.update_table()
@@ -78,3 +78,7 @@ class Character(Frame):
         popup = UpdateCharacterWindow.UpdateCharacterWindow(self, character)
         self.wait_window(popup)
         self.update_table()
+
+    def adjust_view(self, width, height):
+        self.table_view['width'] = width - 59
+        self.table_view['height'] = height - 51

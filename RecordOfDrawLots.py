@@ -8,6 +8,7 @@ import tkMessageBox
 from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
 import UpdateCharacterWindow
+from datetime import timedelta
 
 # RecordOfDrawLots 表格中的各欄位
 COLUMNS = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
@@ -29,13 +30,13 @@ class RecordOfDrawLots(Frame):
         # 選擇是否允許記錄舊酒廠
         self.is_show_old_events = BooleanVar()
         check_button = Checkbutton(self, variable=self.is_show_old_events)
-        check_button.place(x=8, y=19)
+        check_button.place(x=8, y=44)
         label = Label(self, text='舊', font=("", 10))
-        label.place(x=10, y=6)
+        label.place(x=10, y=32)
 
         # 新增記錄的按鈕
-        button = Button(self, text="新增記錄", width=2, height=15, wraplength=1, font=("", 14))
-        button.place(x=5, y=45)
+        button = Button(self, text="新增記錄", width=2, height=18, wraplength=1, font=("", 12))
+        button.place(x=5, y=70)
         button["command"] = self.do_add_record
 
     def do_add_record(self):
@@ -46,9 +47,8 @@ class RecordOfDrawLots(Frame):
     # noinspection PyAttributeOutsideInit
     def __init_table(self):
         self.table = Frame(self)
-        self.table.place(x=35, y=7)
-        self.table_view = TableCanvas(self.table, width=633, height=316,
-                                      rowheaderwidth=0, cellwidth=90, editable=False)
+        self.table.place(x=35, y=27)
+        self.table_view = TableCanvas(self.table, rowheaderwidth=0, cellwidth=90, editable=False)
         # noinspection PyPep8Naming
         self.table_view.deleteCells = do_nothing  # 按下 Delete 鍵時不做反應
 
@@ -73,6 +73,10 @@ class RecordOfDrawLots(Frame):
         self.table_view.createTableFrame()
         self.table_view.redrawTable()
         self.table_view.adjustColumnWidths()
+
+    def adjust_view(self, width, height):
+        self.table_view['width'] = width - 59
+        self.table_view['height'] = height - 71
 
 
 class AddRecordWindow(Frame):

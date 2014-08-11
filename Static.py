@@ -2,7 +2,7 @@
 __author__ = 'Ricky Chen'
 
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 
 PROFESSIONS = [u'戰士', u'騎士', u'弓手', u'法師', u'僧侶']
 RANKS = [5, 4, 3, 2, 1]

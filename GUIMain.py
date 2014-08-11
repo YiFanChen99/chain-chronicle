@@ -2,11 +2,14 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-import Static
+from Static import *
 import ttk
 import TabManager
 import Character
 import RecordOfDrawLots
+
+MIN_WIDTH = 760
+MIN_HEIGHT = 460
 
 
 class GUIMain(Frame):
@@ -14,22 +17,26 @@ class GUIMain(Frame):
         Frame.__init__(self, parent)
         parent.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
+        self.bind('<Configure>', self.do_update_width_and_height)
 
         self.current_group = 'Empty'  # 檢查用，避免重複讀取
-        self.tab_manager = TabManager.TabManager()
-        self.group_selector = ttk.Combobox(self, state='readonly')
         self.__init_selector()
         self.note_book = None
-
+        self.tabs = []
+        self.__current_width = MIN_WIDTH
+        self.__current_height = MIN_HEIGHT
         self.update_group()
 
+    # noinspection PyAttributeOutsideInit
     def __init_selector(self):
+        tab_manager = TabManager.TabManager()
         # 建立下拉式選單 與 其事件
-        self.group_selector['values'] = self.tab_manager.groups
+        self.group_selector = ttk.Combobox(self, state='readonly')
+        self.group_selector['values'] = tab_manager.groups
         self.group_selector.place(x=3, y=3)
         self.group_selector.bind('<<ComboboxSelected>>', self.do_selection_handler)
         # 設定初始選項
-        self.group_selector.set(self.tab_manager.groups[0])
+        self.group_selector.set(tab_manager.groups[0])
 
     # noinspection PyUnusedLocal
     def do_selection_handler(self, event):
@@ -42,25 +49,28 @@ class GUIMain(Frame):
         # 清空舊的 note book
         if self.note_book is not None:
             self.note_book.destroy()
+        self.tabs = []
 
         # 根據選擇，建立新的 note book 並設定位置
-        self.note_book = ttk.Notebook(self, width=720, height=360)
+        self.note_book = ttk.Notebook(self)
         if self.current_group == TabManager.GROUP_STATIC_INFO:
             self.__create_group_static_info()
         elif self.current_group == TabManager.GROUP_ACCOUNT_JP:
-            Static.set_suffix_of_account('JP')
+            set_suffix_of_account('JP')
             self.__create_group_account()
         elif self.current_group == TabManager.GROUP_ACCOUNT_TW:
-            Static.set_suffix_of_account('TW')
+            set_suffix_of_account('TW')
             self.__create_group_account()
         else:
             raise Exception("Wrong group selected!")
+        self.adjust_note_book_size()
         self.note_book.place(x=3, y=30)
 
     def __create_group_static_info(self):
         # 角色
         character_table = Character.Character(self.note_book)
         self.note_book.add(character_table, text=" CharacterTable ")
+        self.tabs.append(character_table)
         # 另一個tab的寫法
         # new_tab = Frame(self.note_book)
         # self.note_book.add(new_tab, text=" 名稱 ")
@@ -70,14 +80,40 @@ class GUIMain(Frame):
         # 好友、抽卡、道具
         friend_list = Frame(self.note_book)
         self.note_book.add(friend_list, text=" FriendList ")
+        #self.tabs.append(friend_list)
         record_of_draw_lots = RecordOfDrawLots.RecordOfDrawLots(self.note_book)
         self.note_book.add(record_of_draw_lots, text=" RecordOfDrawLots ")
+        self.tabs.append(record_of_draw_lots)
         resources = Frame(self.note_book)
         self.note_book.add(resources, text=" Resources ")
+        #self.tabs.append(resources)
+
+    # noinspection PyUnusedLocal
+    def do_update_width_and_height(self, event=None):
+        if self.winfo_width() > MIN_WIDTH:
+            self.__current_width = self.winfo_width()
+        else:
+            self.__current_width = MIN_WIDTH
+
+        if self.winfo_height() > MIN_HEIGHT:
+            self.__current_height = self.winfo_height()
+        else:
+            self.__current_height = MIN_HEIGHT
+
+        self.adjust_note_book_size()
+
+    def adjust_note_book_size(self):
+        widget_width = self.__current_width - 8
+        widget_height = self.__current_height - 59
+        self.note_book['width'] = widget_width
+        self.note_book['height'] = widget_height
+        for each_tab in self.tabs:
+            each_tab.adjust_view(widget_width, widget_height)
 
 
 if __name__ == "__main__":
     root = Tk()
-    root.geometry("728x420+540+360")
+    init_size = str(MIN_WIDTH) + 'x' + str(MIN_HEIGHT)
+    root.geometry(init_size + '+540+360')
     app = GUIMain(parent=root)
     app.mainloop()
