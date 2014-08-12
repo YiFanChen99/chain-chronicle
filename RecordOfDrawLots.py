@@ -131,12 +131,23 @@ class RecordOfDrawLots(Frame):
 
 
 class AddRecordWindow(Frame):
-    def __init__(self, master, is_limited):
+    def __init__(self, master, is_time_limited):
         Frame.__init__(self, master)
         self.window = Toplevel(width=565, height=118)
         self.window.title('Add new record')
-        self.is_available_event_only = is_limited
+        self.is_time_limited = is_time_limited
 
+        self.__init_widgets()
+
+        # 取得最近一筆資料，以作為預設值
+        command = 'select * from ' + get_name_of_record_table() + \
+                  ' where Times = (select max(Times) from ' + get_name_of_record_table() + ')'
+        self.last_record = DATABASE.execute(command).fetchone()
+
+        self.update_by_last_record()
+
+    # noinspection PyAttributeOutsideInit
+    def __init_widgets(self):
         # 各 Column 的標題: 筆數, 酒廠, 職業, 等級, 角色, 花費
         Label(self.window, text=COLUMNS[0], width=6, font=("", 12)).place(x=3, y=9)
         Label(self.window, text=COLUMNS[1], width=14, font=("", 12)).place(x=56, y=9)
@@ -145,8 +156,35 @@ class AddRecordWindow(Frame):
         Label(self.window, text=COLUMNS[4], width=11, font=("", 12)).place(x=349, y=9)
         Label(self.window, text=COLUMNS[5], width=9, font=("", 12)).place(x=453, y=9)
 
-        # 初始化，填入預設的記錄
-        self.__init_record()
+        # 下一次的筆數
+        self.times = Variable()
+        Label(self.window, textvariable=self.times, width=6, font=("", 12)).place(x=3, y=40)
+
+        # 選擇酒廠
+        self.event_selector = ttk.Combobox(self.window, state='readonly', width=14, justify=CENTER)
+        self.event_selector['values'] = get_suitable_event_names(self.is_time_limited)
+        self.event_selector.place(x=63, y=40)
+
+        # 選擇職業
+        self.profession_selector = ttk.Combobox(self.window, state='readonly', width=7, justify=CENTER)
+        self.profession_selector['values'] = PROFESSIONS
+        self.profession_selector.place(x=199, y=40)
+        self.profession_selector.bind('<<ComboboxSelected>>', self.update_character_selector)
+
+        # 選擇等級
+        self.rank_selector = ttk.Combobox(self.window, state='readonly', width=5, justify=CENTER)
+        self.rank_selector['values'] = RANKS_WHEN_DRAW_LOTS
+        self.rank_selector.place(x=285, y=40)
+        self.rank_selector.bind('<<ComboboxSelected>>', self.update_character_selector)
+
+        # 選擇角色
+        self.character_selector = ttk.Combobox(self.window, state='readonly', width=10, justify=CENTER)
+        self.character_selector.place(x=358, y=40)
+
+        # 選擇花費
+        self.cost_selector = ttk.Combobox(self.window, state='readonly', width=8, justify=CENTER)
+        self.cost_selector['values'] = DRAW_LOTS_COST
+        self.cost_selector.place(x=463, y=40)
 
         # 送交的按鈕
         button = Button(self.window, text="新增此記錄", width=38, borderwidth=3)
@@ -163,70 +201,26 @@ class AddRecordWindow(Frame):
         button.place(x=438, y=79)
         button["command"] = self.do_close_window
 
-    # noinspection PyAttributeOutsideInit
-    def __init_record(self):
-        # 取得最近一筆資料，以作為預設值
-        command = 'select * from ' + get_name_of_record_table() + \
-                  ' where Times = (select max(Times) from ' + get_name_of_record_table() + ')'
-        last_record = DATABASE.execute(command).fetchone()
-
-        # 下一次的筆數
-        self.times = last_record[0] + 1
-        Label(self.window, text=self.times, width=6, font=("", 12)).place(x=3, y=40)
-
-        # 選擇酒廠
-        self.event_selector = ttk.Combobox(self.window, state='readonly', width=14, justify=CENTER)
-        self.event_selector['values'] = self.get_suitable_event_names()
-        self.event_selector.place(x=63, y=40)
-        self.event_selector.set(last_record[1])  # 設定初始選項
-
-        # 選擇職業
-        self.profession_selector = ttk.Combobox(self.window, state='readonly', width=7, justify=CENTER)
-        self.profession_selector['values'] = PROFESSIONS
-        self.profession_selector.place(x=199, y=40)
-        self.profession_selector.bind('<<ComboboxSelected>>', self.update_character_selector)
-
-        # 選擇等級
-        self.rank_selector = ttk.Combobox(self.window, state='readonly', width=5, justify=CENTER)
-        self.rank_selector['values'] = RANKS_WHEN_DRAW_LOTS
-        self.rank_selector.place(x=285, y=40)
-        self.rank_selector.bind('<<ComboboxSelected>>', self.update_character_selector)
-
-        # 選擇角色
-        self.character_selector = ttk.Combobox(self.window, state='readonly', width=10, justify=CENTER)
+    def update_by_last_record(self):
+        self.times.set(self.last_record[0] + 1)
+        self.event_selector.set(self.last_record[1])
         self.update_character_selector()
-        self.character_selector.place(x=358, y=40)
-
-        # 選擇花費
-        self.cost_selector = ttk.Combobox(self.window, state='readonly', width=8, justify=CENTER)
-        self.cost_selector['values'] = DRAW_LOTS_COST
-        self.cost_selector.place(x=463, y=40)
-        self.cost_selector.set(last_record[5])  # 設定初始選項
-
-    # 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
-    def get_suitable_event_names(self):
-        names = []
-        available_time = datetime.now() - timedelta(days=3)
-        events = DATABASE.execute('select Name, End from ' + get_name_of_event_table()).fetchall()
-
-        for each_event in events:
-            if self.is_available_event_only and convert_str_to_datetime(each_event[1]) < available_time:
-                pass
-            else:
-                names.append(each_event[0])
-        return names
+        self.cost_selector.set(self.last_record[5])
 
     def do_submit(self):
         if self.is_new_record_legal():
             DATABASE.execute('insert into ' + get_name_of_record_table() +
                              '(' + ','.join(COLUMNS) + ')' +
-                             convert_data_to_insert_command(self.times, self.event_selector.get(),
+                             convert_data_to_insert_command(self.times.get(), self.event_selector.get(),
                                                             self.profession_selector.get(), self.rank_selector.get(),
                                                             self.character_selector.get(), self.cost_selector.get()))
             DATABASE.commit()
 
             # 更新顯示的資料
-            self.__init_record()
+            self.last_record = [self.times.get(), self.event_selector.get(),
+                                self.profession_selector.get(), self.rank_selector.get(),
+                                self.character_selector.get(), self.cost_selector.get()]
+            self.update_by_last_record()
             self.master.update_table()
 
     def is_new_record_legal(self):
@@ -246,23 +240,19 @@ class AddRecordWindow(Frame):
 
     # noinspection PyUnusedLocal
     def update_character_selector(self, event=None):
-        # set condition
-        profession = self.profession_selector.get()
-        rank = self.rank_selector.get()
-        condition = ''
-        if profession == '' and rank == '':
-            pass
-        elif profession == '':
-            condition = ' where Rank=' + convert_datum_to_command(rank)
-        elif rank == '':
-            condition = ' where Profession=' + convert_datum_to_command(profession)
-        else:
-            condition = ' where Profession=' + convert_datum_to_command(profession) + \
-                        'and Rank=' + convert_datum_to_command(rank)
+        # 取得所有的角色
+        results = DATABASE.execute('select Character, Rank, Profession from Character').fetchall()
 
-        result = DATABASE.execute('select Character from Character' + condition).fetchall()
+        # 依序對職業與等級進行篩選(if需要)
+        profession = self.profession_selector.get()
+        if profession != '':
+            results = [element for element in results if element[2] == profession]
+        rank = self.rank_selector.get()
+        if rank != '':
+            results = [element for element in results if element[1] == int(rank)]
+
         characters = []
-        [characters.append(element[0]) for element in result]
+        [characters.append(element[0]) for element in results]
         self.character_selector['values'] = characters
         self.character_selector.set('')
 
@@ -282,3 +272,17 @@ def get_name_of_record_table():
 
 def get_name_of_event_table():
     return 'EventOfDrawLots' + get_suffix_of_account()
+
+
+# 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
+def get_suitable_event_names(is_time_limited):
+    names = []
+    available_time = datetime.now() - timedelta(days=3)
+    events = DATABASE.execute('select Name, End from ' + get_name_of_event_table()).fetchall()
+
+    for each_event in events:
+        if is_time_limited and convert_str_to_datetime(each_event[1]) < available_time:
+            pass
+        else:
+            names.append(each_event[0])
+    return names
