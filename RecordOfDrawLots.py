@@ -20,6 +20,7 @@ class RecordOfDrawLots(Frame):
         self.pack(fill=BOTH, expand=1)
 
         self.__init_add_record_frame()
+        self.__init_filter_frame()
 
         # 呈現資料的表格
         self.table_model = None
@@ -30,14 +31,64 @@ class RecordOfDrawLots(Frame):
         # 選擇是否允許記錄舊酒廠
         self.is_show_old_events = BooleanVar()
         check_button = Checkbutton(self, variable=self.is_show_old_events)
-        check_button.place(x=8, y=44)
+        check_button.place(x=8, y=48)
         label = Label(self, text='舊', font=(MS_JH, 10))
-        label.place(x=10, y=29)
+        label.place(x=10, y=33)
 
         # 新增記錄的按鈕
         button = Button(self, text="新增記錄", width=2, height=14, wraplength=1, font=(MS_JH, 12))
-        button.place(x=5, y=74)
+        button.place(x=5, y=76)
         button["command"] = self.do_add_record
+
+    # TODO event cost pro
+    # noinspection PyAttributeOutsideInit
+    def __init_filter_frame(self):
+        basic_x = 18
+        Label(self, text='E:', font=(MS_JH, 12)).place(x=basic_x, y=5)
+        self.event = ttk.Combobox(self, state='readonly', width=14, justify=CENTER)
+        self.event['values'] = PROFESSIONS
+        self.event.place(x=basic_x+18, y=5)
+
+        basic_x = 165
+        Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=5)
+        self.cost = ttk.Combobox(self, state='readonly', width=7, justify=CENTER)
+        self.cost['values'] = PROFESSIONS
+        self.cost.place(x=basic_x+20, y=5)
+
+        basic_x = 265
+        Label(self, text='P:', font=(MS_JH, 12)).place(x=basic_x, y=5)
+        self.profession = ttk.Combobox(self, state='readonly', width=5, justify=CENTER)
+        self.profession['values'] = PROFESSIONS
+        self.profession.place(x=basic_x+20, y=5)
+
+        basic_x = 367
+        Label(self, text='Total:', font=(MS_JH, 12)).place(x=basic_x, y=3)
+        self.total = Label(self, font=(MS_JH, 12))
+        self.total.place(x=basic_x+44, y=3)
+        self.total["text"] = '900'
+
+        basic_x = 452
+        Label(self, text='SSR:', font=(MS_JH, 12)).place(x=basic_x, y=3)
+        self.ssr = Label(self, font=(MS_JH, 12))
+        self.ssr.place(x=basic_x+34, y=3)
+        self.ssr["text"] = '90'
+
+        basic_x = 523
+        Label(self, text='SR:', font=(MS_JH, 12)).place(x=basic_x, y=3)
+        self.sr = Label(self, font=(MS_JH, 12))
+        self.sr.place(x=basic_x+25, y=3)
+        self.sr["text"] = '90'
+
+        basic_x = 584
+        Label(self, text='R:', font=(MS_JH, 12)).place(x=basic_x, y=3)
+        self.r = Label(self, font=(MS_JH, 12))
+        self.r.place(x=basic_x + 16, y=3)
+        self.r["text"] = '90'
+
+        # 根據條件進行篩選的按鈕
+        button = Button(self, text="進行篩選", width=8, font=(MS_JH, 12))
+        button.place(x=640, y=0)
+        #button["command"] = self.do_add_record  TODO
 
     def do_add_record(self):
         popup = AddRecordWindow(self, not self.is_show_old_events.get())
@@ -47,10 +98,10 @@ class RecordOfDrawLots(Frame):
     # noinspection PyAttributeOutsideInit
     def __init_table(self):
         self.table = Frame(self)
-        self.table.place(x=35, y=27)
+        self.table.place(x=35, y=30)
         self.table_view = TableCanvas(self.table, rowheaderwidth=0, cellwidth=90, editable=False)
         # noinspection PyPep8Naming
-        self.table_view.deleteCells = do_nothing  # 按下 Delete 鍵時不做反應
+        self.table_view.deleteCells = do_nothing  # 按下 Delete 鍵時不做反應(預設會詢問刪除該記錄)
 
         self.update_table()
 
@@ -60,7 +111,7 @@ class RecordOfDrawLots(Frame):
         for column in COLUMNS:
             self.table_model.addColumn(column)
 
-        result = DATABASE.execute('select * from RecordOfDrawLots' + get_suffix_of_account())
+        result = DATABASE.execute('select * from ' + get_name_of_record_table())
         for row in result:
             self.table_model.addRow(Times=row[0], Event=convert_to_str(row[1]),
                                     Profession=convert_to_str(row[2]), Rank=row[3],
@@ -76,7 +127,7 @@ class RecordOfDrawLots(Frame):
 
     def adjust_view(self, width, height):
         self.table_view['width'] = width - 59
-        self.table_view['height'] = height - 71
+        self.table_view['height'] = height - 74
 
 
 class AddRecordWindow(Frame):
@@ -115,8 +166,8 @@ class AddRecordWindow(Frame):
     # noinspection PyAttributeOutsideInit
     def __init_record(self):
         # 取得最近一筆資料，以作為預設值
-        command = 'select * from RecordOfDrawLots' + get_suffix_of_account() + \
-                  ' where Times = (select max(Times) from RecordOfDrawLots' + get_suffix_of_account() + ')'
+        command = 'select * from ' + get_name_of_record_table() + \
+                  ' where Times = (select max(Times) from ' + get_name_of_record_table() + ')'
         last_record = DATABASE.execute(command).fetchone()
 
         # 下一次的筆數
@@ -125,7 +176,7 @@ class AddRecordWindow(Frame):
 
         # 選擇酒廠
         self.event_selector = ttk.Combobox(self.window, state='readonly', width=14, justify=CENTER)
-        self.event_selector['values'] = self.get_event_names()
+        self.event_selector['values'] = self.get_suitable_event_names()
         self.event_selector.place(x=63, y=40)
         self.event_selector.set(last_record[1])  # 設定初始選項
 
@@ -153,11 +204,10 @@ class AddRecordWindow(Frame):
         self.cost_selector.set(last_record[5])  # 設定初始選項
 
     # 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
-    def get_event_names(self):
+    def get_suitable_event_names(self):
         names = []
         available_time = datetime.now() - timedelta(days=3)
-        events = DATABASE.execute('select Name, End from EventOfDrawLots' +
-                                  get_suffix_of_account()).fetchall()
+        events = DATABASE.execute('select Name, End from ' + get_name_of_event_table()).fetchall()
 
         for each_event in events:
             if self.is_available_event_only and convert_str_to_datetime(each_event[1]) < available_time:
@@ -168,7 +218,7 @@ class AddRecordWindow(Frame):
 
     def do_submit(self):
         if self.is_new_record_legal():
-            DATABASE.execute('insert into RecordOfDrawLots' + get_suffix_of_account() +
+            DATABASE.execute('insert into ' + get_name_of_record_table() +
                              '(' + ','.join(COLUMNS) + ')' +
                              convert_data_to_insert_command(self.times, self.event_selector.get(),
                                                             self.profession_selector.get(), self.rank_selector.get(),
@@ -224,3 +274,11 @@ class AddRecordWindow(Frame):
     def do_close_window(self):
         self.window.destroy()
         self.destroy()
+
+
+def get_name_of_record_table():
+    return 'RecordOfDrawLots' + get_suffix_of_account()
+
+
+def get_name_of_event_table():
+    return 'EventOfDrawLots' + get_suffix_of_account()
