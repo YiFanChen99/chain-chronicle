@@ -133,10 +133,8 @@ class UpdateCharacterWindow(Frame):
     def do_transform_grown(self):
         if (self.max_atk.get() != '') & (self.max_hp.get() != '') & \
                 (self.max_atk_after_break.get() != '') & (self.max_hp_after_break.get() != ''):
-            self.atk_grown.set(UpdateCharacterWindow.calculate_grown(
-                self.max_atk.get(), self.max_atk_after_break.get()))
-            self.hp_grown.set(UpdateCharacterWindow.calculate_grown(
-                self.max_hp.get(), self.max_hp_after_break.get()))
+            self.atk_grown.set(self.calculate_grown(self.max_atk.get(), self.max_atk_after_break.get()))
+            self.hp_grown.set(self.calculate_grown(self.max_hp.get(), self.max_hp_after_break.get()))
         else:
             tkMessageBox.showerror('錯誤', '部分 Atk/HP 欄位未填')
 
@@ -146,7 +144,7 @@ class UpdateCharacterWindow(Frame):
 
     def do_submit(self):
         # 存在時先刪除，接續之後的插入就是更新了
-        UpdateCharacterWindow.delete_character_if_exist(self.id.get())
+        self.delete_character_if_exist(self.id.get())
 
         DATABASE.execute('insert into Character(' + ','.join(COLUMNS) + ')' +
                          convert_data_to_insert_command(self.id.get(), self.full_name.get(),
@@ -177,7 +175,7 @@ class UpdateCharacterWindow(Frame):
     # 當有特定的 character 時，讀取其資料並更新各元件
     def __init_character(self, character):
         if character is not None:
-            data = UpdateCharacterWindow.select_character(character)
+            data = self.select_character(character)
             self.id.set(convert_to_str(data[0]))
             self.full_name.set(convert_to_str(data[1]))
             self.profession.set(convert_to_str(data[2]))

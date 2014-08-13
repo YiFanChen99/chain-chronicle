@@ -26,6 +26,7 @@ class RecordOfDrawLots(Frame):
 
         self.filtered_records = self.raw_records = \
             DATABASE.execute('select * from ' + get_name_of_record_table()).fetchall()
+        self.__update_statistic()
 
         # 呈現資料的表格
         self.table_model = None
@@ -55,7 +56,7 @@ class RecordOfDrawLots(Frame):
         self.event.place(x=basic_x + 18, y=5)
         self.event.bind('<<ComboboxSelected>>', self.do_update_filter_and_table)
 
-        basic_x = 165
+        basic_x = 164
         Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=5)
         self.cost = ttk.Combobox(self, state='readonly', width=6, justify=CENTER)
         costs = ['']
@@ -64,36 +65,38 @@ class RecordOfDrawLots(Frame):
         self.cost.place(x=basic_x + 20, y=5)
         self.cost.bind('<<ComboboxSelected>>', self.do_update_filter_and_table)
 
-        basic_x = 257
+        basic_x = 255
         Label(self, text='P:', font=(MS_JH, 12)).place(x=basic_x, y=5)
         self.profession = ttk.Combobox(self, state='readonly', width=4, justify=CENTER)
         self.profession['values'] = PROFESSIONS
         self.profession.place(x=basic_x + 20, y=5)
         self.profession.bind('<<ComboboxSelected>>', self.do_update_filter_and_table)
 
-        basic_x = 367
+        basic_x = 339
         Label(self, text='Total:', font=(MS_JH, 12)).place(x=basic_x, y=3)
-        self.total = Label(self, font=(MS_JH, 12))
-        self.total.place(x=basic_x + 44, y=3)
-        self.total["text"] = '900'
+        self.total_count = Label(self, font=(MS_JH, 12))
+        self.total_count.place(x=basic_x + 44, y=3)
 
-        basic_x = 452
+        basic_x = 422
         Label(self, text='SSR:', font=(MS_JH, 12)).place(x=basic_x, y=3)
-        self.ssr = Label(self, font=(MS_JH, 12))
-        self.ssr.place(x=basic_x + 34, y=3)
-        self.ssr["text"] = '90'
+        self.ssr_count = Label(self, font=(MS_JH, 10))
+        self.ssr_count.place(x=basic_x + 34, y=-2)
+        self.ssr_ratio = Label(self, font=(MS_JH, 9))
+        self.ssr_ratio.place(x=basic_x + 44, y=14)
 
-        basic_x = 523
+        basic_x = 502
         Label(self, text='SR:', font=(MS_JH, 12)).place(x=basic_x, y=3)
-        self.sr = Label(self, font=(MS_JH, 12))
-        self.sr.place(x=basic_x + 25, y=3)
-        self.sr["text"] = '90'
+        self.sr_count = Label(self, font=(MS_JH, 10))
+        self.sr_count.place(x=basic_x + 25, y=-2)
+        self.sr_ratio = Label(self, font=(MS_JH, 9))
+        self.sr_ratio.place(x=basic_x + 35, y=14)
 
-        basic_x = 584
+        basic_x = 580
         Label(self, text='R:', font=(MS_JH, 12)).place(x=basic_x, y=3)
-        self.r = Label(self, font=(MS_JH, 12))
-        self.r.place(x=basic_x + 16, y=3)
-        self.r["text"] = '90'
+        self.r_count = Label(self, font=(MS_JH, 10))
+        self.r_count.place(x=basic_x + 16, y=-2)
+        self.r_ratio = Label(self, font=(MS_JH, 9))
+        self.r_ratio.place(x=basic_x + 26, y=14)
 
         # 清空進行篩選的條件
         button = Button(self, text="清空條件", width=7, font=(MS_JH, 11))
@@ -102,10 +105,11 @@ class RecordOfDrawLots(Frame):
 
     # noinspection PyUnusedLocal
     def do_update_filter_and_table(self, event=None):
-        self.update_filtered_records()
+        self.__update_filtered_records()
+        self.__update_statistic()
         self.update_table()
 
-    def update_filtered_records(self):
+    def __update_filtered_records(self):
         results = self.raw_records
 
         # 依序對活動、花費與職業進行篩選(if需要)
@@ -120,6 +124,47 @@ class RecordOfDrawLots(Frame):
             results = [element for element in results if element[2] == profession]
 
         self.filtered_records = results
+
+    def __update_statistic(self):
+        total = 0
+        ssr = 0
+        sr = 0
+        r = 0
+
+        # doing statistic
+        for record in self.filtered_records:
+            total += 1
+            rank = record[3]
+            if rank == 5:
+                ssr += 1
+            elif rank == 4:
+                sr += 1
+            else:
+                r += 1
+
+        # 特殊情況，顯示為 0 並結束
+        if total == 0:
+            self.total_count["text"] = 0
+            self.ssr_count["text"] = 0
+            self.ssr_ratio["text"] = 0
+            self.sr_count["text"] = 0
+            self.sr_ratio["text"] = 0
+            self.r_count["text"] = 0
+            self.r_ratio["text"] = 0
+            return
+
+        self.total_count["text"] = '%3d' % total
+        self.ssr_count["text"] = ssr
+        self.ssr_ratio["text"] = self.convert_to_ratio(total, ssr)
+        self.sr_count["text"] = sr
+        self.sr_ratio["text"] = self.convert_to_ratio(total, sr)
+        self.r_count["text"] = r
+        self.r_ratio["text"] = self.convert_to_ratio(total, r)
+
+    @staticmethod
+    def convert_to_ratio(total, numerator):
+        ratio = round(100.0 * numerator / total, 1)
+        return str(ratio) + '%'
 
     def do_clear_filter(self):
         self.event.set('')
