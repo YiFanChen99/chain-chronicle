@@ -24,13 +24,17 @@ class RecordOfDrawLots(Frame):
         self.__init_add_record_frame()
         self.__init_filter_frame()
 
-        self.filtered_records = self.raw_records = \
-            DATABASE.execute('select * from ' + get_name_of_record_table()).fetchall()
+        self.update_raw_records()
+        self.filtered_records = self.raw_records
         self.__update_statistic()
 
         # 呈現資料的表格
         self.table_model = None
         self.__init_table()
+
+    # noinspection PyAttributeOutsideInit
+    def update_raw_records(self):
+        self.raw_records = DATABASE.execute('select * from ' + get_name_of_record_table()).fetchall()
 
     # noinspection PyAttributeOutsideInit
     def __init_add_record_frame(self):
@@ -46,15 +50,16 @@ class RecordOfDrawLots(Frame):
         button.place(x=5, y=76)
         button["command"] = self.do_add_record
 
-    # TODO 排版與資訊計算
     # noinspection PyAttributeOutsideInit
     def __init_filter_frame(self):
         basic_x = 18
         Label(self, text='E:', font=(MS_JH, 12)).place(x=basic_x, y=5)
-        self.event = ttk.Combobox(self, state='readonly', width=14, justify=CENTER)
-        self.event['values'] = self.get_events_for_filter()
-        self.event.place(x=basic_x + 18, y=5)
-        self.event.bind('<<ComboboxSelected>>', self.do_update_filter_and_table)
+        self.event_filter = ttk.Combobox(self, state='readonly', width=14, justify=CENTER)
+        events = ['']
+        events.extend([event[0] for event in reversed(self.events)])
+        self.event_filter['values'] = events
+        self.event_filter.place(x=basic_x + 18, y=5)
+        self.event_filter.bind('<<ComboboxSelected>>', self.do_update_filter_and_table)
 
         basic_x = 164
         Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=5)
@@ -68,7 +73,9 @@ class RecordOfDrawLots(Frame):
         basic_x = 255
         Label(self, text='P:', font=(MS_JH, 12)).place(x=basic_x, y=5)
         self.profession = ttk.Combobox(self, state='readonly', width=4, justify=CENTER)
-        self.profession['values'] = PROFESSIONS
+        profession = ['']
+        profession.extend(PROFESSIONS)
+        self.profession['values'] = profession
         self.profession.place(x=basic_x + 20, y=5)
         self.profession.bind('<<ComboboxSelected>>', self.do_update_filter_and_table)
 
@@ -103,6 +110,10 @@ class RecordOfDrawLots(Frame):
         button.place(x=655, y=0)
         button["command"] = self.do_clear_filter
 
+    def do_update_all_records(self):
+        self.update_raw_records()
+        self.do_update_filter_and_table()
+
     # noinspection PyUnusedLocal
     def do_update_filter_and_table(self, event=None):
         self.__update_filtered_records()
@@ -113,7 +124,7 @@ class RecordOfDrawLots(Frame):
         results = self.raw_records
 
         # 依序對活動、花費與職業進行篩選(if需要)
-        event = self.event.get()
+        event = self.event_filter.get()
         if event != '':
             results = [element for element in results if element[1] == event]
         cost = self.cost.get()
@@ -167,15 +178,10 @@ class RecordOfDrawLots(Frame):
         return str(ratio) + '%'
 
     def do_clear_filter(self):
-        self.event.set('')
+        self.event_filter.set('')
         self.cost.set('')
         self.profession.set('')
         self.do_update_filter_and_table()
-
-    def get_events_for_filter(self):
-        events = ['']
-        events.extend([event[0] for event in reversed(self.events)])
-        return events
 
     def do_add_record(self):
         popup = AddRecordWindow(self, self.get_suitable_event_names())
@@ -320,7 +326,7 @@ class AddRecordWindow(Frame):
                                 self.profession_selector.get(), self.rank_selector.get(),
                                 self.character_selector.get(), self.cost_selector.get()]
             self.update_by_last_record()
-            self.master.update_table()
+            self.master.do_update_all_records()
 
     def is_new_record_legal(self):
         error_message = ''
