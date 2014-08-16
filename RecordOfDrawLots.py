@@ -3,6 +3,7 @@ __author__ = 'Ricky Chen'
 
 from Tkinter import *
 from Static import *
+import RecordsFilter
 import ttk
 import tkMessageBox
 from tkintertable.Tables import TableCanvas
@@ -24,17 +25,11 @@ class RecordOfDrawLots(Frame):
         self.__init_add_record_frame()
         self.__init_filter_frame()
 
-        self.update_raw_records()
-        self.filtered_records = self.raw_records
-        self.__update_statistic()
+        self.records_filter = RecordsFilter.RecordsFilter('select * from ' + get_name_of_record_table())
 
         # 呈現資料的表格
         self.table_model = None
         self.__init_table()
-
-    # noinspection PyAttributeOutsideInit
-    def update_raw_records(self):
-        self.raw_records = DATABASE.execute('select * from ' + get_name_of_record_table()).fetchall()
 
     # noinspection PyAttributeOutsideInit
     def __init_add_record_frame(self):
@@ -59,7 +54,7 @@ class RecordOfDrawLots(Frame):
         events.extend([event[0] for event in reversed(self.events)])
         self.event_filter['values'] = events
         self.event_filter.place(x=basic_x + 18, y=5)
-        self.event_filter.bind('<<ComboboxSelected>>', self.do_update_filter_and_table)
+        self.event_filter.bind('<<ComboboxSelected>>', self.do_update_table)
 
         basic_x = 164
         Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=5)
@@ -68,7 +63,7 @@ class RecordOfDrawLots(Frame):
         costs.extend(DRAW_LOTS_COST)
         self.cost['values'] = costs
         self.cost.place(x=basic_x + 20, y=5)
-        self.cost.bind('<<ComboboxSelected>>', self.do_update_filter_and_table)
+        self.cost.bind('<<ComboboxSelected>>', self.do_update_table)
 
         basic_x = 255
         Label(self, text='P:', font=(MS_JH, 12)).place(x=basic_x, y=5)
@@ -77,7 +72,7 @@ class RecordOfDrawLots(Frame):
         profession.extend(PROFESSIONS)
         self.profession['values'] = profession
         self.profession.place(x=basic_x + 20, y=5)
-        self.profession.bind('<<ComboboxSelected>>', self.do_update_filter_and_table)
+        self.profession.bind('<<ComboboxSelected>>', self.do_update_table)
 
         basic_x = 339
         Label(self, text='Total:', font=(MS_JH, 12)).place(x=basic_x, y=3)
@@ -110,40 +105,97 @@ class RecordOfDrawLots(Frame):
         button.place(x=655, y=0)
         button["command"] = self.do_clear_filter
 
-    def do_update_all_records(self):
-        self.update_raw_records()
-        self.do_update_filter_and_table()
+    def update_all_records(self):
+        self.records_filter.update_raw_records()
+        self.do_update_table()
+
+    def do_clear_filter(self):
+        self.event_filter.set('')
+        self.cost.set('')
+        self.profession.set('')
+        self.do_update_table()
+
+    def do_add_record(self):
+        popup = AddRecordWindow(self, self.get_suitable_event_names())
+        self.wait_window(popup)
+
+    # 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
+    def get_suitable_event_names(self):
+        names = []
+        available_time = datetime.now() - timedelta(days=3)
+
+        for each_event in self.events:
+            if not self.is_show_old_events.get() and convert_str_to_datetime(each_event[1]) < available_time:
+                pass
+            else:
+                names.append(each_event[0])
+        return names
+
+    # noinspection PyAttributeOutsideInit
+    def __init_table(self):
+        self.table = Frame(self)
+        self.table.place(x=35, y=30)
+        self.table_view = TableCanvas(self.table, rowheaderwidth=0, cellwidth=90, editable=False)
+        # noinspection PyPep8Naming
+        self.table_view.deleteCells = do_nothing  # 按下 Delete 鍵時不做反應(預設會詢問是否刪除該記錄)
+
+        self.do_update_table()
 
     # noinspection PyUnusedLocal
-    def do_update_filter_and_table(self, event=None):
-        self.__update_filtered_records()
-        self.__update_statistic()
-        self.update_table()
+    def do_update_table(self, event=None):
+        self.table_model = TableModel()
 
-    def __update_filtered_records(self):
-        results = self.raw_records
+        for column in COLUMNS:
+            self.table_model.addColumn(column)
+
+        self.__update_filters()
+        results = self.records_filter.filtered_records
+        if len(results) == 0:
+            self.table_model.addRow(Times=0, Event='無任何記錄', Profession='', Rank='', Character='', Cost='')
+        else:
+            for row in results:
+                self.table_model.addRow(Times=row[0], Event=convert_to_str(row[1]),
+                                        Profession=convert_to_str(row[2]), Rank=row[3],
+                                        Character=convert_to_str(row[4]),
+                                        Cost=convert_to_str(row[5]))
+
+        self.table_model.setSortOrder(columnName=COLUMNS[0], reverse=1)
+
+        self.table_view.setModel(self.table_model)
+        self.table_view.createTableFrame()
+        self.table_view.redrawTable()
+        self.table_view.adjustColumnWidths()
+
+        # 連動更新統計資料
+        self.__update_statistic()
+
+    def __update_filters(self):
+        is_filtered = False
 
         # 依序對活動、花費與職業進行篩選(if需要)
         event = self.event_filter.get()
         if event != '':
-            results = [element for element in results if element[1] == event]
+            self.records_filter.add_filter(1, event)
+            is_filtered = True
         cost = self.cost.get()
         if cost != '':
-            results = [element for element in results if element[5] == cost]
+            self.records_filter.add_filter(5, cost)
+            is_filtered = True
         profession = self.profession.get()
         if profession != '':
-            results = [element for element in results if element[2] == profession]
+            self.records_filter.add_filter(2, profession)
+            is_filtered = True
 
-        self.filtered_records = results
+        if not is_filtered:
+            self.records_filter.clear_filters()
 
     def __update_statistic(self):
+        # doing statistic
         total = 0
         ssr = 0
         sr = 0
         r = 0
-
-        # doing statistic
-        for record in self.filtered_records:
+        for record in self.records_filter.filtered_records:
             total += 1
             rank = record[3]
             if rank == 5:
@@ -176,60 +228,6 @@ class RecordOfDrawLots(Frame):
     def convert_to_ratio(total, numerator):
         ratio = round(100.0 * numerator / total, 1)
         return str(ratio) + '%'
-
-    def do_clear_filter(self):
-        self.event_filter.set('')
-        self.cost.set('')
-        self.profession.set('')
-        self.do_update_filter_and_table()
-
-    def do_add_record(self):
-        popup = AddRecordWindow(self, self.get_suitable_event_names())
-        self.wait_window(popup)
-
-    # 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
-    def get_suitable_event_names(self):
-        names = []
-        available_time = datetime.now() - timedelta(days=3)
-
-        for each_event in self.events:
-            if not self.is_show_old_events.get() and convert_str_to_datetime(each_event[1]) < available_time:
-                pass
-            else:
-                names.append(each_event[0])
-        return names
-
-    # noinspection PyAttributeOutsideInit
-    def __init_table(self):
-        self.table = Frame(self)
-        self.table.place(x=35, y=30)
-        self.table_view = TableCanvas(self.table, rowheaderwidth=0, cellwidth=90, editable=False)
-        # noinspection PyPep8Naming
-        self.table_view.deleteCells = do_nothing  # 按下 Delete 鍵時不做反應(預設會詢問是否刪除該記錄)
-
-        self.update_table()
-
-    def update_table(self):
-        self.table_model = TableModel()
-
-        for column in COLUMNS:
-            self.table_model.addColumn(column)
-
-        if len(self.filtered_records) == 0:
-            self.table_model.addRow(Times=0, Event='無任何記錄', Profession='', Rank='', Character='', Cost='')
-        else:
-            for row in self.filtered_records:
-                self.table_model.addRow(Times=row[0], Event=convert_to_str(row[1]),
-                                        Profession=convert_to_str(row[2]), Rank=row[3],
-                                        Character=convert_to_str(row[4]),
-                                        Cost=convert_to_str(row[5]))
-
-        self.table_model.setSortOrder(columnName=COLUMNS[0], reverse=1)
-
-        self.table_view.setModel(self.table_model)
-        self.table_view.createTableFrame()
-        self.table_view.redrawTable()
-        self.table_view.adjustColumnWidths()
 
     def adjust_view(self, width, height):
         self.table_view['width'] = width - 59
@@ -326,7 +324,7 @@ class AddRecordWindow(Frame):
                                 self.profession_selector.get(), self.rank_selector.get(),
                                 self.character_selector.get(), self.cost_selector.get()]
             self.update_by_last_record()
-            self.master.do_update_all_records()
+            self.master.update_all_records()
 
     def is_new_record_legal(self):
         error_message = ''

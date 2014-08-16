@@ -4,7 +4,6 @@ __author__ = 'Ricky Chen'
 from Tkinter import *
 from Static import *
 import ttk
-import TabManager
 import Character
 import RecordOfDrawLots
 
@@ -29,17 +28,33 @@ class GUIMain(Frame):
 
     # noinspection PyAttributeOutsideInit
     def __init_selector(self):
-        tab_manager = TabManager.TabManager()
         # 建立下拉式選單 與 其事件
         self.group_selector = ttk.Combobox(self, state='readonly')
-        self.group_selector['values'] = tab_manager.groups
+        self.group_selector['values'] = GROUPS
         self.group_selector.place(x=3, y=3)
         self.group_selector.bind('<<ComboboxSelected>>', self.do_selection_handler)
         # 設定初始選項
-        self.group_selector.set(tab_manager.groups[0])
+        self.group_selector.set(GROUPS[0])
+
+        index = 0
+        x = 185
+        for group in GROUPS:
+            button = Button(self, text=group, width=13, font=(MS_JH, 11))
+            button.place(x=x, y=-2)
+
+            def do_select_group(obj=self, my_index=index):
+                obj.do_select_group(my_index)
+            button["command"] = do_select_group
+
+            index += 1
+            x += 140
+
+    def do_select_group(self, index):
+        self.group_selector.set(GROUPS[index])
+        self.do_selection_handler()
 
     # noinspection PyUnusedLocal
-    def do_selection_handler(self, event):
+    def do_selection_handler(self, event=None):
         if self.current_group != self.group_selector.get():
             self.update_group()
 
@@ -53,12 +68,12 @@ class GUIMain(Frame):
 
         # 根據選擇，建立新的 note book 並設定位置
         self.note_book = ttk.Notebook(self)
-        if self.current_group == TabManager.GROUP_STATIC_INFO:
+        if self.current_group == GROUP_STATIC_INFO:
             self.__create_group_static_info()
-        elif self.current_group == TabManager.GROUP_ACCOUNT_JP:
+        elif self.current_group == GROUP_ACCOUNT_JP:
             set_suffix_of_account('JP')
             self.__create_group_account()
-        elif self.current_group == TabManager.GROUP_ACCOUNT_TW:
+        elif self.current_group == GROUP_ACCOUNT_TW:
             set_suffix_of_account('TW')
             self.__create_group_account()
         else:

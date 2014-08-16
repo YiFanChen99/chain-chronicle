@@ -4,6 +4,11 @@ __author__ = 'Ricky Chen'
 import sqlite3
 from datetime import datetime
 
+GROUP_STATIC_INFO = 'Static Info'
+GROUP_ACCOUNT_JP = 'Fuji Account'
+GROUP_ACCOUNT_TW = 'Yama Account'
+GROUPS = [GROUP_STATIC_INFO, GROUP_ACCOUNT_JP, GROUP_ACCOUNT_TW]
+
 PROFESSIONS = [u'戰士', u'騎士', u'弓手', u'法師', u'僧侶']
 RANKS = [5, 4, 3, 2, 1]
 RANKS_WHEN_DRAW_LOTS = [5, 4, 3]
