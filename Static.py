@@ -15,6 +15,7 @@ RANKS_WHEN_DRAW_LOTS = [5, 4, 3]
 DRAW_LOTS_COST = [u'石抽', u'券抽', u'未記錄', u'九連抽']
 WEAPONS = [u'斬', u'打', u'突', u'弓', u'魔', u'聖', u'拳', u'銃', u'狙']
 EXP_GROWN = [u'1000', u'750', u'500', u'300', u'LH']
+ACTIVE_COST = [3, 2, 1]
 
 DATABASE = sqlite3.connect('ChainChronicle.sqlite')
 MS_JH = 'Microsoft JhengHei'  # 微軟正黑體
@@ -78,3 +79,9 @@ def get_suffix_of_account():
 def set_suffix_of_account(value):
     global __ACCOUNT_SUFFIX
     __ACCOUNT_SUFFIX = value
+
+
+def insert_with_empty_str(the_list):
+    result = ['']
+    result.extend(the_list)
+    return result

@@ -50,27 +50,22 @@ class RecordOfDrawLots(Frame):
         basic_x = 18
         Label(self, text='E:', font=(MS_JH, 12)).place(x=basic_x, y=5)
         self.event_filter = ttk.Combobox(self, state='readonly', width=14, justify=CENTER)
-        events = ['']
-        events.extend([event[0] for event in reversed(self.events)])
-        self.event_filter['values'] = events
+        self.event_filter['values'] = \
+            insert_with_empty_str([event[0] for event in reversed(self.events)])
         self.event_filter.place(x=basic_x + 18, y=5)
         self.event_filter.bind('<<ComboboxSelected>>', self.do_update_table)
 
         basic_x = 164
         Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=5)
         self.cost = ttk.Combobox(self, state='readonly', width=6, justify=CENTER)
-        costs = ['']
-        costs.extend(DRAW_LOTS_COST)
-        self.cost['values'] = costs
+        self.cost['values'] = insert_with_empty_str(DRAW_LOTS_COST)
         self.cost.place(x=basic_x + 20, y=5)
         self.cost.bind('<<ComboboxSelected>>', self.do_update_table)
 
         basic_x = 255
         Label(self, text='P:', font=(MS_JH, 12)).place(x=basic_x, y=5)
         self.profession = ttk.Combobox(self, state='readonly', width=4, justify=CENTER)
-        profession = ['']
-        profession.extend(PROFESSIONS)
-        self.profession['values'] = profession
+        self.profession['values'] = insert_with_empty_str(PROFESSIONS)
         self.profession.place(x=basic_x + 20, y=5)
         self.profession.bind('<<ComboboxSelected>>', self.do_update_table)
 
@@ -151,7 +146,7 @@ class RecordOfDrawLots(Frame):
         self.__update_filters()
         results = self.records_filter.filtered_records
         if len(results) == 0:
-            self.table_model.addRow(Times=0, Event='無任何記錄', Profession='', Rank='', Character='', Cost='')
+            self.table_model.addRow(Times=0, Event='無任何記錄')
         else:
             for row in results:
                 self.table_model.addRow(Times=row[0], Event=convert_to_str(row[1]),
@@ -170,24 +165,18 @@ class RecordOfDrawLots(Frame):
         self.__update_statistic()
 
     def __update_filters(self):
-        is_filtered = False
+        self.records_filter.clear_filters()
 
         # 依序對活動、花費與職業進行篩選(if需要)
         event = self.event_filter.get()
         if event != '':
             self.records_filter.add_filter(1, event)
-            is_filtered = True
         cost = self.cost.get()
         if cost != '':
             self.records_filter.add_filter(5, cost)
-            is_filtered = True
         profession = self.profession.get()
         if profession != '':
             self.records_filter.add_filter(2, profession)
-            is_filtered = True
-
-        if not is_filtered:
-            self.records_filter.clear_filters()
 
     def __update_statistic(self):
         # doing statistic
