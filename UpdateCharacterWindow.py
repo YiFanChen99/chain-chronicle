@@ -143,11 +143,12 @@ class UpdateCharacterWindow(Frame):
         return str((int(max_after_break) - int(max_value)) / 4)
 
     def do_submit(self):
-        # 存在時先刪除，接續之後的插入就是更新了
-        self.delete_character_if_exist(self.id.get())
+        # 將可能存在資料庫的資料先刪除，接續之後的插入就是更新動作了
+        full_name = self.full_name.get()
+        DATABASE.execute('delete from Character where FullName=' + convert_datum_to_command(full_name))
 
         DATABASE.execute('insert into Character(' + ','.join(COLUMNS) + ')' +
-                         convert_data_to_insert_command(self.id.get(), self.full_name.get(),
+                         convert_data_to_insert_command(self.id.get(), full_name,
                                                         self.profession.get(), self.rank.get(),
                                                         self.note.get(), self.active.get(),
                                                         self.active_cost.get(), self.passive1.get(),
@@ -160,12 +161,6 @@ class UpdateCharacterWindow(Frame):
         DATABASE.commit()
         self.window.destroy()
         self.destroy()
-
-    @staticmethod
-    def delete_character_if_exist(character):
-        if UpdateCharacterWindow.select_character(character) is not None:
-            DATABASE.execute('delete from Character where Character=' +
-                             convert_datum_to_command(character))
 
     @staticmethod
     def select_character(character):
