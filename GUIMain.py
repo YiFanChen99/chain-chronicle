@@ -81,6 +81,7 @@ class GUIMain(Frame):
         self.adjust_note_book_size()
         self.note_book.place(x=3, y=30)
 
+    # TODO 角色功能表未設計
     def __create_group_static_info(self):
         # 角色
         character_table = Character.Character(self.note_book)
@@ -90,15 +91,15 @@ class GUIMain(Frame):
         # new_tab = Frame(self.note_book)
         # self.note_book.add(new_tab, text=" 名稱 ")
 
-    # TODO 好友、道具未設計，可參考抽卡
+    # TODO 好友、道具、我的角色未設計
     def __create_group_account(self):
-        # 好友、抽卡、道具
-        friend_list = Frame(self.note_book)
-        self.note_book.add(friend_list, text=" FriendList ")
-        #self.tabs.append(friend_list)
+        # 抽卡記錄、好友、道具
         record_of_draw_lots = RecordOfDrawLots.RecordOfDrawLots(self.note_book)
         self.note_book.add(record_of_draw_lots, text=" RecordOfDrawLots ")
         self.tabs.append(record_of_draw_lots)
+        friend_list = Frame(self.note_book)
+        self.note_book.add(friend_list, text=" FriendList ")
+        #self.tabs.append(friend_list)
         resources = Frame(self.note_book)
         self.note_book.add(resources, text=" Resources ")
         #self.tabs.append(resources)
