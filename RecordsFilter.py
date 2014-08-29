@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ricky Chen'
 
-from Static import *
+from OldStatic import *
 
 
 class RecordsFilter():
