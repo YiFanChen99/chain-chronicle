@@ -2,19 +2,20 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-from NewStatic import *
-import RadiobuttonController
-import NewCharacter
+from Static import *
+import Utilities
+import Character
+import RecordOfDrawLots
 
 
 class SubMenuFrame(Frame):
     Frames = []
 
-    def __init__(self, master, height,**kwargs):
+    def __init__(self, master, height, **kwargs):
         Frame.__init__(self, master, width=MIN_WIDTH, height=height, **kwargs)
         self.pack(fill=BOTH, expand=1)
 
-        self.radiobuttons = RadiobuttonController.RadiobuttonController(
+        self.radiobuttons = Utilities.RadiobuttonController(
             self, height=height, bg='#%02x%02x%02x' % (192, 192, 192))
 
         for page_index in range(len(self.Frames)):
@@ -28,7 +29,7 @@ class SubMenuFrame(Frame):
                 self.radiobuttons.do_select(0, do_select_page)
 
     def creat_button_by_index(self, index, text, callback):
-        self.radiobuttons.create_button(2 + 160 * index, -1, text, callback, width=16)
+        self.radiobuttons.create_button(5 + 160 * index, -1, text, callback, width=16)
 
     # 幫 master 進行切換
     def do_select_page(self, index):
@@ -47,7 +48,7 @@ class StaticGroupFrame(SubMenuFrame):
 
     def create_main_frame(self, index):
         if index == 0:
-            return NewCharacter.Character(self.master)
+            return Character.Character(self.master)
         else:
             raise Exception("Wrong group selected!")
 
@@ -55,17 +56,18 @@ class StaticGroupFrame(SubMenuFrame):
 class AccountGroupFrame(SubMenuFrame):
     Frames = ['RecordOfDrawLots', 'FriendList', 'Resources']
 
-    def __init__(self, master, height, account_suffix, **kwargs):
+    def __init__(self, master, height, db_suffix, **kwargs):
+        self.db_suffix = db_suffix
         SubMenuFrame.__init__(self, master, height=height, **kwargs)
-        self.account_suffix = account_suffix
 
-    # TODO 根據index建立並回傳
     def create_main_frame(self, index):
         if index == 0:
-            return Frame(width=100, height=100, background='black')
+            return RecordOfDrawLots.RecordOfDrawLots(self.master, self.db_suffix)
         elif index == 1:
-            return Frame(width=100, height=100, background='blue')
+             # TODO FriendList
+            return RecordOfDrawLots.MainFrame(self.master, self.db_suffix, width=100, height=100, background='blue')
         elif index == 2:
-            return Frame(width=100, height=100, background='red')
+             # TODO Resources
+            return RecordOfDrawLots.MainFrame(self.master, self.db_suffix, width=100, height=100, background='red')
         else:
             raise Exception("Wrong group selected!")

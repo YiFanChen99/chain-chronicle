@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ricky Chen'
 
-from Tkinter import *
-from OldStatic import *
-import RecordsFilter
+from Static import *
+from MainFrame import *
+import Utilities
 import ttk
 import tkMessageBox
 from tkintertable.Tables import TableCanvas
@@ -15,17 +15,18 @@ from datetime import timedelta
 COLUMNS = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
 
 
-class RecordOfDrawLots(Frame):
-    def __init__(self, parent=None):
-        Frame.__init__(self, parent)
-        self.pack(fill=BOTH, expand=1)
+class RecordOfDrawLots(MainFrame):
+    def __init__(self, parent, db_suffix):
+        MainFrame.__init__(self, parent, db_suffix=db_suffix)
 
-        self.events = DATABASE.execute('select Name, End from ' + get_name_of_event_table()).fetchall()
+        self.events = DATABASE.execute('select Name, End from ' +
+                                       self.compose_table_name('EventOfDrawLots')).fetchall()
 
         self.__init_add_record_frame()
         self.__init_filter_frame()
 
-        self.records_filter = RecordsFilter.RecordsFilter('select * from ' + get_name_of_record_table())
+        self.records_filter = Utilities.RecordsFilter('select * from ' +
+                                                          self.compose_table_name('RecordOfDrawLots'))
 
         # 呈現資料的表格
         self.table_model = None
@@ -48,56 +49,56 @@ class RecordOfDrawLots(Frame):
     # noinspection PyAttributeOutsideInit
     def __init_filter_frame(self):
         basic_x = 18
-        Label(self, text='E:', font=(MS_JH, 12)).place(x=basic_x, y=5)
+        Label(self, text='E:', font=(MS_JH, 12)).place(x=basic_x, y=3)
         self.event_filter = ttk.Combobox(self, state='readonly', width=14, justify=CENTER)
         self.event_filter['values'] = \
             insert_with_empty_str([event[0] for event in reversed(self.events)])
-        self.event_filter.place(x=basic_x + 18, y=5)
+        self.event_filter.place(x=basic_x + 18, y=3)
         self.event_filter.bind('<<ComboboxSelected>>', self.do_update_table)
 
         basic_x = 164
-        Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=5)
+        Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=3)
         self.cost = ttk.Combobox(self, state='readonly', width=6, justify=CENTER)
         self.cost['values'] = insert_with_empty_str(DRAW_LOTS_COST)
-        self.cost.place(x=basic_x + 20, y=5)
+        self.cost.place(x=basic_x + 20, y=3)
         self.cost.bind('<<ComboboxSelected>>', self.do_update_table)
 
         basic_x = 255
-        Label(self, text='P:', font=(MS_JH, 12)).place(x=basic_x, y=5)
+        Label(self, text='P:', font=(MS_JH, 12)).place(x=basic_x, y=3)
         self.profession = ttk.Combobox(self, state='readonly', width=4, justify=CENTER)
         self.profession['values'] = insert_with_empty_str(PROFESSIONS)
-        self.profession.place(x=basic_x + 20, y=5)
+        self.profession.place(x=basic_x + 20, y=3)
         self.profession.bind('<<ComboboxSelected>>', self.do_update_table)
 
         basic_x = 339
-        Label(self, text='Total:', font=(MS_JH, 12)).place(x=basic_x, y=3)
+        Label(self, text='Total:', font=(MS_JH, 12)).place(x=basic_x, y=2)
         self.total_count = Label(self, font=(MS_JH, 12))
-        self.total_count.place(x=basic_x + 44, y=3)
+        self.total_count.place(x=basic_x + 44, y=2)
 
         basic_x = 422
-        Label(self, text='SSR:', font=(MS_JH, 12)).place(x=basic_x, y=3)
+        Label(self, text='SSR:', font=(MS_JH, 12)).place(x=basic_x, y=2)
         self.ssr_count = Label(self, font=(MS_JH, 10))
-        self.ssr_count.place(x=basic_x + 34, y=-2)
+        self.ssr_count.place(x=basic_x + 34, y=-3)
         self.ssr_ratio = Label(self, font=(MS_JH, 9))
-        self.ssr_ratio.place(x=basic_x + 44, y=14)
+        self.ssr_ratio.place(x=basic_x + 44, y=13)
 
         basic_x = 502
-        Label(self, text='SR:', font=(MS_JH, 12)).place(x=basic_x, y=3)
+        Label(self, text='SR:', font=(MS_JH, 12)).place(x=basic_x, y=2)
         self.sr_count = Label(self, font=(MS_JH, 10))
-        self.sr_count.place(x=basic_x + 25, y=-2)
+        self.sr_count.place(x=basic_x + 25, y=-3)
         self.sr_ratio = Label(self, font=(MS_JH, 9))
-        self.sr_ratio.place(x=basic_x + 35, y=14)
+        self.sr_ratio.place(x=basic_x + 35, y=13)
 
         basic_x = 580
-        Label(self, text='R:', font=(MS_JH, 12)).place(x=basic_x, y=3)
+        Label(self, text='R:', font=(MS_JH, 12)).place(x=basic_x, y=2)
         self.r_count = Label(self, font=(MS_JH, 10))
-        self.r_count.place(x=basic_x + 16, y=-2)
+        self.r_count.place(x=basic_x + 16, y=-3)
         self.r_ratio = Label(self, font=(MS_JH, 9))
-        self.r_ratio.place(x=basic_x + 26, y=14)
+        self.r_ratio.place(x=basic_x + 26, y=13)
 
         # 清空進行篩選的條件
         button = Button(self, text="清空條件", width=7, font=(MS_JH, 11))
-        button.place(x=655, y=0)
+        button.place(x=655, y=-1)
         button["command"] = self.do_clear_filter
 
     def update_all_records(self):
@@ -111,7 +112,7 @@ class RecordOfDrawLots(Frame):
         self.do_update_table()
 
     def do_add_record(self):
-        popup = AddRecordWindow(self, self.get_suitable_event_names())
+        popup = AddRecordWindow(self, self.db_suffix, self.get_suitable_event_names())
         self.wait_window(popup)
 
     # 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
@@ -129,7 +130,7 @@ class RecordOfDrawLots(Frame):
     # noinspection PyAttributeOutsideInit
     def __init_table(self):
         self.table = Frame(self)
-        self.table.place(x=35, y=30)
+        self.table.place(x=34, y=29)
         self.table_view = TableCanvas(self.table, rowheaderwidth=0, cellwidth=90, editable=False)
         # noinspection PyPep8Naming
         self.table_view.deleteCells = do_nothing  # 按下 Delete 鍵時不做反應(預設會詢問是否刪除該記錄)
@@ -218,20 +219,21 @@ class RecordOfDrawLots(Frame):
         ratio = round(100.0 * numerator / total, 1)
         return str(ratio) + '%'
 
-    def adjust_view(self, width, height):
+    def adjust_widgets(self, width, height):
         self.table_view['width'] = width - 59
-        self.table_view['height'] = height - 74
+        self.table_view['height'] = height - 75
 
 
 class AddRecordWindow(Frame):
-    def __init__(self, master, event_names):
+    def __init__(self, master, db_suffix, event_names):
         Frame.__init__(self, master)
         self.window = Toplevel(width=565, height=118)
         self.window.title('Add new record')
 
+        self.record_table = 'RecordOfDrawLots' + db_suffix
         # 取得最近一筆資料，以作為預設值
-        command = 'select * from ' + get_name_of_record_table() + \
-                  ' where Times = (select max(Times) from ' + get_name_of_record_table() + ')'
+        command = 'select * from ' + self.record_table + \
+                  ' where Times = (select max(Times) from ' + self.record_table + ')'
         self.last_record = DATABASE.execute(command).fetchone()
 
         self.__init_widgets(event_names)
@@ -301,7 +303,7 @@ class AddRecordWindow(Frame):
 
     def do_submit(self):
         if self.is_new_record_legal():
-            DATABASE.execute('insert into ' + get_name_of_record_table() +
+            DATABASE.execute('insert into ' + self.record_table +
                              '(' + ','.join(COLUMNS) + ')' +
                              convert_data_to_insert_command(self.times.get(), self.event_selector.get(),
                                                             self.profession_selector.get(), self.rank_selector.get(),
@@ -356,11 +358,3 @@ class AddRecordWindow(Frame):
     def do_close_window(self):
         self.window.destroy()
         self.destroy()
-
-
-def get_name_of_record_table():
-    return 'RecordOfDrawLots' + get_suffix_of_account()
-
-
-def get_name_of_event_table():
-    return 'EventOfDrawLots' + get_suffix_of_account()

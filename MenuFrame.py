@@ -2,9 +2,9 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-from NewStatic import *
+from Static import *
 import SubMenuFrame
-import RadiobuttonController
+import Utilities
 
 GROUP_STATIC_INFO = 'Static Info'
 GROUP_ACCOUNT_JP = 'Fuji Account'
@@ -17,7 +17,7 @@ class MenuFrame(Frame):
         Frame.__init__(self, master, width=MIN_WIDTH, height=height, **kwargs)
         self.pack(fill=BOTH, expand=1)
 
-        radiobuttons = RadiobuttonController.RadiobuttonController(
+        radiobuttons = Utilities.RadiobuttonController(
             self, height=height, bg='#%02x%02x%02x' % (192, 192, 192))
         for group_index in range(len(GROUPS)):
             def do_select_group(obj=self, my_index=group_index):
@@ -38,8 +38,8 @@ class MenuFrame(Frame):
         if GROUPS[index] == GROUP_STATIC_INFO:
             return SubMenuFrame.StaticGroupFrame(self.master, height=31)
         elif GROUPS[index] == GROUP_ACCOUNT_JP:
-            return SubMenuFrame.AccountGroupFrame(self.master, height=31, account_suffix='JP')
+            return SubMenuFrame.AccountGroupFrame(self.master, height=31, db_suffix='JP')
         elif GROUPS[index] == GROUP_ACCOUNT_TW:
-            return SubMenuFrame.AccountGroupFrame(self.master, height=31, account_suffix='TW')
+            return SubMenuFrame.AccountGroupFrame(self.master, height=31, db_suffix='TW')
         else:
             raise Exception("Wrong group selected!")

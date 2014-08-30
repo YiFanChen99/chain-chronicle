@@ -2,7 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-from OldStatic import *
+from Static import *
 import ttk
 import tkMessageBox
 

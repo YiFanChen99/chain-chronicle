@@ -4,10 +4,8 @@ __author__ = 'Ricky Chen'
 import sqlite3
 from datetime import datetime
 
-GROUP_STATIC_INFO = 'Static Info'
-GROUP_ACCOUNT_JP = 'Fuji Account'
-GROUP_ACCOUNT_TW = 'Yama Account'
-GROUPS = [GROUP_STATIC_INFO, GROUP_ACCOUNT_JP, GROUP_ACCOUNT_TW]
+MIN_WIDTH = 760
+MIN_HEIGHT = 460
 
 PROFESSIONS = [u'戰士', u'騎士', u'弓手', u'法師', u'僧侶']
 RANKS = [5, 4, 3, 2, 1]
@@ -19,7 +17,6 @@ ACTIVE_COST = [3, 2, 1]
 
 DATABASE = sqlite3.connect('ChainChronicle.sqlite')
 MS_JH = 'Microsoft JhengHei'  # 微軟正黑體
-__ACCOUNT_SUFFIX = 'JP'  # 控制存取的資料庫
 
 
 # 組成「"x1,x2,...,xn"」的字串回傳
@@ -58,11 +55,6 @@ def convert_to_str(value):
         return value.encode('utf-8')
 
 
-def destroy_frame(obj):
-    if obj is not None:
-        obj.destroy()
-
-
 def convert_str_to_datetime(date_str):
     return datetime.strptime(date_str, "%Y/%m/%d")
 
@@ -70,15 +62,6 @@ def convert_str_to_datetime(date_str):
 # noinspection PyUnusedLocal
 def do_nothing(obj=None, event=None):
     pass
-
-
-def get_suffix_of_account():
-    return __ACCOUNT_SUFFIX
-
-
-def set_suffix_of_account(value):
-    global __ACCOUNT_SUFFIX
-    __ACCOUNT_SUFFIX = value
 
 
 def insert_with_empty_str(the_list):

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ricky Chen'
 
-from Tkinter import *
-from OldStatic import *
-import RecordsFilter
+from Static import *
+from MainFrame import *
+import Utilities
 import ttk
 from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
@@ -16,55 +16,56 @@ COLUMNS = ['Character', 'FullName', 'Profession', 'Rank', 'Note',
            'HPGrown', 'AtkSpeed', 'WalkSpeed', 'CriticalRate']
 
 
-class Character(Frame):
-    def __init__(self, parent, **kwargs):
-        Frame.__init__(self, parent, **kwargs)
-        self.pack(fill=BOTH, expand=1)
+class Character(MainFrame):
+    def __init__(self, master, **kwargs):
+        MainFrame.__init__(self, master, **kwargs)
 
         self.__init_filter_frame()
+
         # 新增記錄的按鈕
         button = Button(self, text="新增角色資訊", width=2, height=17, wraplength=1, font=(MS_JH, 12))
-        button.place(x=5, y=39)
+        button.place(x=4, y=23)
         button["command"] = self.do_add_character
 
-        self.records_filter = RecordsFilter.RecordsFilter('select * from Character')
+        self.records_filter = Utilities.RecordsFilter('select * from Character')
 
         # 呈現資料的表格
         self.table_model = None
         self.__init_table()
 
     def __init_filter_frame(self):
+        basic_y = 3
         basic_x = 60
-        Label(self, text='P:', font=(MS_JH, 12)).place(x=basic_x, y=5)
+        Label(self, text='P:', font=(MS_JH, 12)).place(x=basic_x, y=basic_y)
         self.profession_selector = ttk.Combobox(self, state='readonly', width=7, justify=CENTER)
         self.profession_selector['values'] = insert_with_empty_str(PROFESSIONS)
-        self.profession_selector.place(x=basic_x + 18, y=5)
+        self.profession_selector.place(x=basic_x + 18, y=basic_y)
         self.profession_selector.bind('<<ComboboxSelected>>', self.do_update_table)
 
         basic_x = 176
-        Label(self, text='R:', font=(MS_JH, 12)).place(x=basic_x, y=5)
+        Label(self, text='R:', font=(MS_JH, 12)).place(x=basic_x, y=basic_y)
         self.rank_selector = ttk.Combobox(self, state='readonly', width=4, justify=CENTER)
         self.rank_selector['values'] = insert_with_empty_str(RANKS)
-        self.rank_selector.place(x=basic_x + 18, y=5)
+        self.rank_selector.place(x=basic_x + 18, y=basic_y)
         self.rank_selector.bind('<<ComboboxSelected>>', self.do_update_table)
 
         basic_x = 268
-        Label(self, text='AC:', font=(MS_JH, 12)).place(x=basic_x, y=5)
+        Label(self, text='AC:', font=(MS_JH, 12)).place(x=basic_x, y=basic_y)
         self.active_cost_selector = ttk.Combobox(self, state='readonly', width=4, justify=CENTER)
         self.active_cost_selector['values'] = insert_with_empty_str(ACTIVE_COST)
-        self.active_cost_selector.place(x=basic_x + 30, y=5)
+        self.active_cost_selector.place(x=basic_x + 30, y=basic_y)
         self.active_cost_selector.bind('<<ComboboxSelected>>', self.do_update_table)
 
         basic_x = 373
-        Label(self, text='W:', font=(MS_JH, 12)).place(x=basic_x, y=5)
+        Label(self, text='W:', font=(MS_JH, 12)).place(x=basic_x, y=basic_y)
         self.weapon_selector = ttk.Combobox(self, state='readonly', width=5, justify=CENTER)
         self.weapon_selector['values'] = insert_with_empty_str(WEAPONS)
-        self.weapon_selector.place(x=basic_x + 24, y=5)
+        self.weapon_selector.place(x=basic_x + 24, y=basic_y)
         self.weapon_selector.bind('<<ComboboxSelected>>', self.do_update_table)
 
         # 清空進行篩選的條件
         button = Button(self, text="清空條件", width=7, font=(MS_JH, 11))
-        button.place(x=605, y=0)
+        button.place(x=605, y=-1)
         button["command"] = self.do_clear_filter
 
     def do_clear_filter(self):
@@ -77,7 +78,7 @@ class Character(Frame):
     # noinspection PyAttributeOutsideInit
     def __init_table(self):
         self.table = Frame(self)
-        self.table.place(x=35, y=30)
+        self.table.place(x=34, y=29)
         self.table_view = TableCanvas(self.table, rowheaderwidth=0, cellwidth=50, editable=False)
         self.table_view.bind("<Double-Button-1>", self.do_double_click)
         # noinspection PyPep8Naming
@@ -146,6 +147,6 @@ class Character(Frame):
         self.wait_window(popup)
         self.do_update_table()
 
-    def adjust_view(self, width, height):
+    def adjust_widgets(self, width, height):
         self.table_view['width'] = width - 59
         self.table_view['height'] = height - 75

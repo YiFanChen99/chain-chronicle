@@ -5,7 +5,8 @@ from Tkinter import *
 
 
 class MainFrame(Frame):
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, db_suffix=None, **kwargs):
+        self.db_suffix = db_suffix
         Frame.__init__(self, master, **kwargs)
         self.pack(fill=BOTH, expand=1)
 
@@ -17,3 +18,6 @@ class MainFrame(Frame):
     # Template Method
     def adjust_widgets(self, width, height):
         pass
+
+    def compose_table_name(self, table_name):
+        return table_name + self.db_suffix
