@@ -4,7 +4,7 @@ __author__ = 'Ricky Chen'
 from Tkinter import *
 from OldStatic import *
 import ttk
-import Character
+import OldCharacter
 import RecordOfDrawLots
 
 MIN_WIDTH = 760
@@ -84,7 +84,7 @@ class GUIMain(Frame):
     # TODO 角色功能表未設計
     def __create_group_static_info(self):
         # 角色
-        character_table = Character.Character(self.note_book)
+        character_table = OldCharacter.Character(self.note_book)
         self.note_book.add(character_table, text=" CharacterTable ")
         self.tabs.append(character_table)
         # 另一個tab的寫法

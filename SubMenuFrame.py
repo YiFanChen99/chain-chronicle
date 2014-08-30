@@ -3,8 +3,8 @@ __author__ = 'Ricky Chen'
 
 from Tkinter import *
 from NewStatic import *
-import Character
 import RadiobuttonController
+import NewCharacter
 
 
 class SubMenuFrame(Frame):
@@ -45,10 +45,9 @@ class StaticGroupFrame(SubMenuFrame):
     def __init__(self, master, height, **kwargs):
         SubMenuFrame.__init__(self, master, height=height, **kwargs)
 
-    # TODO 根據index建立並回傳
     def create_main_frame(self, index):
         if index == 0:
-            return Frame(width=100, height=100, background='black')
+            return NewCharacter.Character(self.master)
         else:
             raise Exception("Wrong group selected!")
 

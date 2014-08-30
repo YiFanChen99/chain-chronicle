@@ -2,7 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-from OldStatic import *
+from NewStatic import *
 
 
 class RadiobuttonController(Frame):

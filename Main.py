@@ -13,6 +13,7 @@ class Main(Frame):
         self.__current_width = MIN_WIDTH
         self.__current_height = MIN_HEIGHT
         self.bind('<Configure>', self.do_update_width_and_height)
+        self.main_frame_pos_x = 66
 
         self.main_frame = None
         self.sub_menu_frame = None
@@ -31,9 +32,12 @@ class Main(Frame):
             self.main_frame.destroy()
 
         self.main_frame = main_frame
-        self.main_frame.place(x=0, y=67)
+        self.main_frame.place(x=0, y=self.main_frame_pos_x)
+        self.adjust_size_of_main_frame()  # 根據現在版面設定大小
 
-    # TODO
+    def calculate_main_frame_height(self):
+        return self.__current_height - self.main_frame_pos_x
+
     # noinspection PyUnusedLocal
     def do_update_width_and_height(self, event=None):
         if self.winfo_width() > MIN_WIDTH:
@@ -46,17 +50,10 @@ class Main(Frame):
         else:
             self.__current_height = MIN_HEIGHT
 
-        self.adjust_size_of_sub_main_frame()
+        self.adjust_size_of_main_frame()
 
-    # TODO
-    def adjust_size_of_sub_main_frame(self):
-        pass
-        # widget_width = self.__current_width - 8
-        # widget_height = self.__current_height - 59
-        # self.note_book['width'] = widget_width
-        # self.note_book['height'] = widget_height
-        # for each_tab in self.tabs:
-        #     each_tab.adjust_view(widget_width, widget_height)
+    def adjust_size_of_main_frame(self):
+        self.main_frame.adjust_size(self.__current_width, self.calculate_main_frame_height())
 
 if __name__ == "__main__":
     root = Tk()

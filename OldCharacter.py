@@ -17,8 +17,8 @@ COLUMNS = ['Character', 'FullName', 'Profession', 'Rank', 'Note',
 
 
 class Character(Frame):
-    def __init__(self, parent=None):
-        Frame.__init__(self, parent)
+    def __init__(self, parent, **kwargs):
+        Frame.__init__(self, parent, **kwargs)
         self.pack(fill=BOTH, expand=1)
 
         self.__init_filter_frame()
