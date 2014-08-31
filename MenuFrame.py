@@ -17,8 +17,7 @@ class MenuFrame(Frame):
         Frame.__init__(self, master, width=MIN_WIDTH, height=height, **kwargs)
         self.pack(fill=BOTH, expand=1)
 
-        radiobuttons = Utilities.RadiobuttonController(
-            self, height=height, bg='#%02x%02x%02x' % (192, 192, 192))
+        radiobuttons = Utilities.RadiobuttonController(self, height=height, button_type=1)
         for group_index in range(len(GROUPS)):
             def do_select_group(obj=self, my_index=group_index):
                 obj.do_select_group(my_index)
@@ -35,11 +34,12 @@ class MenuFrame(Frame):
         self.master.update_sub_menu_frame(self.create_sub_menu_frame(index))
 
     def create_sub_menu_frame(self, index):
+        height = 28
         if GROUPS[index] == GROUP_STATIC_INFO:
-            return SubMenuFrame.StaticGroupFrame(self.master, height=31)
+            return SubMenuFrame.StaticGroupFrame(self.master, height=height)
         elif GROUPS[index] == GROUP_ACCOUNT_JP:
-            return SubMenuFrame.AccountGroupFrame(self.master, height=31, db_suffix='JP')
+            return SubMenuFrame.AccountGroupFrame(self.master, height=height, db_suffix='JP')
         elif GROUPS[index] == GROUP_ACCOUNT_TW:
-            return SubMenuFrame.AccountGroupFrame(self.master, height=31, db_suffix='TW')
+            return SubMenuFrame.AccountGroupFrame(self.master, height=height, db_suffix='TW')
         else:
             raise Exception("Wrong group selected!")

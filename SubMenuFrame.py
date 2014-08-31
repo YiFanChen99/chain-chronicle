@@ -15,8 +15,7 @@ class SubMenuFrame(Frame):
         Frame.__init__(self, master, width=MIN_WIDTH, height=height, **kwargs)
         self.pack(fill=BOTH, expand=1)
 
-        self.radiobuttons = Utilities.RadiobuttonController(
-            self, height=height, bg='#%02x%02x%02x' % (192, 192, 192))
+        self.radiobuttons = Utilities.RadiobuttonController(self, height=height, button_type=2)
 
         for page_index in range(len(self.Frames)):
             def do_select_page(obj=self, my_index=page_index):
@@ -29,7 +28,7 @@ class SubMenuFrame(Frame):
                 self.radiobuttons.do_select(0, do_select_page)
 
     def creat_button_by_index(self, index, text, callback):
-        self.radiobuttons.create_button(5 + 160 * index, -1, text, callback, width=16)
+        self.radiobuttons.create_button(5 + 145 * index, -1, text, callback, width=16)
 
     # 幫 master 進行切換
     def do_select_page(self, index):

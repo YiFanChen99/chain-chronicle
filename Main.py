@@ -13,7 +13,7 @@ class Main(Frame):
         self.__current_width = MIN_WIDTH
         self.__current_height = MIN_HEIGHT
         self.bind('<Configure>', self.do_update_width_and_height)
-        self.main_frame_pos_x = 66
+        self.main_frame_pos_x = 63
 
         self.main_frame = None
         self.sub_menu_frame = None

@@ -32,16 +32,27 @@ class RecordsFilter():
 
 
 class RadiobuttonController(Frame):
-    def __init__(self, master, height, **kwargs):
+    BUTTON_SIZE = {'main': [11, 14], 'sub': [10, 12]}
+
+    def __init__(self, master, height, button_type=1, **kwargs):
         Frame.__init__(self, master, width=MIN_WIDTH, height=height, **kwargs)
         self.pack(fill=BOTH, expand=1)
+        self['bg'] = '#%02x%02x%02x' % (192, 192, 192)  # 預設底色
         self.default_selected_color = '#%02x%02x%02x' % (32, 32, 32)
         self.default_unselected_color = '#%02x%02x%02x' % (240, 240, 240)
-        self.default_font = ('Microsoft JhengHei', 11)
-        self.default_width = 14
+        self.set_button_type(button_type)
 
         self.current_selected = -1
         self.buttons = []
+
+    # noinspection PyAttributeOutsideInit
+    def set_button_type(self, button_type):
+        if button_type == 2:
+            self.default_font = ('Microsoft JhengHei', 10)
+            self.default_width = 12
+        else:  # 當 type 為 None/1
+            self.default_font = ('Microsoft JhengHei', 11)
+            self.default_width = 14
 
     def create_button(self, pos_x, pos_y, text, callback=None, width=None, **kwargs):
         if width is None:
