@@ -1,0 +1,84 @@
+# -*- coding: utf-8 -*-
+__author__ = 'Ricky Chen'
+
+from MainFrame import *
+from Static import *
+import ttk
+
+FONT = (MS_JH, 12)
+
+
+class PowerConverter(MainFrame):
+    def __init__(self, master, **kwargs):
+        MainFrame.__init__(self, master, **kwargs)
+
+        Converter(self, 'Fuji Account', width=300, height=MIN_HEIGHT).place(x=10, y=0)
+        Converter(self, 'Yama Account', width=300, height=MIN_HEIGHT).place(x=325, y=0)
+        self.__init_widgets()
+
+    def __init_widgets(self):
+        pass
+
+
+class Converter(Frame):
+
+    def __init__(self, master, name, **kwargs):
+        Frame.__init__(self, master, **kwargs)
+        self.name = name
+        self.__init_widgets()
+
+    def __init_widgets(self):
+        left_x = 27
+        middle_x = left_x + 100
+        right_x = middle_x + 100
+
+        current_y = 7
+        Label(self, width=12, text=self.name, font=FONT).place(x=92, y=current_y)
+
+        current_y += 33
+        ttk.Separator(self, orient=HORIZONTAL).place(x=10, y=current_y, width=300)
+
+        current_y += 19
+        self.calculate_for_max = Button(self, width=4, height=4, text='轉 換', font=FONT, relief=RIDGE, wraplength=1)
+        self.calculate_for_max.place(x=right_x, y=current_y - 1)
+
+        Label(self, width=8, text='Current AP', font=FONT).place(x=left_x, y=current_y)
+        self.current_ap = StringVar(value='')
+        Entry(self, width=8, textvariable=self.current_ap, font=FONT).place(x=middle_x, y=current_y)
+
+        current_y += 36
+        Label(self, width=8, text='Max AP', font=FONT).place(x=left_x, y=current_y)
+        self.max_ap = StringVar(value='')
+        Entry(self, width=8, textvariable=self.max_ap, font=FONT).place(x=middle_x, y=current_y)
+
+        current_y += 36
+        Label(self, width=8, text='Adjustment', font=FONT).place(x=left_x, y=current_y)
+        self.adjustment = StringVar(value='')
+        Entry(self, width=8, textvariable=self.adjustment, font=FONT).place(x=middle_x, y=current_y)
+
+        current_y += 36
+        self.difference_for_max = StringVar(value='30 AP --> 10 小時 30 分')
+        Label(self, width=20, textvariable=self.difference_for_max, font=FONT).place(x=52, y=current_y)
+
+        current_y += 30
+        self.time_reaching_max_ap = StringVar(value='Reached Time :   08 : 30')
+        Label(self, width=20, textvariable=self.time_reaching_max_ap, font=FONT).place(x=52, y=current_y)
+
+        current_y += 36
+        ttk.Separator(self, orient=HORIZONTAL).place(x=10, y=current_y, width=300)
+
+        current_y += 24
+        self.calculate_for_goal = Button(self, width=4, text='轉 換', font=FONT, relief=RIDGE)
+        self.calculate_for_goal.place(x=right_x, y=current_y - 6)
+
+        Label(self, width=8, text='Goad AP', font=FONT).place(x=left_x, y=current_y)
+        self.goal = StringVar(value='')
+        Entry(self, width=8, textvariable=self.goal, font=FONT).place(x=middle_x, y=current_y)
+
+        current_y += 37
+        self.difference_for_goal = StringVar(value='30 AP --> 10 小時 30 分')
+        Label(self, width=20, textvariable=self.difference_for_goal, font=FONT).place(x=52, y=current_y)
+
+        current_y += 30
+        self.time_reaching_goal_ap = StringVar(value='Reached Time :   08 : 30')
+        Label(self, width=20, textvariable=self.time_reaching_goal_ap, font=FONT).place(x=52, y=current_y)

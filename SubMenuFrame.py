@@ -3,6 +3,7 @@ __author__ = 'Ricky Chen'
 
 from Tkinter import *
 from Static import *
+import PowerConverter
 import Utilities
 import Character
 import RecordOfDrawLots
@@ -28,7 +29,7 @@ class SubMenuFrame(Frame):
                 self.radiobuttons.do_select(0, do_select_page)
 
     def creat_button_by_index(self, index, text, callback):
-        self.radiobuttons.create_button(5 + 145 * index, -1, text, callback, width=16)
+        self.radiobuttons.create_button(6 + 145 * index, -1, text, callback, width=16)
 
     # 幫 master 進行切換
     def do_select_page(self, index):
@@ -40,7 +41,7 @@ class SubMenuFrame(Frame):
 
 
 class StaticGroupFrame(SubMenuFrame):
-    Frames = ['CharacterTable']
+    Frames = ['CharacterTable', 'PowerConverter']
 
     def __init__(self, master, height, **kwargs):
         SubMenuFrame.__init__(self, master, height=height, **kwargs)
@@ -48,6 +49,8 @@ class StaticGroupFrame(SubMenuFrame):
     def create_main_frame(self, index):
         if index == 0:
             return Character.Character(self.master)
+        elif index == 1:
+            return PowerConverter.PowerConverter(self.master)
         else:
             raise Exception("Wrong group selected!")
 
