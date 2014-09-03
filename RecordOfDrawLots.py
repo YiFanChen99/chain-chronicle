@@ -150,10 +150,11 @@ class RecordOfDrawLots(MainFrame):
             self.table_model.addRow(Times=0, Event='無任何記錄')
         else:
             for row in results:
-                self.table_model.addRow(Times=row[0], Event=convert_to_str(row[1]),
-                                        Profession=convert_to_str(row[2]), Rank=row[3],
-                                        Character=convert_to_str(row[4]),
-                                        Cost=convert_to_str(row[5]))
+                data = iter(list(row))
+                self.table_model.addRow(Times=next(data), Event=convert_to_str(next(data)),
+                                        Profession=convert_to_str(next(data)), Rank=next(data),
+                                        Character=convert_to_str(next(data)),
+                                        Cost=convert_to_str(next(data)))
 
         self.table_model.setSortOrder(columnName=COLUMNS[0], reverse=1)
 

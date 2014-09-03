@@ -10,10 +10,10 @@ from tkintertable.TableModels import TableModel
 import UpdateCharacterWindow
 
 # Character 表格中的各欄位
-COLUMNS = ['Character', 'FullName', 'Profession', 'Rank', 'Note',
+COLUMNS = ['FullName', 'Nickname', 'Profession', 'Rank',
            'Active', 'ActiveCost', 'Passive1', 'Passive2', 'WeaponType',
            'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown',
-           'HPGrown', 'AtkSpeed', 'WalkSpeed', 'CriticalRate']
+           'HPGrown', 'AtkSpeed', 'WalkSpeed', 'CriticalRate', 'Note']
 
 
 class Character(MainFrame):
@@ -90,23 +90,26 @@ class Character(MainFrame):
     def do_update_table(self, event=None):
         self.table_model = TableModel()
 
+        # FullName 將不顯示在表格中
         for column in COLUMNS:
-            if column != 'FullName' and column != 'Note':
+            if column != 'FullName':
                 self.table_model.addColumn(column)
 
         self.__update_filters()
         results = self.records_filter.filtered_records
         if len(results) == 0:
-            self.table_model.addRow(Character='無任何記錄')
+            self.table_model.addRow(Nickname='無任何記錄')
         for row in results:
-            self.table_model.addRow(Character=convert_to_str(row[0]),
-                                    Profession=convert_to_str(row[2]), Rank=row[3],
-                                    Active=convert_to_str(row[5]), ActiveCost=row[6],
-                                    Passive1=convert_to_str(row[7]), Passive2=convert_to_str(row[8]),
-                                    WeaponType=convert_to_str(row[9]),
-                                    ExpGrown=convert_to_str(row[10]), AttendanceCost=row[11],
-                                    MaxAtk=row[12], MaxHP=row[13], AtkGrown=row[14], HPGrown=row[15],
-                                    AtkSpeed=row[16], WalkSpeed=row[17], CriticalRate=row[18])
+            data = iter(list(row[1:19]))
+            self.table_model.addRow(Nickname=convert_to_str(next(data)),
+                                    Profession=convert_to_str(next(data)), Rank=next(data),
+                                    Active=convert_to_str(next(data)), ActiveCost=next(data),
+                                    Passive1=convert_to_str(next(data)), Passive2=convert_to_str(next(data)),
+                                    WeaponType=convert_to_str(next(data)),
+                                    ExpGrown=convert_to_str(next(data)), AttendanceCost=next(data),
+                                    MaxAtk=next(data), MaxHP=next(data), AtkGrown=next(data),
+                                    HPGrown=next(data), AtkSpeed=next(data), WalkSpeed=next(data),
+                                    CriticalRate=next(data), Note=convert_to_str(next(data)))
 
         self.table_model.setSortOrder(columnName=COLUMNS[3], reverse=1)
         self.table_model.setSortOrder(columnName=COLUMNS[2])
@@ -128,10 +131,10 @@ class Character(MainFrame):
             self.records_filter.add_filter(3, int(rank))
         active_cost = self.active_cost_selector.get()
         if active_cost != '':
-            self.records_filter.add_filter(6, int(active_cost))
+            self.records_filter.add_filter(5, int(active_cost))
         weapon = self.weapon_selector.get()
         if weapon != '':
-            self.records_filter.add_filter(9, weapon)
+            self.records_filter.add_filter(8, weapon)
 
     def do_add_character(self):
         popup = UpdateCharacterWindow.UpdateCharacterWindow(self)
