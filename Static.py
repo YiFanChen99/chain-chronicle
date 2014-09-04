@@ -15,7 +15,7 @@ WEAPONS = [u'斬', u'打', u'突', u'弓', u'魔', u'聖', u'拳', u'銃', u'狙
 EXP_GROWN = [u'1000', u'750', u'500', u'300', u'LH']
 ACTIVE_COST = [3, 2, 1]
 
-DATABASE = sqlite3.connect('ChainChronicle.sqlite')
+DATABASE = sqlite3.connect('data/ChainChronicle.sqlite')
 MS_JH = 'Microsoft JhengHei'  # 微軟正黑體
 
 
