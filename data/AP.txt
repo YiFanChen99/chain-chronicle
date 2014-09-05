@@ -1,12 +1,12 @@
 [Fuji Account]
-last calculation = Last Calculation :   11 : 57
+last calculation = Last Calculation :   00 : 37
 max ap = 84
-difference = 81 AP --> 10 小時 48 分
-reached time = Reached Time :   10 : 45
+difference = 46 AP --> 06 小時 08 分
+reached time = Reached Time :   06 : 45
 
 [Yama Account]
-last calculation = Last Calculation :   11 : 31
+last calculation = Last Calculation :   09 : 19
 max ap = 59
-difference = 40 AP --> 05 小時 20 分
-reached time = Reached Time :   04 : 51
+difference = 47 AP --> 06 小時 16 分
+reached time = Reached Time :   03 : 35
 

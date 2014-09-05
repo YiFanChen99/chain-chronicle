@@ -60,7 +60,7 @@ def convert_str_to_datetime(date_str):
 
 
 # noinspection PyUnusedLocal
-def do_nothing(obj=None, event=None):
+def doing_nothing(obj=None, event=None):
     pass
 
 

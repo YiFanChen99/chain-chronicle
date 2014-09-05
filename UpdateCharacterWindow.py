@@ -74,7 +74,7 @@ class UpdateCharacterWindow(Frame):
         self.max_hp_after_break = StringVar(value='')
         Entry(self.window, width=6, textvariable=self.max_hp_after_break).place(x=163, y=current_y + label_space)
 
-        Button(self.window, text="轉換", command=self.do_transform_grown, width=4, borderwidth=3) \
+        Button(self.window, text="轉換", command=self.transforming_grown, width=4, borderwidth=3) \
             .place(x=215, y=current_y + label_space - 13)
 
         Label(self.window, width=6, text='Atk成長').place(x=263, y=current_y)
@@ -124,13 +124,13 @@ class UpdateCharacterWindow(Frame):
 
         # 最後一個 Row
         current_y = 215
-        Button(self.window, text="Submit", command=self.do_submit, width=33, borderwidth=3).place(x=24, y=current_y)
-        Button(self.window, text="Cancel", command=self.do_cancel, width=33, borderwidth=3).place(x=290, y=current_y)
+        Button(self.window, text="Submit", command=self.submitting, width=33, borderwidth=3).place(x=24, y=current_y)
+        Button(self.window, text="Cancel", command=self.canceling, width=33, borderwidth=3).place(x=290, y=current_y)
 
         self.__init_character(character)
 
     # 若四格都有輸入，則會計算出每突的成長值
-    def do_transform_grown(self):
+    def transforming_grown(self):
         if (self.max_atk.get() != '') & (self.max_hp.get() != '') & \
                 (self.max_atk_after_break.get() != '') & (self.max_hp_after_break.get() != ''):
             self.atk_grown.set(self.calculate_grown(self.max_atk.get(), self.max_atk_after_break.get()))
@@ -142,7 +142,7 @@ class UpdateCharacterWindow(Frame):
     def calculate_grown(max_value, max_after_break):
         return str((int(max_after_break) - int(max_value)) / 4)
 
-    def do_submit(self):
+    def submitting(self):
         # 將可能存在資料庫的資料先刪除，接續之後的插入就是更新動作了
         full_name = self.full_name.get()
         DATABASE.execute('delete from Character where FullName=' + convert_datum_to_command(full_name))
@@ -193,6 +193,6 @@ class UpdateCharacterWindow(Frame):
         else:
             self.walk_speed.set(1.5)
 
-    def do_cancel(self):
+    def canceling(self):
         self.window.destroy()
         self.destroy()

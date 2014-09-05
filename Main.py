@@ -12,7 +12,7 @@ class Main(Frame):
 
         self.__current_width = MIN_WIDTH
         self.__current_height = MIN_HEIGHT
-        self.bind('<Configure>', self.do_update_width_and_height)
+        self.bind('<Configure>', self.updating_width_and_height)
         self.main_frame_pos_x = 63
 
         self.main_frame = None
@@ -39,7 +39,7 @@ class Main(Frame):
         return self.__current_height - self.main_frame_pos_x
 
     # noinspection PyUnusedLocal
-    def do_update_width_and_height(self, event=None):
+    def updating_width_and_height(self, event=None):
         if self.winfo_width() > MIN_WIDTH:
             self.__current_width = self.winfo_width()
         else:

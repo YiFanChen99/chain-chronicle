@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ricky Chen'
 
-from Static import *
 from MainFrame import *
 import Utilities
 import ttk
 import tkMessageBox
-from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
 import UpdateCharacterWindow
 from datetime import timedelta
@@ -15,9 +13,9 @@ from datetime import timedelta
 COLUMNS = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
 
 
-class RecordOfDrawLots(MainFrame):
+class RecordOfDrawLots(MainFrameWithTable):
     def __init__(self, parent, db_suffix):
-        MainFrame.__init__(self, parent, db_suffix=db_suffix)
+        MainFrameWithTable.__init__(self, parent, db_suffix=db_suffix)
 
         self.events = DATABASE.execute('select Name, End from ' +
                                        self.compose_table_name('EventOfDrawLots')).fetchall()
@@ -26,11 +24,11 @@ class RecordOfDrawLots(MainFrame):
         self.__init_filter_frame()
 
         self.records_filter = Utilities.RecordsFilter('select * from ' +
-                                                          self.compose_table_name('RecordOfDrawLots'))
+                                                      self.compose_table_name('RecordOfDrawLots'))
 
         # 呈現資料的表格
-        self.table_model = None
-        self.__init_table()
+        self.table.tkraise()  # 避免被其他元件遮到
+        self.updating_table()
 
     # noinspection PyAttributeOutsideInit
     def __init_add_record_frame(self):
@@ -44,7 +42,7 @@ class RecordOfDrawLots(MainFrame):
         # 新增記錄的按鈕
         button = Button(self, text="新增記錄", width=2, height=14, wraplength=1, font=(MS_JH, 12))
         button.place(x=5, y=76)
-        button["command"] = self.do_add_record
+        button["command"] = self.adding_record
 
     # noinspection PyAttributeOutsideInit
     def __init_filter_frame(self):
@@ -54,21 +52,21 @@ class RecordOfDrawLots(MainFrame):
         self.event_filter['values'] = \
             insert_with_empty_str([event[0] for event in reversed(self.events)])
         self.event_filter.place(x=basic_x + 18, y=3)
-        self.event_filter.bind('<<ComboboxSelected>>', self.do_update_table)
+        self.event_filter.bind('<<ComboboxSelected>>', self.updating_table)
 
         basic_x = 164
         Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=3)
         self.cost = ttk.Combobox(self, state='readonly', width=6, justify=CENTER)
         self.cost['values'] = insert_with_empty_str(DRAW_LOTS_COST)
         self.cost.place(x=basic_x + 20, y=3)
-        self.cost.bind('<<ComboboxSelected>>', self.do_update_table)
+        self.cost.bind('<<ComboboxSelected>>', self.updating_table)
 
         basic_x = 255
         Label(self, text='P:', font=(MS_JH, 12)).place(x=basic_x, y=3)
         self.profession = ttk.Combobox(self, state='readonly', width=4, justify=CENTER)
         self.profession['values'] = insert_with_empty_str(PROFESSIONS)
         self.profession.place(x=basic_x + 20, y=3)
-        self.profession.bind('<<ComboboxSelected>>', self.do_update_table)
+        self.profession.bind('<<ComboboxSelected>>', self.updating_table)
 
         basic_x = 339
         Label(self, text='Total:', font=(MS_JH, 12)).place(x=basic_x, y=2)
@@ -99,19 +97,19 @@ class RecordOfDrawLots(MainFrame):
         # 清空進行篩選的條件
         button = Button(self, text="清空條件", width=7, font=(MS_JH, 11))
         button.place(x=655, y=-1)
-        button["command"] = self.do_clear_filter
+        button["command"] = self.clearing_filter
 
     def update_all_records(self):
         self.records_filter.update_raw_records()
-        self.do_update_table()
+        self.updating_table()
 
-    def do_clear_filter(self):
+    def clearing_filter(self):
         self.event_filter.set('')
         self.cost.set('')
         self.profession.set('')
-        self.do_update_table()
+        self.updating_table()
 
-    def do_add_record(self):
+    def adding_record(self):
         popup = AddRecordWindow(self, self.db_suffix, self.get_suitable_event_names())
         self.wait_window(popup)
 
@@ -127,18 +125,8 @@ class RecordOfDrawLots(MainFrame):
                 names.append(each_event[0])
         return names
 
-    # noinspection PyAttributeOutsideInit
-    def __init_table(self):
-        self.table = Frame(self)
-        self.table.place(x=34, y=29)
-        self.table_view = TableCanvas(self.table, rowheaderwidth=0, cellwidth=90, editable=False)
-        # noinspection PyPep8Naming
-        self.table_view.deleteCells = do_nothing  # 按下 Delete 鍵時不做反應(預設會詢問是否刪除該記錄)
-
-        self.do_update_table()
-
     # noinspection PyUnusedLocal
-    def do_update_table(self, event=None):
+    def updating_table(self, event=None):
         self.table_model = TableModel()
 
         for column in COLUMNS:
@@ -158,10 +146,7 @@ class RecordOfDrawLots(MainFrame):
 
         self.table_model.setSortOrder(columnName=COLUMNS[0], reverse=1)
 
-        self.table_view.setModel(self.table_model)
-        self.table_view.createTableFrame()
-        self.table_view.redrawTable()
-        self.table_view.adjustColumnWidths()
+        self.redisplay_table()
 
         # 連動更新統計資料
         self.__update_statistic()
@@ -220,10 +205,6 @@ class RecordOfDrawLots(MainFrame):
         ratio = round(100.0 * numerator / total, 1)
         return str(ratio) + '%'
 
-    def adjust_widgets(self, width, height):
-        self.table_view['width'] = width - 59
-        self.table_view['height'] = height - 75
-
 
 class AddRecordWindow(Frame):
     def __init__(self, master, db_suffix, event_names):
@@ -262,13 +243,13 @@ class AddRecordWindow(Frame):
         self.profession_selector = ttk.Combobox(self.window, state='readonly', width=7, justify=CENTER)
         self.profession_selector['values'] = PROFESSIONS
         self.profession_selector.place(x=199, y=40)
-        self.profession_selector.bind('<<ComboboxSelected>>', self.update_character_selector)
+        self.profession_selector.bind('<<ComboboxSelected>>', self.updating_character_selector)
 
         # 選擇等級
         self.rank_selector = ttk.Combobox(self.window, state='readonly', width=5, justify=CENTER)
         self.rank_selector['values'] = RANKS_WHEN_DRAW_LOTS
         self.rank_selector.place(x=285, y=40)
-        self.rank_selector.bind('<<ComboboxSelected>>', self.update_character_selector)
+        self.rank_selector.bind('<<ComboboxSelected>>', self.updating_character_selector)
 
         # 選擇角色
         self.character_selector = ttk.Combobox(self.window, state='readonly', width=10, justify=CENTER)
@@ -282,27 +263,27 @@ class AddRecordWindow(Frame):
         # 送交的按鈕
         button = Button(self.window, text="新增此記錄", width=38, borderwidth=3)
         button.place(x=28, y=79)
-        button["command"] = self.do_submit
+        button["command"] = self.submitting
 
         # 新增角色的按鈕
         button = Button(self.window, text="新增角色", width=12, borderwidth=3)
         button.place(x=326, y=79)
-        button["command"] = self.do_add_character
+        button["command"] = self.adding_character
 
         # 取消並關閉的按鈕
         button = Button(self.window, text="關閉視窗", width=12, borderwidth=3)
         button.place(x=438, y=79)
-        button["command"] = self.do_close_window
+        button["command"] = self.closing_window
 
         self.update_by_last_record()
 
     def update_by_last_record(self):
         self.times.set(self.last_record[0] + 1)
         self.event_selector.set(self.last_record[1])
-        self.update_character_selector()
+        self.updating_character_selector()
         self.cost_selector.set(self.last_record[5])
 
-    def do_submit(self):
+    def submitting(self):
         if self.is_new_record_legal():
             DATABASE.execute('insert into ' + self.record_table +
                              '(' + ','.join(COLUMNS) + ')' +
@@ -334,7 +315,7 @@ class AddRecordWindow(Frame):
         return is_legal
 
     # noinspection PyUnusedLocal
-    def update_character_selector(self, event=None):
+    def updating_character_selector(self, event=None):
         # 取得所有的角色
         results = DATABASE.execute('select Character, Rank, Profession from Character').fetchall()
 
@@ -351,11 +332,11 @@ class AddRecordWindow(Frame):
         self.character_selector['values'] = characters
         self.character_selector.set('')
 
-    def do_add_character(self):
+    def adding_character(self):
         popup = UpdateCharacterWindow.UpdateCharacterWindow(self)
         self.wait_window(popup)
-        self.update_character_selector()
+        self.updating_character_selector()
 
-    def do_close_window(self):
+    def closing_window(self):
         self.window.destroy()
         self.destroy()

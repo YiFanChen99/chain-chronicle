@@ -2,7 +2,6 @@
 __author__ = 'Ricky Chen'
 
 from MainFrame import *
-from Static import *
 import ttk
 from configparser3 import configparser
 from datetime import timedelta
@@ -61,11 +60,13 @@ class Converter(Frame):
         current_y += 36
         self.calculate_for_max = Button(self, width=4, height=4, text='轉 換', font=FONT, relief=RIDGE, wraplength=1)
         self.calculate_for_max.place(x=right_x, y=current_y - 1)
-        self.calculate_for_max['command'] = self.calculate_for_max_ap
+        self.calculate_for_max['command'] = self.calculating_for_max_ap
 
         Label(self, width=8, text='Current AP', font=FONT).place(x=left_x, y=current_y)
         self.current_ap = StringVar(value='')
-        Entry(self, width=6, textvariable=self.current_ap, font=FONT).place(x=middle_x, y=current_y)
+        current_ap_entry = Entry(self, width=6, textvariable=self.current_ap, font=FONT)
+        current_ap_entry.place(x=middle_x, y=current_y)
+        current_ap_entry.bind('<Return>', self.calculating_for_max_ap)
 
         current_y += 36
         Label(self, width=8, text='Max AP', font=FONT).place(x=left_x, y=current_y)
@@ -91,11 +92,13 @@ class Converter(Frame):
         current_y += 24
         self.calculate_for_goal = Button(self, width=4, text='轉 換', font=FONT, relief=RIDGE)
         self.calculate_for_goal.place(x=right_x, y=current_y - 6)
-        self.calculate_for_goal['command'] = self.calculate_for_goal_ap
+        self.calculate_for_goal['command'] = self.calculating_for_goal_ap
 
         Label(self, width=8, text='Goad AP', font=FONT).place(x=left_x, y=current_y)
         self.goal = StringVar(value='')
-        Entry(self, width=6, textvariable=self.goal, font=FONT).place(x=middle_x, y=current_y)
+        goal_entry = Entry(self, width=6, textvariable=self.goal, font=FONT)
+        goal_entry.place(x=middle_x, y=current_y)
+        goal_entry.bind('<Return>', self.calculating_for_goal_ap)
 
         current_y += 37
         self.difference_for_goal = StringVar(value='')
@@ -105,7 +108,8 @@ class Converter(Frame):
         self.time_reaching_goal_ap = StringVar(value='')
         Label(self, width=20, textvariable=self.time_reaching_goal_ap, font=FONT).place(x=52, y=current_y)
 
-    def calculate_for_max_ap(self):
+    # noinspection PyUnusedLocal
+    def calculating_for_max_ap(self, event=None):
         # 初始化
         if self.current_ap.get() == '':
             self.current_ap.set(0)
@@ -129,7 +133,8 @@ class Converter(Frame):
         with codecs.open(FILE_NAME, encoding="utf8", mode='wb') as data_file:
             self.parser.write(data_file)
 
-    def calculate_for_goal_ap(self):
+    # noinspection PyUnusedLocal
+    def calculating_for_goal_ap(self, event=None):
         # 初始化
         if self.current_ap.get() == '':
             self.current_ap.set(0)

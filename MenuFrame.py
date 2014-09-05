@@ -19,18 +19,18 @@ class MenuFrame(Frame):
 
         radiobuttons = Utilities.RadiobuttonController(self, height=height, button_type=1)
         for group_index in range(len(GROUPS)):
-            def do_select_group(obj=self, my_index=group_index):
-                obj.do_select_group(my_index)
+            def selecting_group(obj=self, my_index=group_index):
+                obj.selecting_group(my_index)
 
             radiobuttons.create_button(145 + 165 * group_index, -1, GROUPS[group_index],
-                                       do_select_group, width=14)
+                                       selecting_group, width=14)
 
             # 預設選擇第一個
             if group_index == 0:
-                radiobuttons.do_select(0, do_select_group)
+                radiobuttons.selecting_button(0, selecting_group)
 
     # 幫 master 進行切換
-    def do_select_group(self, index):
+    def selecting_group(self, index):
         self.master.update_sub_menu_frame(self.create_sub_menu_frame(index))
 
     def create_sub_menu_frame(self, index):

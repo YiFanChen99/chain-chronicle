@@ -60,17 +60,17 @@ class RadiobuttonController(Frame):
 
         next_index = len(self.buttons)
 
-        def do_select(obj=self, the_index=next_index, the_callback=callback):
-            obj.do_select(the_index, the_callback)
+        def selecting_button(obj=self, the_index=next_index, the_callback=callback):
+            obj.selecting_button(the_index, the_callback)
 
         button = Button(self, text=text, width=width, font=self.default_font, **kwargs)
         button.place(x=pos_x, y=pos_y)
-        button["command"] = do_select
+        button["command"] = selecting_button
 
         self.buttons.append(button)
 
     # 當選擇非選取中的按鈕才會觸發更換事件
-    def do_select(self, index, callback):
+    def selecting_button(self, index, callback):
         if index != self.current_selected:
             self.change_buttons_state(index)
             if callback is not None:
