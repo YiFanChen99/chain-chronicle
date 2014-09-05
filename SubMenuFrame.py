@@ -41,16 +41,16 @@ class SubMenuFrame(Frame):
 
 
 class StaticGroupFrame(SubMenuFrame):
-    Frames = ['CharacterTable', 'PowerConverter']
+    Frames = ['PowerConverter', 'CharacterTable']
 
     def __init__(self, master, height, **kwargs):
         SubMenuFrame.__init__(self, master, height=height, **kwargs)
 
     def create_main_frame(self, index):
         if index == 0:
-            return Character.Character(self.master)
-        elif index == 1:
             return PowerConverter.PowerConverter(self.master)
+        elif index == 1:
+            return Character.Character(self.master)
         else:
             raise Exception("Wrong group selected!")
 

@@ -1,12 +1,13 @@
 
+記錄好友訊息，並能記錄每週好友
+	Friend: ID, Name, DateAdded, Excellence, Defect
+	FriendRecordJP: FriendID, DateRecorded, Rank, Character, CharacterLevel
+	
 所有角色的註記型能力特質
 	確認資料庫的連動關係，是否能保證左有右有
 
-
-
 帳號擁有的角色與其狀態之列表
 記錄每週帳號相關資訊，含等級與道具（圖表）
-記錄好友訊息，並能記錄每週好友
 
 ap效益maybe? 打幾場升級，關卡註記
 
