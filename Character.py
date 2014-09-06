@@ -2,10 +2,8 @@
 __author__ = 'Ricky Chen'
 
 from MainFrame import *
-import Utilities
-import ttk
-from tkintertable.TableModels import TableModel
 import UpdateCharacterWindow
+import Utilities
 
 # Character 表格中的各欄位
 COLUMNS = ['FullName', 'Nickname', 'Profession', 'Rank',

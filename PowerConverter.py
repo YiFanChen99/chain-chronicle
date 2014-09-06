@@ -2,10 +2,9 @@
 __author__ = 'Ricky Chen'
 
 from MainFrame import *
-import ttk
+import codecs
 from configparser3 import configparser
 from datetime import timedelta
-import codecs
 
 FONT = (MS_JH, 12)
 FILE_NAME = 'data/AP.txt'
@@ -151,7 +150,7 @@ class Converter(Frame):
 
     @staticmethod
     def convert_time_to_str(time):
-        return '%02d : %02d' % (time.hour % 12, time.minute)
+        return '%02d : %02d' % (time.hour - 12 if time.hour > 12 else time.hour, time.minute)
 
     @staticmethod
     def convert_timedelta_to_str(the_timedelta):

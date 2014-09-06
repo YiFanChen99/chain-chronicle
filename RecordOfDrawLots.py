@@ -2,11 +2,8 @@
 __author__ = 'Ricky Chen'
 
 from MainFrame import *
-import Utilities
-import ttk
-import tkMessageBox
-from tkintertable.TableModels import TableModel
 import UpdateCharacterWindow
+import Utilities
 from datetime import timedelta
 
 # RecordOfDrawLots 表格中的各欄位

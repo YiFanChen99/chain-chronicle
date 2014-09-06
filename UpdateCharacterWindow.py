@@ -164,7 +164,7 @@ class UpdateCharacterWindow(Frame):
 
     @staticmethod
     def select_character(character):
-        condition = ' where Character=' + convert_datum_to_command(character)
+        condition = ' where Nickname=' + convert_datum_to_command(character)
         return DATABASE.execute('select * from Character' + condition).fetchone()
 
     # 當有特定的 character 時，讀取其資料並更新各元件

@@ -59,11 +59,6 @@ def convert_str_to_datetime(date_str):
     return datetime.strptime(date_str, "%Y/%m/%d")
 
 
-# noinspection PyUnusedLocal
-def doing_nothing(obj=None, event=None):
-    pass
-
-
 def insert_with_empty_str(the_list):
     result = ['']
     result.extend(the_list)
