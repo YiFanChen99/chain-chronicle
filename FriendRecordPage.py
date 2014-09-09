@@ -12,9 +12,10 @@ COLUMNS = ['FullName', 'Nickname', 'Profession', 'Rank',
            'HPGrown', 'AtkSpeed', 'WalkSpeed', 'CriticalRate', 'Note']
 
 
-class Character(MainFrameWithTable):
-    def __init__(self, master, **kwargs):
-        MainFrameWithTable.__init__(self, master, **kwargs)
+class FriendRecord(MainFrameWithTable):
+    def __init__(self, parent, db_suffix):
+        MainFrameWithTable.__init__(self, parent, db_suffix=db_suffix)
+        self.set_table_place(34, 29)
 
         # 新增記錄的按鈕
         button = Button(self, text="新增角色資訊", width=2, height=17, wraplength=1, font=(MS_JH, 12))

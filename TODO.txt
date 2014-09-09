@@ -2,7 +2,10 @@
 記錄好友訊息，並能記錄每週好友
 	Friend: ID, Name, DateAdded, Excellence, Defect
 	FriendRecordJP: FriendID, DateRecorded, Rank, Character, CharacterLevel
-	
+            tkMessageBox.askyesno(title, mess)
+
+透過職業與等級選擇角色的功能。（協助RecordOfDraw等）
+			
 所有角色的註記型能力特質
 	確認資料庫的連動關係，是否能保證左有右有
 
@@ -13,10 +16,11 @@ ap效益maybe? 打幾場升級，關卡註記
 
 次要：
 「新增酒廠」的功能。
-Character 透過實作 do_dragging_along_right，增加「刪除」功能。
 
 次次要：
+RecordOfDraw的資料只需要角色，而不用職業與等級，並透過join達成篩選。
 優化 Character，不再先刪除後新增，應分為更新與插入。
 抽卡記錄與酒廠的DB改成以Times為Key連結。
 角色列表分台日版（Ex: 台版小兔，2.0 角色，但似乎留著也不影響）
+Character 透過實作 do_dragging_along_right，增加「刪除」功能。
 RecordOfDraw 透過實作 do_dragging_along_right，增加「刪除」功能。

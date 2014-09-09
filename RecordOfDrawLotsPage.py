@@ -6,13 +6,13 @@ import UpdateCharacterWindow
 import Utilities
 from datetime import timedelta
 
-# RecordOfDrawLots 表格中的各欄位
-COLUMNS = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
+TABLE = RECORDOFDRAWLOTS_TABLE
 
 
 class RecordOfDrawLots(MainFrameWithTable):
-    def __init__(self, parent, db_suffix):
-        MainFrameWithTable.__init__(self, parent, db_suffix=db_suffix)
+    def __init__(self, master, db_suffix):
+        MainFrameWithTable.__init__(self, master, db_suffix=db_suffix)
+        self.set_table_place(34, 29)
 
         self.events = DATABASE.execute('select Name, End from ' +
                                        self.compose_table_name('EventOfDrawLots')).fetchall()
@@ -126,7 +126,7 @@ class RecordOfDrawLots(MainFrameWithTable):
     def updating_table(self, event=None):
         self.table_model = TableModel()
 
-        for column in COLUMNS:
+        for column in TABLE:
             self.table_model.addColumn(column)
 
         self.__update_filters()
@@ -141,7 +141,7 @@ class RecordOfDrawLots(MainFrameWithTable):
                                         Character=convert_to_str(next(data)),
                                         Cost=convert_to_str(next(data)))
 
-        self.table_model.setSortOrder(columnName=COLUMNS[0], reverse=1)
+        self.table_model.setSortOrder(columnName=TABLE[0], reverse=1)
 
         self.redisplay_table()
 
@@ -220,12 +220,12 @@ class AddRecordWindow(Frame):
     # noinspection PyAttributeOutsideInit
     def __init_widgets(self, event_names):
         # 各 Column 的標題: 筆數, 酒廠, 職業, 等級, 角色, 花費
-        Label(self.window, text=COLUMNS[0], width=6, font=("", 12)).place(x=3, y=9)
-        Label(self.window, text=COLUMNS[1], width=14, font=("", 12)).place(x=56, y=9)
-        Label(self.window, text=COLUMNS[2], width=7, font=("", 12)).place(x=200, y=9)
-        Label(self.window, text=COLUMNS[3], width=5, font=("", 12)).place(x=286, y=9)
-        Label(self.window, text=COLUMNS[4], width=11, font=("", 12)).place(x=349, y=9)
-        Label(self.window, text=COLUMNS[5], width=9, font=("", 12)).place(x=453, y=9)
+        Label(self.window, text=TABLE[0], width=6, font=("", 12)).place(x=3, y=9)
+        Label(self.window, text=TABLE[1], width=14, font=("", 12)).place(x=56, y=9)
+        Label(self.window, text=TABLE[2], width=7, font=("", 12)).place(x=200, y=9)
+        Label(self.window, text=TABLE[3], width=5, font=("", 12)).place(x=286, y=9)
+        Label(self.window, text=TABLE[4], width=11, font=("", 12)).place(x=349, y=9)
+        Label(self.window, text=TABLE[5], width=9, font=("", 12)).place(x=453, y=9)
 
         # 下一次的筆數
         self.times = Variable()
@@ -283,7 +283,7 @@ class AddRecordWindow(Frame):
     def submitting(self):
         if self.is_new_record_legal():
             DATABASE.execute('insert into ' + self.record_table +
-                             '(' + ','.join(COLUMNS) + ')' +
+                             '(' + ','.join(TABLE) + ')' +
                              convert_data_to_insert_command(self.times.get(), self.event_selector.get(),
                                                             self.profession_selector.get(), self.rank_selector.get(),
                                                             self.character_selector.get(), self.cost_selector.get()))

@@ -6,11 +6,7 @@ from Static import *
 import ttk
 import tkMessageBox
 
-# Character 表格中的各欄位
-COLUMNS = ['FullName', 'Nickname', 'Profession', 'Rank',
-           'Active', 'ActiveCost', 'Passive1', 'Passive2', 'WeaponType',
-           'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown',
-           'HPGrown', 'AtkSpeed', 'WalkSpeed', 'CriticalRate', 'Note']
+TABLE = CHARACTER_TABLE
 
 
 class UpdateCharacterWindow(Frame):
@@ -147,7 +143,7 @@ class UpdateCharacterWindow(Frame):
         full_name = self.full_name.get()
         DATABASE.execute('delete from Character where FullName=' + convert_datum_to_command(full_name))
 
-        DATABASE.execute('insert into Character(' + ','.join(COLUMNS) + ')' +
+        DATABASE.execute('insert into Character(' + ','.join(TABLE) + ')' +
                          convert_data_to_insert_command(full_name, self.nickname.get(),
                                                         self.profession.get(), self.rank.get(),
                                                         self.active.get(),

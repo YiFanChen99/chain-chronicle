@@ -16,6 +16,12 @@ EXP_GROWN = [u'1000', u'750', u'500', u'300', u'LH']
 ACTIVE_COST = [3, 2, 1]
 
 DATABASE = sqlite3.connect('data/ChainChronicle.sqlite')
+# Character 表格中的各欄位
+CHARACTER_TABLE = ['FullName', 'Nickname', 'Profession', 'Rank',
+                   'Active', 'ActiveCost', 'Passive1', 'Passive2', 'WeaponType',
+                   'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown',
+                   'HPGrown', 'AtkSpeed', 'WalkSpeed', 'CriticalRate', 'Note']
+RECORDOFDRAWLOTS_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
 MS_JH = 'Microsoft JhengHei'  # 微軟正黑體
 
 

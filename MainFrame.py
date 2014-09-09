@@ -28,12 +28,19 @@ class MainFrameWithTable(MainFrame):
         MainFrame.__init__(self, master, db_suffix, **kwargs)
 
         # init table
+        self.table_x = None
+        self.table_y = None
         self.table = Frame(self)
-        self.table.place(x=34, y=29)
         self.table_view = TableView(self.table)
         self.table_view.bind("<Double-Button-1>", self.do_double_clicking)  # 雙擊事件註冊
         self.table_view.handle_drag_along_right = self.do_dragging_along_right  # Mouse Release 事件註冊
         self.table_model = None
+
+    # set table place, and record it for adjusting frame size
+    def set_table_place(self, x, y):
+        self.table.place(x=x, y=y)
+        self.table_x = x
+        self.table_y = y
 
     # Template Method
     def do_double_clicking(self, event):
@@ -51,8 +58,8 @@ class MainFrameWithTable(MainFrame):
 
     def adjust_size(self, width, height):
         MainFrame.adjust_size(self, width, height)
-        self.table_view['width'] = width - 59
-        self.table_view['height'] = height - 75
+        self.table_view['width'] = width - 93 + self.table_x
+        self.table_view['height'] = height - 104 + self.table_y
 
     def destroy(self):
         MainFrame.destroy(self)
