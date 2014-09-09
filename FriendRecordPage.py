@@ -120,7 +120,7 @@ class FriendRecord(MainFrameWithTable):
             self.records_filter.add_filter(8, weapon)
 
     def adding_character(self):
-        popup = UpdateCharacterWindow.UpdateCharacterWindow(self)
+        popup = UpdateCharacterWindow.UpdateCharacterWindow()
         self.wait_window(popup)
         self.records_filter.update_raw_records()
         self.updating_table()
@@ -129,6 +129,6 @@ class FriendRecord(MainFrameWithTable):
         row = self.table_view.get_row_clicked(event)
         character = self.table_model.getCellRecord(row, 0)
 
-        popup = UpdateCharacterWindow.UpdateCharacterWindow(self, character)
+        popup = UpdateCharacterWindow.UpdateCharacterWindow(character)
         self.wait_window(popup)
         self.updating_table()

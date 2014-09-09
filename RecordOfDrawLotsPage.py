@@ -2,6 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from MainFrame import *
+from BasicWindow import *
 import UpdateCharacterWindow
 import Utilities
 from datetime import timedelta
@@ -107,7 +108,7 @@ class RecordOfDrawLots(MainFrameWithTable):
         self.updating_table()
 
     def adding_record(self):
-        popup = AddRecordWindow(self, self.db_suffix, self.get_suitable_event_names())
+        popup = AddRecordWindow(self.db_suffix, self.get_suitable_event_names(), self.update_all_records)
         self.wait_window(popup)
 
     # 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
@@ -203,17 +204,22 @@ class RecordOfDrawLots(MainFrameWithTable):
         return str(ratio) + '%'
 
 
-class AddRecordWindow(Frame):
-    def __init__(self, master, db_suffix, event_names):
-        Frame.__init__(self, master)
+class AddRecordWindow(BasicWindow):
+    def __init__(self, db_suffix, event_names, callback, **kwargs):
+        BasicWindow.__init__(self, **kwargs)
         self.window = Toplevel(width=565, height=118)
         self.window.title('Add new record')
+
+        self.callback = callback
 
         self.record_table = 'RecordOfDrawLots' + db_suffix
         # 取得最近一筆資料，以作為預設值
         command = 'select * from ' + self.record_table + \
                   ' where Times = (select max(Times) from ' + self.record_table + ')'
         self.last_record = DATABASE.execute(command).fetchone()
+
+        self.characters = None
+        self.update_characters()
 
         self.__init_widgets(event_names)
 
@@ -265,7 +271,7 @@ class AddRecordWindow(Frame):
         # 新增角色的按鈕
         button = Button(self.window, text="新增角色", width=12, borderwidth=3)
         button.place(x=326, y=79)
-        button["command"] = self.adding_character
+        button["command"] = self.adding_new_character
 
         # 取消並關閉的按鈕
         button = Button(self.window, text="關閉視窗", width=12, borderwidth=3)
@@ -294,7 +300,7 @@ class AddRecordWindow(Frame):
                                 self.profession_selector.get(), self.rank_selector.get(),
                                 self.character_selector.get(), self.cost_selector.get()]
             self.update_by_last_record()
-            self.master.update_all_records()
+            self.callback()
 
     def is_new_record_legal(self):
         error_message = ''
@@ -313,27 +319,27 @@ class AddRecordWindow(Frame):
 
     # noinspection PyUnusedLocal
     def updating_character_selector(self, event=None):
-        # 取得所有的角色
-        results = DATABASE.execute('select Character, Rank, Profession from Character').fetchall()
+        requested_profession = self.profession_selector.get()
+        requested_rank = self.rank_selector.get()
 
         # 依序對職業與等級進行篩選(if需要)
-        profession = self.profession_selector.get()
-        if profession != '':
-            results = [element for element in results if element[2] == profession]
-        rank = self.rank_selector.get()
-        if rank != '':
-            results = [element for element in results if element[1] == int(rank)]
+        character_matched = []
+        for character_infos in self.characters:
+            if (requested_profession == '' or requested_profession == character_infos[1]) and \
+                    (requested_rank == '' or int(requested_rank) == character_infos[2]):
+                character_matched.append(character_infos[0])
 
-        characters = []
-        [characters.append(element[0]) for element in results]
-        self.character_selector['values'] = characters
+        self.character_selector['values'] = character_matched
         self.character_selector.set('')
 
-    def adding_character(self):
-        popup = UpdateCharacterWindow.UpdateCharacterWindow(self)
+    def adding_new_character(self):
+        popup = UpdateCharacterWindow.UpdateCharacterWindow()
         self.wait_window(popup)
+        self.update_characters()
         self.updating_character_selector()
 
+    def update_characters(self):
+        self.characters = DATABASE.execute('select Nickname, Profession, Rank from Character').fetchall()
+
     def closing_window(self):
-        self.window.destroy()
         self.destroy()

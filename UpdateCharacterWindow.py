@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ricky Chen'
 
-from Tkinter import *
-from Static import *
-import ttk
-import tkMessageBox
+from BasicWindow import *
 
 TABLE = CHARACTER_TABLE
 
 
-class UpdateCharacterWindow(Frame):
-    def __init__(self, master, character=None):
-        Frame.__init__(self, master)
+class UpdateCharacterWindow(BasicWindow):
+    def __init__(self, character=None, **kwargs):
+        BasicWindow.__init__(self, **kwargs)
         self.window = Toplevel(width=564, height=255)
-        self.window.title('About character')
+        self.window.title('Character Info')
         self.window.geometry('+700+210')
 
         label_space = 22  # Label 與 輸入元件的距離
@@ -155,7 +152,6 @@ class UpdateCharacterWindow(Frame):
                                                         self.atk_speed.get(), self.walk_speed.get(),
                                                         self.critical_rate.get(), self.note.get()))
         DATABASE.commit()
-        self.window.destroy()
         self.destroy()
 
     @staticmethod
@@ -190,5 +186,4 @@ class UpdateCharacterWindow(Frame):
             self.walk_speed.set(1.5)
 
     def canceling(self):
-        self.window.destroy()
         self.destroy()
