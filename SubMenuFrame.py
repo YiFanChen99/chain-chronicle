@@ -7,7 +7,7 @@ import PowerConverterPage
 import Utilities
 import CharacterPage
 import RecordOfDrawLotsPage
-import FriendRecordPage
+import FriendPage
 
 
 class SubMenuFrame(Frame):
@@ -57,7 +57,7 @@ class StaticGroupFrame(SubMenuFrame):
 
 
 class AccountGroupFrame(SubMenuFrame):
-    Frames = ['MyCharacter', 'Resource', 'RecordOfDrawLots', 'FriendInfo', 'FriendRecord']
+    Frames = ['MyCharacter', 'Resource', 'RecordOfDrawLots', 'Friend']
 
     def __init__(self, master, height, db_suffix, **kwargs):
         self.db_suffix = db_suffix
@@ -73,9 +73,6 @@ class AccountGroupFrame(SubMenuFrame):
         elif index == 2:
             return RecordOfDrawLotsPage.RecordOfDrawLots(self.master, self.db_suffix)
         elif index == 3:
-             # TODO FriendInfo
-            return RecordOfDrawLotsPage.MainFrame(self.master, self.db_suffix, width=100, height=100, background='gray')
-        elif index == 4:
-            return FriendRecordPage.FriendRecord(self.master, self.db_suffix)
+            return FriendPage.FriendInfo(self.master, self.db_suffix)
         else:
             raise Exception("Wrong group selected!")

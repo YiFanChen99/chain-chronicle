@@ -12,15 +12,25 @@ COLUMNS = ['FullName', 'Nickname', 'Profession', 'Rank',
            'HPGrown', 'AtkSpeed', 'WalkSpeed', 'CriticalRate', 'Note']
 
 
-class FriendRecord(MainFrameWithTable):
-    def __init__(self, parent, db_suffix):
-        MainFrameWithTable.__init__(self, parent, db_suffix=db_suffix)
+# TODO 實作
+class FriendInfo(MainFrameWithTable):
+    def __init__(self, master, db_suffix):
+        MainFrameWithTable.__init__(self, master, db_suffix)
         self.set_table_place(34, 29)
 
-        # 新增記錄的按鈕
-        button = Button(self, text="新增角色資訊", width=2, height=17, wraplength=1, font=(MS_JH, 12))
+        # 切換到記錄好友現況的按鈕
+        button = Button(self, text="記錄好友現況", width=2, height=17, wraplength=1, font=(MS_JH, 12))
         button.place(x=4, y=23)
-        button["command"] = self.adding_character
+        button["command"] = self.switching_to_friend_record
+
+    def switching_to_friend_record(self):
+        self.master.update_main_frame(FriendRecord(self.master, self.db_suffix))
+
+
+class FriendRecord(MainFrameWithTable):
+    def __init__(self, master, db_suffix):
+        MainFrameWithTable.__init__(self, master, db_suffix=db_suffix)
+        self.set_table_place(34, 29)
 
         self.__init_filter_frame()
 
@@ -29,6 +39,14 @@ class FriendRecord(MainFrameWithTable):
         # 呈現資料的表格
         self.table_model = None
         self.updating_table()
+
+        # 切換到記錄好友現況的按鈕
+        button = Button(self, text="返回好友資訊", width=2, height=17, wraplength=1, font=(MS_JH, 12))
+        button.place(x=4, y=23)
+        button["command"] = self.switching_to_friend_info
+
+    def switching_to_friend_info(self):
+        self.master.update_main_frame(FriendInfo(self.master, self.db_suffix))
 
     def __init_filter_frame(self):
         basic_y = 3

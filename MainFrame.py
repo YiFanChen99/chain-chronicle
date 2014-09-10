@@ -61,9 +61,6 @@ class MainFrameWithTable(MainFrame):
         self.table_view['width'] = width - 93 + self.table_x
         self.table_view['height'] = height - 104 + self.table_y
 
-    def destroy(self):
-        MainFrame.destroy(self)
-
 
 class TableView(TableCanvas):
     def __init__(self, master, **kwargs):

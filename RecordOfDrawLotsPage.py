@@ -44,7 +44,7 @@ class RecordOfDrawLots(MainFrameWithTable):
 
     # noinspection PyAttributeOutsideInit
     def __init_filter_frame(self):
-        basic_x = 18
+        basic_x = 20
         Label(self, text='E:', font=(MS_JH, 12)).place(x=basic_x, y=3)
         self.event_filter = ttk.Combobox(self, state='readonly', width=14, justify=CENTER)
         self.event_filter['values'] = \
@@ -52,40 +52,40 @@ class RecordOfDrawLots(MainFrameWithTable):
         self.event_filter.place(x=basic_x + 18, y=3)
         self.event_filter.bind('<<ComboboxSelected>>', self.updating_table)
 
-        basic_x = 164
+        basic_x += 146
         Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=3)
         self.cost = ttk.Combobox(self, state='readonly', width=6, justify=CENTER)
         self.cost['values'] = insert_with_empty_str(DRAW_LOTS_COST)
         self.cost.place(x=basic_x + 20, y=3)
         self.cost.bind('<<ComboboxSelected>>', self.updating_table)
 
-        basic_x = 255
+        basic_x += 91
         Label(self, text='P:', font=(MS_JH, 12)).place(x=basic_x, y=3)
         self.profession = ttk.Combobox(self, state='readonly', width=4, justify=CENTER)
         self.profession['values'] = insert_with_empty_str(PROFESSIONS)
         self.profession.place(x=basic_x + 20, y=3)
         self.profession.bind('<<ComboboxSelected>>', self.updating_table)
 
-        basic_x = 339
+        basic_x += 84
         Label(self, text='Total:', font=(MS_JH, 12)).place(x=basic_x, y=2)
         self.total_count = Label(self, font=(MS_JH, 12))
         self.total_count.place(x=basic_x + 44, y=2)
 
-        basic_x = 422
+        basic_x += 83
         Label(self, text='SSR:', font=(MS_JH, 12)).place(x=basic_x, y=2)
         self.ssr_count = Label(self, font=(MS_JH, 10))
         self.ssr_count.place(x=basic_x + 34, y=-3)
         self.ssr_ratio = Label(self, font=(MS_JH, 9))
         self.ssr_ratio.place(x=basic_x + 44, y=13)
 
-        basic_x = 502
+        basic_x += 80
         Label(self, text='SR:', font=(MS_JH, 12)).place(x=basic_x, y=2)
         self.sr_count = Label(self, font=(MS_JH, 10))
         self.sr_count.place(x=basic_x + 25, y=-3)
         self.sr_ratio = Label(self, font=(MS_JH, 9))
         self.sr_ratio.place(x=basic_x + 35, y=13)
 
-        basic_x = 580
+        basic_x += 78
         Label(self, text='R:', font=(MS_JH, 12)).place(x=basic_x, y=2)
         self.r_count = Label(self, font=(MS_JH, 10))
         self.r_count.place(x=basic_x + 16, y=-3)
@@ -94,7 +94,7 @@ class RecordOfDrawLots(MainFrameWithTable):
 
         # 清空進行篩選的條件
         button = Button(self, text="清空條件", width=7, font=(MS_JH, 11))
-        button.place(x=655, y=-1)
+        button.place(x=658, y=-1)
         button["command"] = self.clearing_filter
 
     def update_all_records(self):
