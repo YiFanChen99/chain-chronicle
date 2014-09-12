@@ -54,7 +54,7 @@ class CharacterSelectorWindow(BasicWindow):
         # 取消並結束的按鈕
         button = Button(self.window, text="放棄選擇", width=9, borderwidth=3)
         button.place(x=208, y=80)
-        button["command"] = self.cancelling_selection
+        button["command"] = self.destroy
 
     def submitting(self):
         if self.is_character_legal():
@@ -91,7 +91,3 @@ class CharacterSelectorWindow(BasicWindow):
 
     def update_characters(self):
         self.characters = DATABASE.execute('select Nickname, Profession, Rank from Character').fetchall()
-
-    def cancelling_selection(self):
-        self.character_selected.set('')
-        self.destroy()

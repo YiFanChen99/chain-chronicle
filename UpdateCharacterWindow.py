@@ -118,7 +118,7 @@ class UpdateCharacterWindow(BasicWindow):
         # 最後一個 Row
         current_y = 215
         Button(self.window, text="Submit", command=self.submitting, width=33, borderwidth=3).place(x=24, y=current_y)
-        Button(self.window, text="Cancel", command=self.canceling, width=33, borderwidth=3).place(x=290, y=current_y)
+        Button(self.window, text="Cancel", command=self.destroy, width=33, borderwidth=3).place(x=290, y=current_y)
 
         self.__init_character(character)
 
@@ -184,6 +184,3 @@ class UpdateCharacterWindow(BasicWindow):
             self.note.set(convert_to_str(next(data)))
         else:
             self.walk_speed.set(1.5)
-
-    def canceling(self):
-        self.destroy()
