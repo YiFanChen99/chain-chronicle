@@ -17,11 +17,10 @@ ACTIVE_COST = [3, 2, 1]
 
 DATABASE = sqlite3.connect('data/ChainChronicle.sqlite')
 # Character 表格中的各欄位
-CHARACTER_TABLE = ['FullName', 'Nickname', 'Profession', 'Rank',
-                   'Active', 'ActiveCost', 'Passive1', 'Passive2', 'WeaponType',
-                   'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown',
-                   'HPGrown', 'AtkSpeed', 'WalkSpeed', 'CriticalRate', 'Note']
-RECORDOFDRAWLOTS_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
+CHARACTER_DB_TABLE = ['FullName', 'Nickname', 'Profession', 'Rank',
+                      'Active', 'ActiveCost', 'Passive1', 'Passive2', 'WeaponType',
+                      'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown',
+                      'HPGrown', 'AtkSpeed', 'WalkSpeed', 'CriticalRate', 'Note']
 MS_JH = 'Microsoft JhengHei'  # 微軟正黑體
 
 
@@ -62,7 +61,7 @@ def convert_to_str(value):
 
 
 def convert_str_to_datetime(date_str):
-    return datetime.strptime(date_str, "%Y/%m/%d")
+    return datetime.strptime(date_str, "%Y-%m-%d")
 
 
 def insert_with_empty_str(the_list):

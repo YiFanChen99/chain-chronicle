@@ -3,7 +3,7 @@ __author__ = 'Ricky Chen'
 
 from BasicWindow import *
 
-TABLE = CHARACTER_TABLE
+TABLE = CHARACTER_DB_TABLE
 
 
 class UpdateCharacterWindow(BasicWindow):

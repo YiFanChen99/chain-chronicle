@@ -2,14 +2,12 @@
 __author__ = 'Ricky Chen'
 
 from MainFrame import *
-import UpdateCharacterWindow
-import Utilities
 
-# Character 表格中的各欄位
-COLUMNS = ['FullName', 'Nickname', 'Profession', 'Rank',
-           'Active', 'ActiveCost', 'Passive1', 'Passive2', 'WeaponType',
-           'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown',
-           'HPGrown', 'AtkSpeed', 'WalkSpeed', 'CriticalRate', 'Note']
+UNRECORDED = '未登記'
+RECORD_DB_TABLE = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
+RECORD_DISPLAY_TABLE = ['State', 'FriendID', 'UsedNames', 'LastProfession', 'Character', 'CharacterLevel', 'Rank']
+FRIEND_TABLE = ['ID', 'UsedNames', 'Excellence', 'Defect', 'UsedCharacters', 'RaisedIn3Weeks',
+                'RaisedIn2Months', 'AddedDate', 'LastProfession', 'LastCharacter']  # TODO
 
 
 # TODO 實作
@@ -31,122 +29,106 @@ class FriendRecord(MainFrameWithTable):
     def __init__(self, master, db_suffix):
         MainFrameWithTable.__init__(self, master, db_suffix=db_suffix)
         self.set_table_place(34, 29)
+        self.table_view.cellwidth = 85
 
-        self.__init_filter_frame()
+        self.__init_left_frame()
+        self.__init_upper_frame()
 
-        self.records_filter = Utilities.RecordsFilter('select * from Character')
+        self.friend_count = 0
+        self.friend_records = []
+        self.updating_page()
 
-        # 呈現資料的表格
-        self.table_model = None
-        self.updating_table()
-
-        # 切換到記錄好友現況的按鈕
-        button = Button(self, text="返回好友資訊", width=2, height=17, wraplength=1, font=(MS_JH, 12))
+    def __init_left_frame(self):
+        button = Button(self, text="送出並返回", width=2, height=8, wraplength=1, font=(MS_JH, 12), borderwidth=2)
         button.place(x=4, y=23)
+        button["command"] = self.submitting
+
+        button = Button(self, text="取消並返回", width=2, height=8, wraplength=1, font=(MS_JH, 12), borderwidth=2)
+        button.place(x=4, y=203)
         button["command"] = self.switching_to_friend_info
+
+    def submitting(self):
+        for data in self.friend_records:
+            DATABASE.execute('insert into ' + self.compose_table_name('FriendRecord') +
+                             ' (' + ','.join(RECORD_DB_TABLE) + ')' +
+                             convert_data_to_insert_command(data[1], self.date.get(),
+                                                            data[4], data[5], data[6]))
+        DATABASE.commit()
+
+        self.master.update_main_frame(FriendInfo(self.master, self.db_suffix))
 
     def switching_to_friend_info(self):
         self.master.update_main_frame(FriendInfo(self.master, self.db_suffix))
 
-    def __init_filter_frame(self):
+    def __init_upper_frame(self):
         basic_y = 3
-        basic_x = 60
-        Label(self, text='P:', font=(MS_JH, 12)).place(x=basic_x, y=basic_y)
-        self.profession_selector = ttk.Combobox(self, state='readonly', width=7, justify=CENTER)
-        self.profession_selector['values'] = insert_with_empty_str(PROFESSIONS)
-        self.profession_selector.place(x=basic_x + 18, y=basic_y)
-        self.profession_selector.bind('<<ComboboxSelected>>', self.updating_table)
 
-        basic_x = 176
-        Label(self, text='R:', font=(MS_JH, 12)).place(x=basic_x, y=basic_y)
-        self.rank_selector = ttk.Combobox(self, state='readonly', width=4, justify=CENTER)
-        self.rank_selector['values'] = insert_with_empty_str(RANKS)
-        self.rank_selector.place(x=basic_x + 18, y=basic_y)
-        self.rank_selector.bind('<<ComboboxSelected>>', self.updating_table)
+        basic_x = 65
+        Label(self, text='Date:', font=(MS_JH, 11)).place(x=basic_x, y=basic_y)
+        self.date = StringVar(value='')
+        Entry(self, width=11, textvariable=self.date, font=(MS_JH, 11)).place(x=basic_x + 41, y=basic_y + 2)
 
-        basic_x = 268
-        Label(self, text='AC:', font=(MS_JH, 12)).place(x=basic_x, y=basic_y)
-        self.active_cost_selector = ttk.Combobox(self, state='readonly', width=4, justify=CENTER)
-        self.active_cost_selector['values'] = insert_with_empty_str(ACTIVE_COST)
-        self.active_cost_selector.place(x=basic_x + 30, y=basic_y)
-        self.active_cost_selector.bind('<<ComboboxSelected>>', self.updating_table)
+        # 選擇是否顯示已登記的好友
+        basic_x = 240
+        self.is_show_recorded_friends = BooleanVar()
+        self.is_show_recorded_friends.trace("w", self.updating_table)
+        check_button = Checkbutton(self, variable=self.is_show_recorded_friends)
+        check_button.place(x=basic_x, y=basic_y)
+        label = Label(self, text='顯示已登記', font=(MS_JH, 11))
+        label.place(x=basic_x + 17, y=basic_y)
 
-        basic_x = 373
-        Label(self, text='W:', font=(MS_JH, 12)).place(x=basic_x, y=basic_y)
-        self.weapon_selector = ttk.Combobox(self, state='readonly', width=5, justify=CENTER)
-        self.weapon_selector['values'] = insert_with_empty_str(WEAPONS)
-        self.weapon_selector.place(x=basic_x + 24, y=basic_y)
-        self.weapon_selector.bind('<<ComboboxSelected>>', self.updating_table)
+        # noinspection PyUnusedLocal
+        def switching(*args):
+            check_button.toggle()
+        label.bind('<ButtonPress-1>', switching)
 
-        # 清空進行篩選的條件
-        button = Button(self, text="清空條件", width=7, font=(MS_JH, 11))
-        button.place(x=605, y=-1)
-        button["command"] = self.clearing_filter
+        basic_x = 550
+        self.friend_count_str = StringVar()
+        Label(self, textvariable=self.friend_count_str, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
 
-    def clearing_filter(self):
-        self.profession_selector.set('')
-        self.rank_selector.set('')
-        self.active_cost_selector.set('')
-        self.weapon_selector.set('')
+    # TODO 資料重撈重算
+    def updating_page(self):
+        self.date.set(datetime.now().date())
+
+        self.friend_records = [['', 2, '豆腐，出堡米', '戰士', '喵喵', 20, 10],
+                               [UNRECORDED, 3, 'loming', '騎士', '索喵', 40, 12]]
+        self.friend_count = len(self.friend_records)
+        self.friend_count_str.set('Friends: %02d' % self.friend_count)
+
         self.updating_table()
 
     # noinspection PyUnusedLocal
-    def updating_table(self, event=None):
+    def updating_table(self, event=None, *args):
         self.table_model = TableModel()
 
-        # FullName 將不顯示在表格中
-        for column in COLUMNS:
-            if column != 'FullName':
-                self.table_model.addColumn(column)
+        for column in RECORD_DISPLAY_TABLE:
+            self.table_model.addColumn(column)
 
-        self.__update_filters()
-        results = self.records_filter.filtered_records
-        if len(results) == 0:
-            self.table_model.addRow(Nickname='無任何記錄')
-        for row in results:
-            data = iter(list(row[1:19]))
-            self.table_model.addRow(Nickname=convert_to_str(next(data)),
-                                    Profession=convert_to_str(next(data)), Rank=next(data),
-                                    Active=convert_to_str(next(data)), ActiveCost=next(data),
-                                    Passive1=convert_to_str(next(data)), Passive2=convert_to_str(next(data)),
-                                    WeaponType=convert_to_str(next(data)),
-                                    ExpGrown=convert_to_str(next(data)), AttendanceCost=next(data),
-                                    MaxAtk=next(data), MaxHP=next(data), AtkGrown=next(data),
-                                    HPGrown=next(data), AtkSpeed=next(data), WalkSpeed=next(data),
-                                    CriticalRate=next(data), Note=convert_to_str(next(data)))
+        records = [each for each in self.friend_records if each[0] == UNRECORDED or self.is_show_recorded_friends.get()]
 
-        self.table_model.setSortOrder(columnName=COLUMNS[3], reverse=1)
-        self.table_model.setSortOrder(columnName=COLUMNS[2])
+        if len(records) == 0:
+            self.table_model.addRow(UsedNames='無任何記錄')
+        else:
+            for row in records:
+                data = iter(row)
+                self.table_model.addRow(State=next(data), FriendID=next(data), UsedNames=next(data),
+                                        LastProfession=next(data), Character=next(data), CharacterLevel=next(data),
+                                        Rank=next(data))
+        self.table_model.setSortOrder(columnName='LastProfession')
 
         self.redisplay_table()
+        self.table_view.hide_column('FriendID')
+        self.table_view.hide_column('LastProfession')
 
-    def __update_filters(self):
-        self.records_filter.clear_filters()
-
-        # 依序對職業、等級、技能花費、武器類型進行篩選(if需要)
-        profession = self.profession_selector.get()
-        if profession != '':
-            self.records_filter.add_filter(2, profession)
-        rank = self.rank_selector.get()
-        if rank != '':
-            self.records_filter.add_filter(3, int(rank))
-        active_cost = self.active_cost_selector.get()
-        if active_cost != '':
-            self.records_filter.add_filter(5, int(active_cost))
-        weapon = self.weapon_selector.get()
-        if weapon != '':
-            self.records_filter.add_filter(8, weapon)
-
-    def adding_character(self):
-        popup = UpdateCharacterWindow.UpdateCharacterWindow()
-        self.wait_window(popup)
-        self.records_filter.update_raw_records()
-        self.updating_table()
-
+    # TODO
     def do_double_clicking(self, event):
         row = self.table_view.get_row_clicked(event)
-        character = self.table_model.getCellRecord(row, 0)
+        friend_id = self.table_model.getCellRecord(row, 1)
 
-        popup = UpdateCharacterWindow.UpdateCharacterWindow(character)
-        self.wait_window(popup)
-        self.updating_table()
+        column = self.table_view.get_col_clicked(event)
+        if column <= 2:
+            print column, '-->', 9
+        else:
+            print column, '-->', 3
+        # self.wait_window(popup)
+        # self.updating_table()

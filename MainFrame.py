@@ -64,7 +64,7 @@ class MainFrameWithTable(MainFrame):
 
 class TableView(TableCanvas):
     def __init__(self, master, **kwargs):
-        TableCanvas.__init__(self, master, editable=False, rowheaderwidth=0, cellwidth=50, **kwargs)
+        TableCanvas.__init__(self, master, editable=False, rowheaderwidth=0, cellwidth=60, **kwargs)
         self.unbind_all("<Delete>")  # 刪除
         self.unbind_all('<Return>')  # Enter
 
@@ -83,3 +83,19 @@ class TableView(TableCanvas):
     # For overwriting
     def handle_drag_along_right(self, row_number):
         pass
+
+    # 不知為何該 method 有更新 cols 的程式碼卻被註解掉，
+    # 此會造成預設 cols 與 model 行數不同的錯誤，以此修正
+    def adjustColumnWidths(self):
+        self.cols = self.model.getColumnCount()
+        TableCanvas.adjustColumnWidths(self)
+
+    def hide_column(self, col_name):
+        # 這邊為了隱藏欲把寬度設為 0, 但會影響 get_clicked 事件的正確性, 故調成極小的寬度
+        tiny_width = 0.05
+
+        # 底下照抄 TableCanvas.resizeColumn 的內容
+        self.model.columnwidths[col_name] = tiny_width
+        self.setColPositions()
+        self.redrawTable()
+        self.drawSelectedCol(self.currentcol)

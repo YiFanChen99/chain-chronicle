@@ -5,7 +5,7 @@ from MainFrame import *
 import UpdateCharacterWindow
 import Utilities
 
-TABLE = CHARACTER_TABLE
+TABLE = CHARACTER_DB_TABLE
 
 
 class Character(MainFrameWithTable):
@@ -22,8 +22,6 @@ class Character(MainFrameWithTable):
 
         self.records_filter = Utilities.RecordsFilter('select * from Character')
 
-        # 呈現資料的表格
-        self.table_model = None
         self.updating_table()
 
     def __init_filter_frame(self):
