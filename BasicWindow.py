@@ -8,9 +8,9 @@ import tkMessageBox
 
 
 class BasicWindow(Frame):
-    def __init__(self, **kwargs):
-        Frame.__init__(self, **kwargs)
-        self.window = None
+    def __init__(self, width, height):
+        Frame.__init__(self)
+        self.window = Toplevel(width=width, height=height)
 
     def destroy(self):
         self.window.destroy()

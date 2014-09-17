@@ -11,7 +11,9 @@ RECORD_DB_TABLE = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'R
 RECORD_DISPLAY_TABLE = ['State', 'FriendID', 'UsedNames', 'LastProfession',
                         'Character', 'CharacterLevel', 'Rank']
 FRIEND_TABLE = ['ID', 'UsedNames', 'Excellence', 'Defect', 'UsedCharacters', 'RaisedIn3Weeks',
-                'RaisedIn2Months', 'AddedDate', 'LastProfession', 'LastCharacter']  # TODO
+                'RaisedIn2Months', 'AddedDate', 'LastProfession', 'LastCharacter']  # TODO用處確定
+FRIEND_PARTIAL_TABLE = ['Excellence', 'Defect', 'AddedDate']
+FRIEND_DISPLAY_TABLE = FRIEND_TABLE[0:9]  # TODO用處確定
 
 
 # TODO 實作
@@ -51,12 +53,16 @@ class FriendRecord(MainFrameWithTable):
         button["command"] = self.switching_to_friend_info
 
     def submitting(self):
+        # 將已經登記的 record 更新到 DB 內
         for data in self.friend_records:
-            DATABASE.execute('insert into ' + self.compose_table_name('FriendRecord') +
-                             ' (' + ','.join(RECORD_DB_TABLE) + ')' +
-                             convert_data_to_insert_command(data[1], self.date.get(),
-                                                            data[4], data[5], data[6]))
+            if data[0] == RECORDED:
+                DATABASE.execute('insert into ' + self.compose_table_name('FriendRecord') +
+                                 ' (' + ','.join(RECORD_DB_TABLE) + ')' +
+                                 convert_data_to_insert_command(data[1], self.date.get(),
+                                                                data[4], data[5], data[6]))
         DATABASE.commit()
+
+        # TODO 重新統計並寫入 Friend Table 內
 
         self.master.update_main_frame(FriendInfo(self.master, self.db_suffix))
 
@@ -83,6 +89,7 @@ class FriendRecord(MainFrameWithTable):
         # noinspection PyUnusedLocal
         def switching(obj=self, *args):
             check_button.toggle()
+
         label.bind('<Button-1>', switching)
 
         basic_x = 550
@@ -130,10 +137,12 @@ class FriendRecord(MainFrameWithTable):
 
     def do_double_clicking(self, event):
         row = self.table_view.get_row_clicked(event)
-        the_record = self.get_record_by_friend_id(int(self.table_model.getCellRecord(row, 1)))
+        friend_id = int(self.table_model.getCellRecord(row, 1))
+        the_record = self.get_record_by_friend_id(friend_id)
 
         column = self.table_view.get_col_clicked(event)
-        popup = (None if column <= 2 else UpdateFriendRecordWindow(the_record))  # TODO
+        popup = (UpdateFriendWindow(self.db_suffix, friend_id=friend_id) if column <= 2
+                 else UpdateFriendRecordWindow(the_record))
         self.wait_window(popup)
         self.updating_table()
 
@@ -143,26 +152,99 @@ class FriendRecord(MainFrameWithTable):
                 return each_record
 
 
-# TODO
 class UpdateFriendWindow(BasicWindow):
-    def __init__(self, infos, **kwargs):
-        BasicWindow.__init__(self, **kwargs)
-        self.infos = infos
+    def __init__(self, db_suffix, friend_info=None, friend_id=None):
+        BasicWindow.__init__(self, width=300, height=272)
+        self.window.title('Friend Info')
+        self.db_suffix = db_suffix
 
+        self.friend_info = []
+        self.init_friend_info(friend_info, friend_id)
 
-class UpdateFriendRecordWindow(BasicWindow):
-    def __init__(self, the_record, **kwargs):
-        BasicWindow.__init__(self, **kwargs)
-        self.window = Toplevel(width=284, height=183)
-        self.window.title('Friend Record')
-        self.window.geometry('+700+210')
-        self.record = the_record
+        self.__init_widget()
 
+    def init_friend_info(self, friend_info, friend_id):
+        if friend_info is None:
+            self.friend_info = list(DATABASE.execute('select ' + ','.join(FRIEND_DISPLAY_TABLE) + ' from ' +
+                                                     self.get_db_table_name() + ' where ID=' +
+                                                     str(friend_id)).fetchone())
+        else:
+            self.friend_info = friend_info
+
+    def __init_widget(self):
         label_space = 24  # Label 與 輸入元件的距離
 
         current_y = 8
         Label(self.window, width=12, text='UsedNames :', font=(MS_JH, 12)).place(x=5, y=current_y)
-        Label(self.window, width=16, text=the_record[2], font=(MS_JH, 12),
+        Label(self.window, width=16, text=self.friend_info[1], font=(MS_JH, 12),
+              justify=LEFT).place(x=30, y=current_y + label_space)
+
+        Label(self.window, width=11, text='AddedDate', font=(MS_JH, 10), justify=CENTER)\
+            .place(x=193, y=current_y - 1)
+        self.added_date = StringVar(value=self.friend_info[7])
+        Entry(self.window, width=11, textvariable=self.added_date, font=(MS_JH, 10), justify=CENTER)\
+            .place(x=192, y=current_y + label_space - 1)
+
+        current_y += 55
+        Label(self.window, width=24, text='Excellence', font=(MS_JH, 12), justify=CENTER)\
+            .place(x=28, y=current_y)
+        self.excellence = StringVar(value=self.friend_info[2])
+        Entry(self.window, width=24, textvariable=self.excellence, font=(MS_JH, 12), justify=CENTER)\
+            .place(x=39, y=current_y + label_space)
+
+        current_y += 55
+        Label(self.window, width=24, text='Defect', font=(MS_JH, 12), justify=CENTER).place(x=28, y=current_y)
+        self.defect = StringVar(value=self.friend_info[3])
+        Entry(self.window, width=24, textvariable=self.defect, font=(MS_JH, 12), justify=CENTER)\
+            .place(x=39, y=current_y + label_space)
+
+        # 送出的按鈕
+        current_y += 66
+        Button(self.window, text="Submit", command=self.submitting, width=26, borderwidth=3,
+               font=("", 12)).place(x=24, y=current_y)
+
+        # 取消的按鈕
+        current_y += 39
+        Button(self.window, text="Cancel", command=self.destroy, width=26, borderwidth=3,
+               font=("", 12)).place(x=24, y=current_y)
+
+    # noinspection PyUnusedLocal
+    def submitting(self, *args):
+        # 更新回原記錄
+        self.friend_info[2] = convert_to_str(self.excellence.get())
+        self.friend_info[3] = convert_to_str(self.defect.get())
+        self.friend_info[7] = convert_to_str(self.added_date.get())
+
+        # 更新到資料庫
+        values = [self.friend_info[2], self.friend_info[3], self.friend_info[7]]
+        DATABASE.execute('update ' + self.get_db_table_name() +
+                         convert_data_to_update_command(FRIEND_PARTIAL_TABLE, values) +
+                         ' where ' + FRIEND_TABLE[0] + '=' + str(self.friend_info[0]))
+        DATABASE.commit()
+
+        self.destroy()
+
+    def get_db_table_name(self):
+        return 'Friend' + self.db_suffix
+
+
+class UpdateFriendRecordWindow(BasicWindow):
+    def __init__(self, the_record):
+        BasicWindow.__init__(self, width=284, height=183)
+        self.window.title('Friend Record')
+        self.window.geometry('+700+210')
+        self.record = the_record
+
+        self.__init_widget()
+
+        self.__init_record()
+
+    def __init_widget(self):
+        label_space = 24  # Label 與 輸入元件的距離
+
+        current_y = 8
+        Label(self.window, width=12, text='UsedNames :', font=(MS_JH, 12)).place(x=5, y=current_y)
+        Label(self.window, width=16, text=self.record[2], font=(MS_JH, 12),
               justify=LEFT).place(x=30, y=current_y + label_space)
 
         current_y = 70
@@ -177,6 +259,7 @@ class UpdateFriendRecordWindow(BasicWindow):
             popup = CharacterSelectorWindow.CharacterSelectorWindow(character_selected)
             self.wait_window(popup)
             self.character_level_entry.focus_set()
+
         label.bind('<ButtonRelease-1>', selecting_character)
         entry.bind('<ButtonRelease-1>', selecting_character)
 
@@ -188,6 +271,7 @@ class UpdateFriendRecordWindow(BasicWindow):
         # noinspection PyUnusedLocal
         def move_focus_to_rank(*args):
             self.rank_entry.focus_set()
+
         self.character_level_entry.bind('<Return>', move_focus_to_rank)
 
         Label(self.window, width=6, text='Rank', font=("", 12)).place(x=213, y=current_y)
@@ -199,8 +283,6 @@ class UpdateFriendRecordWindow(BasicWindow):
         # 取消的按鈕
         Button(self.window, text="Cancel", command=self.destroy, width=25, borderwidth=3,
                font=("", 12)).place(x=24, y=135)
-
-        self.__init_record()
 
     def __init_record(self):
         record = self.record
@@ -228,11 +310,13 @@ if __name__ == "__main__":
     root = Tk()
     init_size = str(MIN_WIDTH) + 'x' + str(MIN_HEIGHT)
     root.geometry(init_size + '+510+265')
-    app = FriendRecord(master=root, db_suffix='JP')
-
-    # ['State', 'FriendID', 'UsedNames', 'LastProfession', 'Character', 'CharacterLevel', 'Rank']
+    fin = [01, 'UsedNames', 'Excellence', 'Defect', 'UsedCharacters', 'RaisedIn3Weeks',
+           'RaisedIn2Months', '2014-09-17', 'LastProfession', 'LastCharacter']
+    # app = UpdateFriendWindow(db_suffix='JP', friend_info=fin)
+    #
     # record = [RECORDED, 3, 'pig，亞馬卅那度', '戰士', '山貓', 60, 109]
     # app = UpdateFriendRecordWindow(record)
+    # app.mainloop()
+
+    app = FriendRecord(master=root, db_suffix='JP')
     app.mainloop()
-    # for ele in record:
-    #     print ele,

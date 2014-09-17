@@ -6,9 +6,8 @@ import UpdateCharacterWindow
 
 
 class CharacterSelectorWindow(BasicWindow):
-    def __init__(self, character_selected, **kwargs):
-        BasicWindow.__init__(self, **kwargs)
-        self.window = Toplevel(width=302, height=123)
+    def __init__(self, character_selected):
+        BasicWindow.__init__(self, width=302, height=123)
         self.window.title('Selecting character')
 
         self.character_selected = character_selected

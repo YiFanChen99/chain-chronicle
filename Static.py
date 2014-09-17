@@ -12,7 +12,7 @@ RANKS = [5, 4, 3, 2, 1]
 RANKS_WHEN_DRAW_LOTS = [5, 4, 3]
 DRAW_LOTS_COST = [u'石抽', u'券抽', u'未記錄', u'九連抽']
 WEAPONS = [u'斬', u'打', u'突', u'弓', u'魔', u'聖', u'拳', u'銃', u'狙']
-EXP_GROWN = [u'1000', u'750', u'500', u'300', u'LH']
+EXP_GROWN = [u'1250', u'1000', u'900', u'750', u'500', u'300', u'LH']
 ACTIVE_COST = [3, 2, 1]
 
 DATABASE = sqlite3.connect('data/ChainChronicle.sqlite')
@@ -24,7 +24,7 @@ CHARACTER_DB_TABLE = ['FullName', 'Nickname', 'Profession', 'Rank',
 MS_JH = 'Microsoft JhengHei'  # 微軟正黑體
 
 
-# 組成「"x1,x2,...,xn"」的字串回傳
+# 組成「"values(x1,x2,...,xn)"」的字串回傳
 def convert_data_to_insert_command(*arguments):
     command = ' values('
     is_first = True
@@ -38,6 +38,21 @@ def convert_data_to_insert_command(*arguments):
 
     return command
 
+
+# 組成「"set col1=val1,col2=val2,...,coln=valn"」的字串回傳
+def convert_data_to_update_command(column_names, values):
+    if len(column_names) != len(values):
+        raise Exception("Different list lens")
+
+    max_index = len(column_names) - 1
+    command = ' set '
+    for index in range(0, max_index):
+        command += column_names[index] + '='
+        command += convert_datum_to_command(values[index]) + ','
+
+    command += column_names[max_index] + '=' + convert_datum_to_command(values[max_index])
+
+    return command
 
 def convert_datum_to_command(datum):
     if datum == 'None':

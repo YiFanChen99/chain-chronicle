@@ -7,9 +7,8 @@ TABLE = CHARACTER_DB_TABLE
 
 
 class UpdateCharacterWindow(BasicWindow):
-    def __init__(self, character=None, **kwargs):
-        BasicWindow.__init__(self, **kwargs)
-        self.window = Toplevel(width=564, height=255)
+    def __init__(self, character=None):
+        BasicWindow.__init__(self, width=564, height=255)
         self.window.title('Character Info')
         self.window.geometry('+700+210')
 

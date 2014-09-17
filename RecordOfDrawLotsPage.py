@@ -205,9 +205,8 @@ class RecordOfDrawLots(MainFrameWithTable):
 
 
 class AddRecordWindow(BasicWindow):
-    def __init__(self, db_suffix, event_names, callback, **kwargs):
-        BasicWindow.__init__(self, **kwargs)
-        self.window = Toplevel(width=565, height=118)
+    def __init__(self, db_suffix, event_names, callback):
+        BasicWindow.__init__(self, width=565, height=118)
         self.window.title('Add new record')
 
         self.callback = callback
