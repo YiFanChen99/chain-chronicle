@@ -8,7 +8,7 @@ import CharacterSelectorWindow
 RECORDED = ''
 UNRECORDED = '未登記'
 RECORD_DB_TABLE = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
-RECORD_DISPLAY_TABLE = ['State', 'FriendID', 'UsedNames', 'LastProfession',
+RECORD_DISPLAY_TABLE = ['Status', 'FriendID', 'UsedNames', 'LastProfession',
                         'Character', 'CharacterLevel', 'Rank']
 FRIEND_TABLE = ['ID', 'UsedNames', 'Excellence', 'Defect', 'UsedCharacters', 'RaisedIn3Weeks',
                 'RaisedIn2Months', 'AddedDate', 'LastProfession', 'LastCharacter']  # TODO用處確定
@@ -105,7 +105,7 @@ class FriendRecord(MainFrameWithTable):
                                    self.compose_table_name('Friend'))
         for infos in friends:
             self.friend_records.append([UNRECORDED, infos[0], convert_to_str(infos[1]),
-                                        convert_to_str(infos[2]), '', 0, 0, convert_to_str(infos[3])])
+                                        convert_to_str(infos[2]), '', None, None, convert_to_str(infos[3])])
 
         self.friend_count_str.set('Friends: %02d' % len(self.friend_records))  # 好友總數
 
@@ -118,7 +118,7 @@ class FriendRecord(MainFrameWithTable):
         for column in RECORD_DISPLAY_TABLE:
             self.table_model.addColumn(column)
 
-        records = [each for each in self.friend_records if each[0] == UNRECORDED or self.is_show_recorded_friends.get()]
+        records = [each for each in self.friend_records if self.is_should_display_in_table(each[0])]
 
         if len(records) == 0:
             self.table_model.addRow(UsedNames='無任何記錄')
@@ -134,6 +134,10 @@ class FriendRecord(MainFrameWithTable):
         self.redisplay_table()
         self.table_view.hide_column('FriendID')
         self.table_view.hide_column('LastProfession')
+
+    # 將符合設定的已登記/未登記紀錄回傳為 True
+    def is_should_display_in_table(self, status):
+        return self.is_show_recorded_friends.get() == (status == RECORDED)
 
     def do_double_clicking(self, event):
         row = self.table_view.get_row_clicked(event)
@@ -232,7 +236,7 @@ class UpdateFriendRecordWindow(BasicWindow):
     def __init__(self, the_record):
         BasicWindow.__init__(self, width=284, height=183)
         self.window.title('Friend Record')
-        self.window.geometry('+700+210')
+        self.window.geometry('+740+230')
         self.record = the_record
 
         self.__init_widget()
@@ -257,6 +261,7 @@ class UpdateFriendRecordWindow(BasicWindow):
         # noinspection PyUnusedLocal
         def selecting_character(obj=self, character_selected=self.character_var, *args):
             popup = CharacterSelectorWindow.CharacterSelectorWindow(character_selected)
+            popup.window.geometry('+732+270')
             self.wait_window(popup)
             self.character_level_entry.focus_set()
 
@@ -290,9 +295,9 @@ class UpdateFriendRecordWindow(BasicWindow):
         # 未選擇時套用前記錄，已選擇便用已選擇
         self.character_var.set(record[7] if record[4] == '' else record[4])
 
-        self.character_level_var.set(record[5])
-
-        self.rank_var.set(record[6])
+        # 未選擇時為空，已選擇便用已選擇
+        self.character_level_var.set('' if record[5] is None else record[5])
+        self.rank_var.set('' if record[6] is None else record[6])
 
     def create_entry(self, **kwargs):
         return Entry(self.window, font=("", 12), justify=CENTER, **kwargs)
