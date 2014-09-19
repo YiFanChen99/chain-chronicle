@@ -32,11 +32,8 @@ class RecordsFilter():
 
 
 class RadiobuttonController(Frame):
-    BUTTON_SIZE = {'main': [11, 14], 'sub': [10, 12]}
-
-    def __init__(self, master, height, button_type=1, **kwargs):
-        Frame.__init__(self, master, width=MIN_WIDTH, height=height, **kwargs)
-        self.pack(fill=BOTH, expand=1)
+    def __init__(self, master, width, height, button_type=1, **kwargs):
+        Frame.__init__(self, master, width=width, height=height, **kwargs)
         self['bg'] = '#%02x%02x%02x' % (192, 192, 192)  # 預設底色
         self.default_selected_color = '#%02x%02x%02x' % (32, 32, 32)
         self.default_unselected_color = '#%02x%02x%02x' % (240, 240, 240)
@@ -48,10 +45,10 @@ class RadiobuttonController(Frame):
     # noinspection PyAttributeOutsideInit
     def set_button_type(self, button_type):
         if button_type == 2:
-            self.default_font = ('Microsoft JhengHei', 10)
+            self.default_font = (MS_JH, 10)
             self.default_width = 12
         else:  # 當 type 為 None/1
-            self.default_font = ('Microsoft JhengHei', 11)
+            self.default_font = (MS_JH, 11)
             self.default_width = 14
 
     def create_button(self, pos_x, pos_y, text, callback=None, width=None, **kwargs):
@@ -86,3 +83,32 @@ class RadiobuttonController(Frame):
             else:
                 button["bg"] = self.default_unselected_color
                 button["fg"] = self.default_selected_color
+
+
+class ToggleButton(Button):
+    def __init__(self, master=None, selected=False, callback=None, **kwargs):
+        Button.__init__(self, master, **kwargs)
+        self.default_selected_color = '#%02x%02x%02x' % (32, 32, 32)
+        self.default_unselected_color = '#%02x%02x%02x' % (240, 240, 240)
+        self.is_selected = bool(selected)
+        self.__update_color()
+        self.callback = callback
+        self['command'] = self.toggling
+
+    def toggling(self):
+        self.is_selected = not self.is_selected
+        self.__update_color()
+        if self.callback is not None:
+            self.callback()
+
+    def __update_color(self):
+        if self.is_selected:
+            self["bg"] = self.default_selected_color
+            self["fg"] = self.default_unselected_color
+        else:
+            self["bg"] = self.default_unselected_color
+            self["fg"] = self.default_selected_color
+
+    def set_is_selected(self, value):
+        self.is_selected = bool(value)
+        self.__update_color()

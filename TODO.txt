@@ -3,7 +3,9 @@
 	Friend: ID, Name, DateAdded, Excellence, Defect
 	FriendRecordJP: FriendID, DateRecorded, Rank, Character, CharacterLevel
             tkMessageBox.askyesno(title, mess)
-			
+
+曜日寶箱記錄頁面。
+
 所有角色的註記型能力特質
 	確認資料庫的連動關係，是否能保證左有右有
 
@@ -12,13 +14,15 @@
 
 ap效益maybe? 打幾場升級，關卡註記
 
-次要：
+次要（有按順序）：
 「新增酒廠」的功能。
-RecordOfDraw 透過實作 do_dragging_along_right，增加「刪除」功能。
+RecordOfDraw 透過實作 do_dragging_along_right，增加「刪除」功能，或許編輯功能。
+DailyDroppedRecorder 長期累積會使資料庫肥大，估計約一季 900 筆，要支援手動加總資料庫後整合的功能。
 
-次次要：
+次次要（無按順序）：
 RecordOfDraw的資料只需要角色，而不用職業與等級，並透過join達成篩選。（但不急，目前的模式運作簡單許多。）
 優化 Character，不再先刪除後新增，應分為更新與插入。
 抽卡記錄與酒廠的DB改成以Times為Key連結。
 角色列表分台日版（Ex: 台版小兔，2.0 角色，但似乎留著也不影響）
 Character 透過實作 do_dragging_along_right，增加「刪除」功能。（較複雜，需不需要考慮其他表單使用到的情況？）
+PowerConverter 所使用的 RawConfigParser() 較底層，若改用 ConfigParser() 會更方便。

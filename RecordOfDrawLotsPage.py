@@ -36,6 +36,7 @@ class RecordOfDrawLots(MainFrameWithTable):
         check_button.place(x=8, y=48)
         label = Label(self, text='舊', font=(MS_JH, 10))
         label.place(x=10, y=33)
+        bind_check_box_and_label(check_button, label)
 
         # 新增記錄的按鈕
         button = Button(self, text="新增記錄", width=2, height=14, wraplength=1, font=(MS_JH, 12))

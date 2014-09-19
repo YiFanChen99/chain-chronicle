@@ -3,7 +3,7 @@ __author__ = 'Ricky Chen'
 
 from Tkinter import *
 from Static import *
-import PowerConverterPage
+import FrequentPage
 import Utilities
 import CharacterPage
 import RecordOfDrawLotsPage
@@ -17,8 +17,8 @@ class SubMenuFrame(Frame):
         Frame.__init__(self, master, width=MIN_WIDTH, height=height, **kwargs)
         self.pack(fill=BOTH, expand=1)
 
-        self.radiobuttons = Utilities.RadiobuttonController(self, height=height, button_type=2)
-
+        self.radiobuttons = Utilities.RadiobuttonController(self, width=MIN_WIDTH, height=height, button_type=2)
+        self.radiobuttons.place(x=0, y=0)
         for page_index in range(len(self.Frames)):
             def selecting_page(obj=self, my_index=page_index):
                 obj.selecting_page(my_index)
@@ -42,14 +42,14 @@ class SubMenuFrame(Frame):
 
 
 class StaticGroupFrame(SubMenuFrame):
-    Frames = ['PowerConverter', 'CharacterTable']
+    Frames = ['Frequent', 'CharacterTable']
 
     def __init__(self, master, height, **kwargs):
         SubMenuFrame.__init__(self, master, height=height, **kwargs)
 
     def create_main_frame(self, index):
         if index == 0:
-            return PowerConverterPage.PowerConverter(self.master)
+            return FrequentPage.Frequent(self.master)
         elif index == 1:
             return CharacterPage.Character(self.master)
         else:

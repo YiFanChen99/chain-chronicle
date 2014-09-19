@@ -85,12 +85,7 @@ class FriendRecord(MainFrameWithTable):
         check_button.place(x=basic_x, y=basic_y)
         label = Label(self, text='顯示已登記', font=(MS_JH, 11))
         label.place(x=basic_x + 17, y=basic_y)
-
-        # noinspection PyUnusedLocal
-        def switching(obj=self, *args):
-            check_button.toggle()
-
-        label.bind('<Button-1>', switching)
+        bind_check_box_and_label(check_button, label)
 
         basic_x = 550
         self.friend_count_str = StringVar()

@@ -54,6 +54,7 @@ def convert_data_to_update_command(column_names, values):
 
     return command
 
+
 def convert_datum_to_command(datum):
     if datum == 'None':
         return '\"\"'
@@ -83,3 +84,13 @@ def insert_with_empty_str(the_list):
     result = ['']
     result.extend(the_list)
     return result
+
+
+# 使點擊 label 與點擊 check box 有相同效果
+# p.s. Checkbutton 本身就有 variable 可以用，還有 onvalue 等內建能力，
+# 但缺點在無法調整文字與格子的相對位置，故需要調整要手動建立並 binding
+def bind_check_box_and_label(check_box, label):
+    # noinspection PyUnusedLocal
+    def switching(*args):
+        check_box.toggle()
+    label.bind('<Button-1>', switching)
