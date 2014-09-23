@@ -4,8 +4,6 @@
 	FriendRecordJP: FriendID, DateRecorded, Rank, Character, CharacterLevel
             tkMessageBox.askyesno(title, mess)
 
-曜日寶箱記錄頁面。
-
 所有角色的註記型能力特質
 	確認資料庫的連動關係，是否能保證左有右有
 
