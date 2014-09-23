@@ -17,6 +17,7 @@ import Utilities
 DAILY_MISSIONS = ['週一法師', '週二戰士', '週三騎士', '週四僧侶', '週五法師', '週末金錢']
 ALL_MISSIONS = '週一～五'
 DIFFICULTY = ['初級', '中級']
+RECORD_TABLE = ['Total', 'Item1', 'Item2', 'Item3', 'Item4']
 
 
 class Frequent(MainFrame):
@@ -168,6 +169,7 @@ class DailyDroppedRecorder(Frame):
     def __init__(self, master, **kwargs):
         Frame.__init__(self, master, **kwargs)
 
+        self.stage_recorder = StageRecorder()
         self.__init_widgets()
 
         # TODO 依照時間更換 current_mission
@@ -179,13 +181,15 @@ class DailyDroppedRecorder(Frame):
         current_y += 151
         self.__init_selecting_difficulty_widgets(current_y)
 
+        # 配置「掉箱情況」區塊
         current_y += 46
-        self.__init_dropped_or_not_widgets(current_y)
+        self.dropped_or_not_frame = DroppedOrNotRecorder(self, width=180, height=61)
+        self.dropped_or_not_frame.place(x=0, y=current_y)
 
     # 配置「曜日選擇」區塊
     def __init_selecting_mission_widgets(self, y_pos):
         self.current_mission = StringVar(value=DAILY_MISSIONS[0])
-        self.current_mission.trace("w", self.updating_statistics)
+        self.current_mission.trace("w", self.changing_state)
 
         radiobuttons = Utilities.RadiobuttonController(self, width=180, height=149, button_type=1)
         radiobuttons.place(x=0, y=y_pos)
@@ -210,7 +214,7 @@ class DailyDroppedRecorder(Frame):
     # 配置「難度選擇」區塊
     def __init_selecting_difficulty_widgets(self, y_pos):
         self.current_difficulty = StringVar(value=DIFFICULTY[0])
-        self.current_difficulty.trace("w", self.updating_statistics)
+        self.current_difficulty.trace("w", self.changing_state)
 
         radiobuttons = Utilities.RadiobuttonController(self, width=180, height=41, button_type=1)
         radiobuttons.place(x=0, y=y_pos)
@@ -227,47 +231,84 @@ class DailyDroppedRecorder(Frame):
         # 預設選擇第一個，並不觸發任何事件，配合初始 current_difficulty 的情況
         radiobuttons.selecting_button(0, None)
 
-    # 配置「掉箱情況」區塊
-    def __init_dropped_or_not_widgets(self, y_pos):
-        aa = ['一星肥', '一星肥', '鍛造卡', '二星肥']  # TODO
-        self.frame = DroppedOrNotRecorder(self, aa, width=180, height=61)
-        self.frame.place(x=0, y=y_pos)
+    # noinspection PyUnusedLocal
+    # 改變「掉箱情況」區塊的顯示，並重新抓出對應關卡的數據
+    def changing_state(self, *args):
+        self.stage_recorder.change_stage(self.get_stage_name())
+        self.dropped_or_not_frame.change_texts(self.stage_recorder.get_dropped_names())
+        self.updating_statistics()
+
+    # 新增資料到 Model，並更新回 DB
+    def submitting(self, new_record):
+        self.stage_recorder.add_record(new_record)
+        DATABASE.execute('update StageDroppedRecord' +
+                         convert_data_to_update_command(RECORD_TABLE, self.stage_recorder.records) +
+                         ' where StageID=' + str(self.stage_recorder.id))
+        DATABASE.commit()
+        self.updating_statistics()
 
     # noinspection PyUnusedLocal  todo
     def updating_statistics(self, *args):
         print self.get_stage_name()
 
-    # TODO 記錄到DB
-    def submitting(self, values):
-        print values
-        self.updating_statistics()
-
     def get_stage_name(self):
         return self.current_mission.get() + self.current_difficulty.get()
 
 
+class StageRecorder():
+    def __init__(self, name=None):
+        if name is not None:
+            self.change_stage(name)
+
+    # noinspection PyAttributeOutsideInit
+    def change_stage(self, name):
+        self.name = name
+        self.id = DATABASE.execute('select ID from Stage where Name=' +
+                                   convert_datum_to_command(name)).fetchone()[0]
+        self.records = list(DATABASE.execute('select ' + ','.join(RECORD_TABLE) +
+                                             ' from StageDroppedRecord where StageID=' + str(self.id)).fetchone())
+
+    def get_dropped_names(self):
+        return DATABASE.execute('select Name from StageDroppedItem, Item' +
+                                ' where StageDroppedItem.ItemID = Item.ID and StageID=' +
+                                str(self.id) + ' order by Position ASC').fetchall()
+
+    def add_record(self, new_record):
+        self.records[0] += 1
+        for index in range(4):
+            self.records[index + 1] += (new_record[index])
+
+
 class DroppedOrNotRecorder(Frame):
+    AMOUNT = 4
     DEFAULT_VARIABLES = [1, 0, 0, 0]
 
-    def __init__(self, master, texts, **kwargs):
+    def __init__(self, master, texts=None, **kwargs):
         Frame.__init__(self, master, **kwargs)
         self['bg'] = '#%02x%02x%02x' % (192, 192, 192)  # 預設底色
 
+        if texts is None:
+            texts = [1, 2, 3, 4]
+
         self.buttons = []
-        for index in range(len(self.DEFAULT_VARIABLES)):
+        for index in range(self.AMOUNT):
             button = Utilities.ToggleButton(self, selected=self.DEFAULT_VARIABLES[index], text=texts[index],
                                             width=5, font=(MS_JH, 9))
             button.place(x=1 + 45 * index, y=2)
             self.buttons.append(button)
 
-        submit_button = Button(self, text='送出', width=24, font=(MS_JH, 9))
+        submit_button = Button(self, text='記錄', width=24, font=(MS_JH, 9))
         submit_button.place(x=2, y=32)
         submit_button['command'] = self.submitting
 
     # 將選擇的情況通知 master，並還原到預設值
     def submitting(self):
         values = []
-        for index in range(len(self.buttons)):
+        for index in range(self.AMOUNT):
             values.append(self.buttons[index].is_selected)
             self.buttons[index].set_is_selected(self.DEFAULT_VARIABLES[index])
         self.master.submitting(values)
+
+    def change_texts(self, texts):
+        for index in range(self.AMOUNT):
+            self.buttons[index]['text'] = texts[index]
