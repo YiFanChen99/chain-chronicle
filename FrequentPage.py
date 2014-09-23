@@ -172,7 +172,8 @@ class DailyDroppedRecorder(Frame):
         self.stage_recorder = StageRecorder()
         self.__init_widgets()
 
-        # TODO 依照時間更換 current_mission
+        # 根據配置元件的設定更新 Model
+        self.changing_state()
 
     def __init_widgets(self):
         current_y = 25
@@ -186,9 +187,10 @@ class DailyDroppedRecorder(Frame):
         self.dropped_or_not_frame = DroppedOrNotRecorder(self, width=180, height=61)
         self.dropped_or_not_frame.place(x=0, y=current_y)
 
-    # 配置「曜日選擇」區塊
+    # 配置「曜日選擇」區塊，並根據目前時間初始化
     def __init_selecting_mission_widgets(self, y_pos):
-        self.current_mission = StringVar(value=DAILY_MISSIONS[0])
+        suitable_mission_index = self.get_suitable_daily_mission_index()
+        self.current_mission = StringVar(value=DAILY_MISSIONS[suitable_mission_index])
         self.current_mission.trace("w", self.changing_state)
 
         radiobuttons = Utilities.RadiobuttonController(self, width=180, height=149, button_type=1)
@@ -208,8 +210,8 @@ class DailyDroppedRecorder(Frame):
             self.current_mission.set(ALL_MISSIONS)
         radiobuttons.create_button(29, 113, ALL_MISSIONS, selecting_all_mission, width=12)
 
-        # 預設選擇第一個，並不觸發任何事件，配合初始 current_mission 的情況
-        radiobuttons.selecting_button(0, None)
+        # 根據目前時間初始化呈現，但於此不觸發任何事件
+        radiobuttons.selecting_button(suitable_mission_index, None)
 
     # 配置「難度選擇」區塊
     def __init_selecting_difficulty_widgets(self, y_pos):
@@ -250,6 +252,13 @@ class DailyDroppedRecorder(Frame):
     # noinspection PyUnusedLocal  todo
     def updating_statistics(self, *args):
         print self.get_stage_name()
+        print
+
+    @staticmethod
+    # 回傳適合目前時間使用的曜日類別的位置
+    def get_suitable_daily_mission_index():
+        weekday = datetime.now().weekday()
+        return weekday if weekday < 5 else 5
 
     def get_stage_name(self):
         return self.current_mission.get() + self.current_difficulty.get()
