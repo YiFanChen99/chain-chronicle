@@ -12,7 +12,7 @@ RECORD_DISPLAY_TABLE = ['Status', 'FriendID', 'UsedNames', 'LastProfession',
                         'Character', 'CharacterLevel', 'Rank']
 FRIEND_TABLE = ['ID', 'UsedNames', 'Excellence', 'Defect', 'UsedCharacters', 'RaisedIn3Weeks',
                 'RaisedIn2Months', 'AddedDate', 'LastProfession', 'LastCharacter']  # TODO用處確定
-FRIEND_PARTIAL_TABLE = ['Excellence', 'Defect', 'AddedDate']
+FRIEND_PARTIAL_TABLE = ['UsedNames', 'Excellence', 'Defect', 'AddedDate']
 FRIEND_DISPLAY_TABLE = FRIEND_TABLE[0:9]  # TODO用處確定
 
 
@@ -62,7 +62,8 @@ class FriendRecord(MainFrameWithTable):
                                                                 data[4], data[5], data[6]))
         DATABASE.commit()
 
-        # TODO 重新統計並寫入 Friend Table 內
+        # 更新 FriendTable 中的資訊（RaisedIn3Weeks, LastCharacter等）
+        update_friend_info(self.db_suffix)
 
         self.master.update_main_frame(FriendInfo(self.master, self.db_suffix))
 
@@ -97,7 +98,7 @@ class FriendRecord(MainFrameWithTable):
         # 建立 Friend_Record_List
         self.friend_records = []
         friends = DATABASE.execute('select ID, UsedNames, LastProfession, LastCharacter from ' +
-                                   self.compose_table_name('Friend'))
+                                   self.compose_table_name('Friend') + ' where UsedNames!=\'\'')
         for infos in friends:
             self.friend_records.append([UNRECORDED, infos[0], convert_to_str(infos[1]),
                                         convert_to_str(infos[2]), '', None, None, convert_to_str(infos[3])])
@@ -134,6 +135,7 @@ class FriendRecord(MainFrameWithTable):
     def is_should_display_in_table(self, status):
         return self.is_show_recorded_friends.get() == (status == RECORDED)
 
+    # 若雙擊右側，則欲輸入好友記錄，若雙擊左側，則為更改好友資訊
     def do_double_clicking(self, event):
         row = self.table_view.get_row_clicked(event)
         friend_id = int(self.table_model.getCellRecord(row, 1))
@@ -153,7 +155,7 @@ class FriendRecord(MainFrameWithTable):
 
 class UpdateFriendWindow(BasicWindow):
     def __init__(self, db_suffix, friend_info=None, friend_id=None):
-        BasicWindow.__init__(self, width=300, height=272)
+        BasicWindow.__init__(self, width=305, height=272)
         self.window.title('Friend Info')
         self.db_suffix = db_suffix
 
@@ -175,47 +177,49 @@ class UpdateFriendWindow(BasicWindow):
 
         current_y = 8
         Label(self.window, width=12, text='UsedNames :', font=(MS_JH, 12)).place(x=5, y=current_y)
-        Label(self.window, width=16, text=self.friend_info[1], font=(MS_JH, 12),
-              justify=LEFT).place(x=30, y=current_y + label_space)
+        self.used_names = StringVar(value=self.friend_info[1])
+        Entry(self.window, width=16, textvariable=self.used_names, font=(MS_JH, 12), justify=LEFT)\
+            .place(x=30, y=current_y + label_space)
 
         Label(self.window, width=11, text='AddedDate', font=(MS_JH, 10), justify=CENTER)\
-            .place(x=193, y=current_y - 1)
+            .place(x=197, y=current_y + 1)
         self.added_date = StringVar(value=self.friend_info[7])
         Entry(self.window, width=11, textvariable=self.added_date, font=(MS_JH, 10), justify=CENTER)\
-            .place(x=192, y=current_y + label_space - 1)
+            .place(x=196, y=current_y + label_space + 1)
 
         current_y += 55
-        Label(self.window, width=24, text='Excellence', font=(MS_JH, 12), justify=CENTER)\
-            .place(x=28, y=current_y)
+        Label(self.window, width=25, text='Excellence', font=(MS_JH, 12), justify=CENTER)\
+            .place(x=29, y=current_y)
         self.excellence = StringVar(value=self.friend_info[2])
-        Entry(self.window, width=24, textvariable=self.excellence, font=(MS_JH, 12), justify=CENTER)\
-            .place(x=39, y=current_y + label_space)
+        Entry(self.window, width=25, textvariable=self.excellence, font=(MS_JH, 12), justify=CENTER)\
+            .place(x=40, y=current_y + label_space)
 
         current_y += 55
-        Label(self.window, width=24, text='Defect', font=(MS_JH, 12), justify=CENTER).place(x=28, y=current_y)
+        Label(self.window, width=25, text='Defect', font=(MS_JH, 12), justify=CENTER).place(x=29, y=current_y)
         self.defect = StringVar(value=self.friend_info[3])
-        Entry(self.window, width=24, textvariable=self.defect, font=(MS_JH, 12), justify=CENTER)\
-            .place(x=39, y=current_y + label_space)
+        Entry(self.window, width=25, textvariable=self.defect, font=(MS_JH, 12), justify=CENTER)\
+            .place(x=40, y=current_y + label_space)
 
         # 送出的按鈕
         current_y += 66
         Button(self.window, text="Submit", command=self.submitting, width=26, borderwidth=3,
-               font=("", 12)).place(x=24, y=current_y)
+               font=("", 12)).place(x=29, y=current_y)
 
         # 取消的按鈕
         current_y += 39
         Button(self.window, text="Cancel", command=self.destroy, width=26, borderwidth=3,
-               font=("", 12)).place(x=24, y=current_y)
+               font=("", 12)).place(x=29, y=current_y)
 
     # noinspection PyUnusedLocal
     def submitting(self, *args):
         # 更新回原記錄
+        self.friend_info[1] = convert_to_str(self.used_names.get())
         self.friend_info[2] = convert_to_str(self.excellence.get())
         self.friend_info[3] = convert_to_str(self.defect.get())
         self.friend_info[7] = convert_to_str(self.added_date.get())
 
         # 更新到資料庫
-        values = [self.friend_info[2], self.friend_info[3], self.friend_info[7]]
+        values = [self.friend_info[1], self.friend_info[2], self.friend_info[3], self.friend_info[7]]
         DATABASE.execute('update ' + self.get_db_table_name() +
                          convert_data_to_update_command(FRIEND_PARTIAL_TABLE, values) +
                          ' where ' + FRIEND_TABLE[0] + '=' + str(self.friend_info[0]))
@@ -304,6 +308,11 @@ class UpdateFriendRecordWindow(BasicWindow):
         self.record[5] = self.character_level_var.get()
         self.record[6] = self.rank_var.get()
         self.destroy()
+
+
+# TODO 重新統計並寫入 Friend Table 內
+def update_friend_info(db_suffix):
+    print db_suffix
 
 
 if __name__ == "__main__":
