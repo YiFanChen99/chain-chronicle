@@ -73,20 +73,28 @@ class FriendRecord(MainFrameWithTable):
     def __init_upper_frame(self):
         basic_y = 3
 
-        basic_x = 65
+        basic_x = 60
         Label(self, text='Date:', font=(MS_JH, 11)).place(x=basic_x, y=basic_y)
         self.date = StringVar(value='')
         Entry(self, width=11, textvariable=self.date, font=(MS_JH, 11)).place(x=basic_x + 41, y=basic_y + 2)
 
         # 選擇是否顯示已登記的好友
-        basic_x = 240
+        basic_x = 256
         self.is_show_recorded_friends = BooleanVar()
         self.is_show_recorded_friends.trace("w", self.updating_table)
         check_button = Checkbutton(self, variable=self.is_show_recorded_friends)
         check_button.place(x=basic_x, y=basic_y)
         label = Label(self, text='顯示已登記', font=(MS_JH, 11))
-        label.place(x=basic_x + 17, y=basic_y)
+        label.place(x=basic_x + 18, y=basic_y)
         bind_check_box_and_label(check_button, label)
+
+        # 角色部分名稱篩選
+        basic_x = 366
+        Label(self, text='篩選:', font=(MS_JH, 11)).place(x=basic_x, y=basic_y)
+        self.queried_name = StringVar()
+        entry = Entry(self, width=11, textvariable=self.queried_name, font=(MS_JH, 11))
+        entry.place(x=basic_x + 40, y=basic_y + 2)
+        entry.bind('<Return>', self.updating_table)
 
         basic_x = 550
         self.friend_count_str = StringVar()
@@ -114,7 +122,7 @@ class FriendRecord(MainFrameWithTable):
         for column in RECORD_DISPLAY_TABLE:
             self.table_model.addColumn(column)
 
-        records = [each for each in self.friend_records if self.is_should_display_in_table(each[0])]
+        records = [each for each in self.friend_records if self.is_should_display_in_table(each)]
 
         if len(records) == 0:
             self.table_model.addRow(UsedNames='無任何記錄')
@@ -131,9 +139,19 @@ class FriendRecord(MainFrameWithTable):
         self.table_view.hide_column('FriendID')
         self.table_view.hide_column('LastProfession')
 
-    # 將符合設定的已登記/未登記紀錄回傳為 True
-    def is_should_display_in_table(self, status):
-        return self.is_show_recorded_friends.get() == (status == RECORDED)
+    # 將符合設定的已登記/未登記紀錄回傳為 True，並根據名稱要求篩選
+    def is_should_display_in_table(self, record):
+        is_match_recorded_setting = self.is_show_recorded_friends.get() == (record[0] == RECORDED)
+        return is_match_recorded_setting and self.is_match_queried_name(record[2])
+
+    def is_match_queried_name(self, used_names):
+        query = self.queried_name.get()
+        if query == '':
+            return True
+        elif query == '*j':
+            return is_any_japanese_character_contain(used_names)
+        else:
+            return query.encode('utf8') in used_names
 
     # 若雙擊右側，則欲輸入好友記錄，若雙擊左側，則為更改好友資訊
     def do_double_clicking(self, event):

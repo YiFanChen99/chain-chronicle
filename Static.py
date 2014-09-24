@@ -94,3 +94,11 @@ def bind_check_box_and_label(check_box, label):
     def switching(*args):
         check_box.toggle()
     label.bind('<Button-1>', switching)
+
+
+def is_any_japanese_character_contain(variable):
+    variable = variable.decode('utf8')
+    for character in variable:
+        if u'\u3000' <= character <= u'\u30f0':
+            return True
+    return False
