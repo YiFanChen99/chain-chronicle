@@ -7,28 +7,108 @@ import CharacterSelectorWindow
 
 RECORDED = ''
 UNRECORDED = '未登記'
-RECORD_DB_TABLE = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
-RECORD_DISPLAY_TABLE = ['Status', 'FriendID', 'UsedNames', 'LastProfession',
-                        'Character', 'CharacterLevel', 'Rank']
-FRIEND_TABLE = ['ID', 'UsedNames', 'Excellence', 'Defect', 'UsedCharacters', 'RaisedIn3Weeks',
-                'RaisedIn2Months', 'AddedDate', 'LastProfession', 'LastCharacter']  # TODO用處確定
-FRIEND_PARTIAL_TABLE = ['UsedNames', 'Excellence', 'Defect', 'AddedDate']
-FRIEND_DISPLAY_TABLE = FRIEND_TABLE[0:9]  # TODO用處確定
+FRIEND_DISPLAYED_COLUMN = ['ID', 'UsedNames', 'Excellence', 'Defect', 'UsedCharacters', 'RaisedIn3Weeks',
+                           'RaisedIn2Months', 'AddedDate', 'LastProfession']
+FRIEND_UPDATED_COLUMN = ['UsedNames', 'Excellence', 'Defect', 'AddedDate']
+FRIEND_FOR_RECORD_COLUMN = ['ID', 'UsedNames', 'LastProfession', 'LastCharacter']
+RECORD_DB_COLUMN = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
+RECORD_DISPLAYED_COLUMN = ['Status', 'FriendID', 'UsedNames', 'LastProfession',
+                           'Character', 'CharacterLevel', 'Rank']
 
 
-# TODO 實作
 class FriendInfo(MainFrameWithTable):
     def __init__(self, master, db_suffix):
         MainFrameWithTable.__init__(self, master, db_suffix)
         self.set_table_place(34, 29)
 
-        # 切換到記錄好友現況的按鈕
+        # Left frame: 切換到記錄好友現況的按鈕
         button = Button(self, text="記錄好友現況", width=2, height=17, wraplength=1, font=(MS_JH, 12))
         button.place(x=4, y=23)
         button["command"] = self.switching_to_friend_record
 
+        self.__init_upper_frame()
+
+        self.__init_page()
+
     def switching_to_friend_record(self):
         self.master.update_main_frame(FriendRecord(self.master, self.db_suffix))
+
+    def __init_upper_frame(self):
+        basic_y = 3
+
+        # TODO 新增好友
+        # TODO 排序，可選職業，加入日期，RaisedIn*2
+
+        # 角色部分名稱篩選
+        basic_x = 350
+        Label(self, text='篩選:', font=(MS_JH, 11)).place(x=basic_x, y=basic_y)
+        self.queried_name = StringVar()
+        entry = Entry(self, width=8, textvariable=self.queried_name, font=(MS_JH, 11))
+        entry.place(x=basic_x + 40, y=basic_y + 2)
+        entry.bind('<Return>', self.updating_table)
+
+        basic_x = 465
+        self.friend_count_str = StringVar()
+        Label(self, textvariable=self.friend_count_str, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
+
+        basic_x = 560
+        self.last_recorded_str = StringVar()
+        Label(self, textvariable=self.last_recorded_str, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
+
+    def __init_page(self):
+        # 建立 Friend_List
+        self.friends = DATABASE.execute('select ' + ','.join(FRIEND_DISPLAYED_COLUMN) + ' from ' +
+                                        self.compose_table_name('Friend') + ' where UsedNames!=\'\'').fetchall()
+
+        self.friend_count_str.set('Friends: %02d' % len(self.friends))  # 好友總數
+
+        # 最後更新記錄時間
+        date = convert_str_to_datetime(
+            DATABASE.execute('select max(RecordedDate) from ' + self.compose_table_name('FriendRecord')).fetchone()[0])
+        self.last_recorded_str.set('Last Recorded: %02d/%02d' % (date.month, date.day))
+
+        self.updating_table()
+
+    # noinspection PyUnusedLocal
+    def updating_table(self, event=None, *args):
+        self.table_model = TableModel()
+
+        for column in FRIEND_DISPLAYED_COLUMN:
+            self.table_model.addColumn(column)
+
+        # 將符合名稱篩選的好友加入欲呈現表格中
+        records = [each for each in self.friends if
+                   is_name_match_query(self.queried_name.get(), convert_to_str(each[1]))]
+
+        if len(records) == 0:
+            self.table_model.addRow(UsedNames='無任何記錄')
+        else:
+            for row in records:
+                data = iter(row)
+                self.table_model.addRow(ID=next(data), UsedNames=convert_to_str(next(data)),
+                                        Excellence=convert_to_str(next(data)), Defect=convert_to_str(next(data)),
+                                        UsedCharacters=convert_to_str(next(data)), RaisedIn3Weeks=next(data),
+                                        RaisedIn2Months=next(data), AddedDate=next(data),
+                                        LastProfession=convert_to_str(next(data)))
+
+        self.table_model.setSortOrder(columnName='LastProfession')
+        self.redisplay_table()
+        self.table_view.hide_column('ID')
+        self.table_view.hide_column('LastProfession')
+
+        # 不限制會太寬，難以瀏覽全部資訊
+        self.table_view.resizeColumn(1, 125)
+        self.table_view.resizeColumn(2, 178)
+        self.table_view.resizeColumn(3, 172)
+        self.table_view.resizeColumn(4, 100)
+
+    # TODO 編輯
+    def do_double_clicking(self, event):
+        pass
+
+    # TODO 刪除
+    def do_dragging_along_right(self, row_number):
+        pass
 
 
 class FriendRecord(MainFrameWithTable):
@@ -40,8 +120,7 @@ class FriendRecord(MainFrameWithTable):
         self.__init_left_frame()
         self.__init_upper_frame()
 
-        self.friend_records = []
-        self.updating_page()
+        self.__init_page()
 
     def __init_left_frame(self):
         button = Button(self, text="送出並返回", width=2, height=8, wraplength=1, font=(MS_JH, 12), borderwidth=2)
@@ -57,7 +136,7 @@ class FriendRecord(MainFrameWithTable):
         for data in self.friend_records:
             if data[0] == RECORDED:
                 DATABASE.execute('insert into ' + self.compose_table_name('FriendRecord') +
-                                 ' (' + ','.join(RECORD_DB_TABLE) + ')' +
+                                 ' (' + ','.join(RECORD_DB_COLUMN) + ')' +
                                  convert_data_to_insert_command(data[1], self.date.get(),
                                                                 data[4], data[5], data[6]))
         DATABASE.commit()
@@ -100,12 +179,12 @@ class FriendRecord(MainFrameWithTable):
         self.friend_count_str = StringVar()
         Label(self, textvariable=self.friend_count_str, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
 
-    def updating_page(self):
+    def __init_page(self):
         self.date.set(datetime.now().date())  # 此次記錄的日期
 
         # 建立 Friend_Record_List
         self.friend_records = []
-        friends = DATABASE.execute('select ID, UsedNames, LastProfession, LastCharacter from ' +
+        friends = DATABASE.execute('select ' + ','.join(FRIEND_FOR_RECORD_COLUMN) + ' from ' +
                                    self.compose_table_name('Friend') + ' where UsedNames!=\'\'')
         for infos in friends:
             self.friend_records.append([UNRECORDED, infos[0], convert_to_str(infos[1]),
@@ -119,7 +198,7 @@ class FriendRecord(MainFrameWithTable):
     def updating_table(self, event=None, *args):
         self.table_model = TableModel()
 
-        for column in RECORD_DISPLAY_TABLE:
+        for column in RECORD_DISPLAYED_COLUMN:
             self.table_model.addColumn(column)
 
         records = [each for each in self.friend_records if self.is_should_display_in_table(each)]
@@ -142,16 +221,7 @@ class FriendRecord(MainFrameWithTable):
     # 將符合設定的已登記/未登記紀錄回傳為 True，並根據名稱要求篩選
     def is_should_display_in_table(self, record):
         is_match_recorded_setting = self.is_show_recorded_friends.get() == (record[0] == RECORDED)
-        return is_match_recorded_setting and self.is_match_queried_name(record[2])
-
-    def is_match_queried_name(self, used_names):
-        query = self.queried_name.get()
-        if query == '':
-            return True
-        elif query == '*j':
-            return is_any_japanese_character_contain(used_names)
-        else:
-            return query.encode('utf8') in used_names
+        return is_match_recorded_setting and is_name_match_query(self.queried_name.get(), record[2])
 
     # 若雙擊右側，則欲輸入好友記錄，若雙擊左側，則為更改好友資訊
     def do_double_clicking(self, event):
@@ -184,7 +254,7 @@ class UpdateFriendWindow(BasicWindow):
 
     def init_friend_info(self, friend_info, friend_id):
         if friend_info is None:
-            self.friend_info = list(DATABASE.execute('select ' + ','.join(FRIEND_DISPLAY_TABLE) + ' from ' +
+            self.friend_info = list(DATABASE.execute('select ' + ','.join(FRIEND_DISPLAYED_COLUMN) + ' from ' +
                                                      self.get_db_table_name() + ' where ID=' +
                                                      str(friend_id)).fetchone())
         else:
@@ -239,8 +309,8 @@ class UpdateFriendWindow(BasicWindow):
         # 更新到資料庫
         values = [self.friend_info[1], self.friend_info[2], self.friend_info[3], self.friend_info[7]]
         DATABASE.execute('update ' + self.get_db_table_name() +
-                         convert_data_to_update_command(FRIEND_PARTIAL_TABLE, values) +
-                         ' where ' + FRIEND_TABLE[0] + '=' + str(self.friend_info[0]))
+                         convert_data_to_update_command(FRIEND_UPDATED_COLUMN, values) +
+                         ' where ID=' + str(self.friend_info[0]))
         DATABASE.commit()
 
         self.destroy()
@@ -309,10 +379,10 @@ class UpdateFriendRecordWindow(BasicWindow):
     def __init_record(self):
         record = self.record
 
-        # 未選擇時套用前記錄，已選擇便用已選擇
+        # 角色未選擇時套用前記錄，已選擇便用已選擇
         self.character_var.set(record[7] if record[4] == '' else record[4])
 
-        # 未選擇時為空，已選擇便用已選擇
+        # 角色等級/Rank等級未選擇時為空，已選擇便用已選擇
         self.character_level_var.set('' if record[5] is None else record[5])
         self.rank_var.set('' if record[6] is None else record[6])
 
@@ -326,6 +396,15 @@ class UpdateFriendRecordWindow(BasicWindow):
         self.record[5] = self.character_level_var.get()
         self.record[6] = self.rank_var.get()
         self.destroy()
+
+
+def is_name_match_query(query, used_names):
+    if query == '':
+        return True
+    elif query == '*j':
+        return is_any_japanese_character_contain(used_names)
+    else:
+        return query.encode('utf8') in used_names
 
 
 # TODO 重新統計並寫入 Friend Table 內
@@ -345,5 +424,5 @@ if __name__ == "__main__":
     # app = UpdateFriendRecordWindow(record)
     # app.mainloop()
 
-    app = FriendRecord(master=root, db_suffix='JP')
+    app = FriendInfo(master=root, db_suffix='JP')
     app.mainloop()
