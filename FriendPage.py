@@ -57,8 +57,9 @@ class FriendInfo(MainFrameWithTable):
 
     def __init_page(self):
         # 建立 Friend_List
-        self.friends = DATABASE.execute('select ' + ','.join(FRIEND_DISPLAYED_COLUMN) + ' from ' +
-                                        self.compose_table_name('Friend') + ' where UsedNames!=\'\'').fetchall()
+        self.friends = [list(info) for info in
+                        DATABASE.execute('select ' + ','.join(FRIEND_DISPLAYED_COLUMN) + ' from ' +
+                                         self.compose_table_name('Friend') + ' where UsedNames!=\'\'').fetchall()]
 
         self.friend_count_str.set('Friends: %02d' % len(self.friends))  # 好友總數
 
@@ -102,13 +103,22 @@ class FriendInfo(MainFrameWithTable):
         self.table_view.resizeColumn(3, 172)
         self.table_view.resizeColumn(4, 100)
 
-    # TODO 編輯
+    # 更改好友資訊
     def do_double_clicking(self, event):
-        pass
+        row = self.table_view.get_row_clicked(event)
+        friend_id = int(self.table_model.getCellRecord(row, 0))
+        popup = UpdateFriendWindow(self.db_suffix, friend_info=self.get_info_by_id(friend_id))
+        self.wait_window(popup)
+        self.updating_table()
 
     # TODO 刪除
     def do_dragging_along_right(self, row_number):
         pass
+
+    def get_info_by_id(self, the_id):
+        for info in self.friends:
+            if info[0] == the_id:
+                return info
 
 
 class FriendRecord(MainFrameWithTable):
@@ -183,6 +193,7 @@ class FriendRecord(MainFrameWithTable):
         self.date.set(datetime.now().date())  # 此次記錄的日期
 
         # 建立 Friend_Record_List
+        # 這邊取出 LastCharacter 只是為了給 UpdateFriendRecordWindow 使用，預先讀出
         self.friend_records = []
         friends = DATABASE.execute('select ' + ','.join(FRIEND_FOR_RECORD_COLUMN) + ' from ' +
                                    self.compose_table_name('Friend') + ' where UsedNames!=\'\'')
@@ -227,13 +238,15 @@ class FriendRecord(MainFrameWithTable):
     def do_double_clicking(self, event):
         row = self.table_view.get_row_clicked(event)
         friend_id = int(self.table_model.getCellRecord(row, 1))
-        the_record = self.get_record_by_friend_id(friend_id)
 
         column = self.table_view.get_col_clicked(event)
-        popup = (UpdateFriendWindow(self.db_suffix, friend_id=friend_id) if column <= 2
-                 else UpdateFriendRecordWindow(the_record))
-        self.wait_window(popup)
-        self.updating_table()
+        if column <= 2:
+            popup = UpdateFriendWindow(self.db_suffix, friend_id=friend_id)
+            self.wait_window(popup)
+        else:
+            popup = UpdateFriendRecordWindow(self.get_record_by_friend_id(friend_id))
+            self.wait_window(popup)
+            self.updating_table()
 
     def get_record_by_friend_id(self, friend_id):
         for each_record in self.friend_records:
@@ -425,4 +438,5 @@ if __name__ == "__main__":
     # app.mainloop()
 
     app = FriendInfo(master=root, db_suffix='JP')
+    # app = FriendRecord(master=root, db_suffix='JP')
     app.mainloop()
