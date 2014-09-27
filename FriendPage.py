@@ -11,6 +11,8 @@ FRIEND_DISPLAYED_COLUMN = ['ID', 'UsedNames', 'Excellence', 'Defect', 'UsedChara
                            'RaisedIn2Months', 'AddedDate', 'LastProfession']
 FRIEND_UPDATED_COLUMN = ['UsedNames', 'Excellence', 'Defect', 'AddedDate']
 FRIEND_FOR_RECORD_COLUMN = ['ID', 'UsedNames', 'LastProfession', 'LastCharacter']
+FRIEND_CLEAN_UP_COLUMN = FRIEND_DISPLAYED_COLUMN[1:9] + ['LastCharacter']
+ORDER_SELECTOR = ['Profession', 'In3Weeks', 'In2Months', 'AddedDate']
 RECORD_DB_COLUMN = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
 RECORD_DISPLAYED_COLUMN = ['Status', 'FriendID', 'UsedNames', 'LastProfession',
                            'Character', 'CharacterLevel', 'Rank']
@@ -28,7 +30,8 @@ class FriendInfo(MainFrameWithTable):
 
         self.__init_upper_frame()
 
-        self.__init_page()
+        self.friends = []
+        self.updating_page()
 
     def switching_to_friend_record(self):
         self.master.update_main_frame(FriendRecord(self.master, self.db_suffix))
@@ -36,26 +39,36 @@ class FriendInfo(MainFrameWithTable):
     def __init_upper_frame(self):
         basic_y = 3
 
-        # TODO 新增好友
-        # TODO 排序，可選職業，加入日期，RaisedIn*2
+        basic_x = 52
+        button = Button(self, text="新增好友", width=8, font=(MS_JH, 11))
+        button.place(x=basic_x, y=-1)
+        button["command"] = self.adding_new_friend
+
+        basic_x = 153
+        Label(self, text='Order:', font=(MS_JH, 12)).place(x=basic_x, y=basic_y)
+        self.order_selector = ttk.Combobox(self, state='readonly', width=10, justify=CENTER)
+        self.order_selector.set(ORDER_SELECTOR[0])
+        self.order_selector['values'] = ORDER_SELECTOR
+        self.order_selector.place(x=basic_x + 55, y=basic_y + 1)
+        self.order_selector.bind('<<ComboboxSelected>>', self.updating_table)
 
         # 角色部分名稱篩選
-        basic_x = 350
-        Label(self, text='篩選:', font=(MS_JH, 11)).place(x=basic_x, y=basic_y)
+        basic_x = 322
+        Label(self, text='篩選:', font=(MS_JH, 12)).place(x=basic_x, y=basic_y)
         self.queried_name = StringVar()
         entry = Entry(self, width=8, textvariable=self.queried_name, font=(MS_JH, 11))
-        entry.place(x=basic_x + 40, y=basic_y + 2)
+        entry.place(x=basic_x + 42, y=basic_y + 2)
         entry.bind('<Return>', self.updating_table)
 
-        basic_x = 465
+        basic_x = 460
         self.friend_count_str = StringVar()
         Label(self, textvariable=self.friend_count_str, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
 
-        basic_x = 560
+        basic_x = 555
         self.last_recorded_str = StringVar()
         Label(self, textvariable=self.last_recorded_str, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
 
-    def __init_page(self):
+    def updating_page(self):
         # 建立 Friend_List
         self.friends = [list(info) for info in
                         DATABASE.execute('select ' + ','.join(FRIEND_DISPLAYED_COLUMN) + ' from ' +
@@ -92,7 +105,7 @@ class FriendInfo(MainFrameWithTable):
                                         RaisedIn2Months=next(data), AddedDate=next(data),
                                         LastProfession=convert_to_str(next(data)))
 
-        self.table_model.setSortOrder(columnName='LastProfession')
+        self.set_order_in_table_model()
         self.redisplay_table()
         self.table_view.hide_column('ID')
         self.table_view.hide_column('LastProfession')
@@ -103,6 +116,18 @@ class FriendInfo(MainFrameWithTable):
         self.table_view.resizeColumn(3, 172)
         self.table_view.resizeColumn(4, 100)
 
+    # 取得未使用的 ID，並將新資訊更新到該記錄上
+    def adding_new_friend(self):
+        new_id = DATABASE.execute('select ID from ' + self.compose_table_name('Friend') +
+                                  ' where UsedNames==\'\'').fetchone()[0]
+        popup = UpdateFriendWindow(self.db_suffix, friend_id=new_id)
+        self.wait_window(popup)
+        self.updating_page()
+
+    def set_order_in_table_model(self):
+        column_names = dict(zip(ORDER_SELECTOR, ['LastProfession', 'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate']))
+        self.table_model.setSortOrder(columnName=column_names[self.order_selector.get()])
+
     # 更改好友資訊
     def do_double_clicking(self, event):
         row = self.table_view.get_row_clicked(event)
@@ -111,9 +136,20 @@ class FriendInfo(MainFrameWithTable):
         self.wait_window(popup)
         self.updating_table()
 
-    # TODO 刪除
     def do_dragging_along_right(self, row_number):
-        pass
+        # 確認是否刪除
+        names = self.table_model.getCellRecord(row_number, 1)
+        if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete friend 「' + names + '」？'):
+            friend_id = int(self.table_model.getCellRecord(row_number, 0))
+            # 將該 ID 的資料全數清空，並將其對應的 Records 刪除
+            DATABASE.execute('update ' + self.compose_table_name('Friend') +
+                             convert_data_to_update_command(FRIEND_CLEAN_UP_COLUMN, [''] * 9) +
+                             ' where ID=' + str(friend_id))
+            DATABASE.execute('delete from ' + self.compose_table_name('FriendRecord') +
+                             ' where FriendID=' + str(friend_id))
+            DATABASE.commit()
+
+            self.updating_page()
 
     def get_info_by_id(self, the_id):
         for info in self.friends:
@@ -219,7 +255,7 @@ class FriendRecord(MainFrameWithTable):
         else:
             for row in records:
                 data = iter(row)
-                self.table_model.addRow(State=next(data), FriendID=next(data), UsedNames=next(data),
+                self.table_model.addRow(Status=next(data), FriendID=next(data), UsedNames=next(data),
                                         LastProfession=next(data), Character=next(data), CharacterLevel=next(data),
                                         Rank=next(data))
 
@@ -313,6 +349,11 @@ class UpdateFriendWindow(BasicWindow):
 
     # noinspection PyUnusedLocal
     def submitting(self, *args):
+        # 進行檢查，不允許 UsedNames 為空
+        if self.used_names.get() == '':
+            tkMessageBox.showwarning("Can not submit", '不允許 UsedNames 為空')
+            return
+
         # 更新回原記錄
         self.friend_info[1] = convert_to_str(self.used_names.get())
         self.friend_info[2] = convert_to_str(self.excellence.get())
@@ -437,6 +478,6 @@ if __name__ == "__main__":
     # app = UpdateFriendRecordWindow(record)
     # app.mainloop()
 
-    app = FriendInfo(master=root, db_suffix='JP')
+    app = FriendInfo(master=root, db_suffix='TW')
     # app = FriendRecord(master=root, db_suffix='JP')
     app.mainloop()
