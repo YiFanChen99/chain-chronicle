@@ -4,6 +4,7 @@ __author__ = 'Ricky Chen'
 from MainFrame import *
 from BasicWindow import BasicWindow
 import CharacterSelectorWindow
+from datetime import timedelta
 
 RECORDED = ''
 UNRECORDED = '未登記'
@@ -11,6 +12,7 @@ FRIEND_DISPLAYED_COLUMN = ['ID', 'UsedNames', 'Excellence', 'Defect', 'UsedChara
                            'RaisedIn2Months', 'AddedDate', 'LastProfession']
 FRIEND_UPDATED_COLUMN = ['UsedNames', 'Excellence', 'Defect', 'AddedDate']
 FRIEND_FOR_RECORD_COLUMN = ['ID', 'UsedNames', 'LastProfession', 'LastCharacter']
+UPDATE_BY_RECORD_COLUMN = ['UsedCharacters', 'RaisedIn3Weeks', 'RaisedIn2Months', 'LastProfession', 'LastCharacter']
 FRIEND_CLEAN_UP_COLUMN = FRIEND_DISPLAYED_COLUMN[1:9] + ['LastCharacter']
 ORDER_SELECTOR = ['Profession', 'In3Weeks', 'In2Months', 'AddedDate']
 RECORD_DB_COLUMN = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
@@ -111,10 +113,10 @@ class FriendInfo(MainFrameWithTable):
         self.table_view.hide_column('LastProfession')
 
         # 不限制會太寬，難以瀏覽全部資訊
-        self.table_view.resizeColumn(1, 125)
-        self.table_view.resizeColumn(2, 178)
-        self.table_view.resizeColumn(3, 172)
-        self.table_view.resizeColumn(4, 100)
+        self.table_view.resizeColumn(1, 120)
+        self.table_view.resizeColumn(2, 155)
+        self.table_view.resizeColumn(3, 145)
+        self.table_view.resizeColumn(4, 150)
 
     # 取得未使用的 ID，並將新資訊更新到該記錄上
     def adding_new_friend(self):
@@ -178,6 +180,8 @@ class FriendRecord(MainFrameWithTable):
         button["command"] = self.switching_to_friend_info
 
     def submitting(self):
+        updated_record_number = 0  # 數量計算
+
         # 將已經登記的 record 更新到 DB 內
         for data in self.friend_records:
             if data[0] == RECORDED:
@@ -185,10 +189,13 @@ class FriendRecord(MainFrameWithTable):
                                  ' (' + ','.join(RECORD_DB_COLUMN) + ')' +
                                  convert_data_to_insert_command(data[1], self.date.get(),
                                                                 data[4], data[5], data[6]))
+                updated_record_number += 1
         DATABASE.commit()
 
-        # 更新 FriendTable 中的資訊（RaisedIn3Weeks, LastCharacter等）
-        update_friend_info(self.db_suffix)
+        # 確認是否更新 FriendTable 中的資訊（RaisedIn3Weeks, LastCharacter等）
+        if tkMessageBox.askyesno('Updating Friend by records?', '共 ' + str(updated_record_number) +
+                                 ' 筆記錄記錄完成，\n是否要更新 Friend Info？'):
+            update_friend_info_table(self.db_suffix)
 
         self.master.update_main_frame(FriendInfo(self.master, self.db_suffix))
 
@@ -355,10 +362,10 @@ class UpdateFriendWindow(BasicWindow):
             return
 
         # 更新回原記錄
-        self.friend_info[1] = convert_to_str(self.used_names.get())
-        self.friend_info[2] = convert_to_str(self.excellence.get())
-        self.friend_info[3] = convert_to_str(self.defect.get())
-        self.friend_info[7] = convert_to_str(self.added_date.get())
+        self.friend_info[1] = self.used_names.get()
+        self.friend_info[2] = self.excellence.get()
+        self.friend_info[3] = self.defect.get()
+        self.friend_info[7] = self.added_date.get()
 
         # 更新到資料庫
         values = [self.friend_info[1], self.friend_info[2], self.friend_info[3], self.friend_info[7]]
@@ -461,10 +468,90 @@ def is_name_match_query(query, used_names):
         return query.encode('utf8') in used_names
 
 
-# TODO 重新統計並寫入 Friend Table 內
-def update_friend_info(db_suffix):
-    print db_suffix
+# 重新統計 FriendRecord 並寫入 Friend Table 內
+def update_friend_info_table(db_suffix):
+    updater = FriendInfoUpdater(db_suffix)
+    # 對每個好友進行處理
+    for info in DATABASE.execute('select ID from Friend' + db_suffix + ' where UsedNames!=\'\'').fetchall():
+        updater.update_friend(info[0])
+    DATABASE.commit()
 
+
+class FriendInfoUpdater:
+    def __init__(self, db_suffix):
+        self.db_suffix = db_suffix
+
+    # 更新該好友的資訊到記憶體的 DB 中，尚未 commit
+    # noinspection PyAttributeOutsideInit
+    def update_friend(self, friend_id):
+        # 取出該 ID 對應的所有記錄，從最近排序到最久以前
+        records = DATABASE.execute('select ' + ','.join(RECORD_DB_COLUMN[1:5]) + ' from FriendRecord' + self.db_suffix +
+                                   ' where FriendID=' + str(friend_id) + ' order by RecordedDate DESC').fetchall()
+
+        # 最新一筆資料即可得到 LastProfession 與 LastCharacter
+        self.last_character = records[0][1]
+        self.last_profession = DATABASE.execute('select Profession from Character where Nickname=' +
+                                                convert_datum_to_command(self.last_character)).fetchone()[0]
+
+        # 找出 UsedCharacters RaisedIn3Weeks RaisedIn2Months
+        self.raised_recorder = RaisedRecorder()
+        self.character_recorder = CharacterRecorder()
+        for record in records:
+            # 更新範圍內日期的 Rank，以取得範圍內的改變量
+            self.raised_recorder.record_if_in_duration(record)
+            # 將有使用的角色彙整
+            self.character_recorder.record_if_not_existed(record)
+        self.raised_in_3_weeks = self.raised_recorder.get_raised_in_3_weeks()
+        self.raised_in_2_months = self.raised_recorder.get_raised_in_2_months()
+        self.used_characters = self.character_recorder.get_used_characters()
+
+        DATABASE.execute('update Friend' + self.db_suffix + convert_data_to_update_command(
+            UPDATE_BY_RECORD_COLUMN, [self.used_characters, self.raised_in_3_weeks, self.raised_in_2_months,
+                                      self.last_profession, self.last_character]) +
+                         ' where ID=' + str(friend_id))
+
+
+class RaisedRecorder:
+    def __init__(self):
+        self.date_of_3_weeks = datetime.now() - timedelta(weeks=2)
+        self.date_of_2_months = datetime.now() - timedelta(days=61)
+        self.newest_rank = 0
+
+    # 此方法被呼叫時必須保持由新到舊的順序傳入記錄，才可取得真正的區間內變化
+    # noinspection PyAttributeOutsideInit
+    def record_if_in_duration(self, record):
+        # 記錄最新的 Rank，結算時使用
+        if self.newest_rank == 0:
+            self.newest_rank = record[3]
+
+        recorded_date = convert_str_to_datetime(record[0])
+        if self.date_of_3_weeks <= recorded_date:
+            self.rank_3_weeks_ago = record[3]
+        if self.date_of_2_months <= recorded_date:
+            self.rank_2_months_ago = record[3]
+
+    def get_raised_in_3_weeks(self):
+        return self.newest_rank - self.rank_3_weeks_ago
+
+    def get_raised_in_2_months(self):
+        return self.newest_rank - self.rank_2_months_ago
+
+
+class CharacterRecorder:
+    def __init__(self):
+        self.used_characters = {}
+
+    # 此方法被呼叫時必須保持由新到舊的順序傳入記錄，才可取得各角色的最高等級
+    def record_if_not_existed(self, record):
+        nickname = convert_to_str(record[1])
+        if not nickname in self.used_characters:
+            self.used_characters[nickname] = record[2]
+
+    def get_used_characters(self):
+        result = ''
+        for name, level in self.used_characters.iteritems():
+            result += name + str(level) + '、'
+        return result
 
 if __name__ == "__main__":
     root = Tk()
