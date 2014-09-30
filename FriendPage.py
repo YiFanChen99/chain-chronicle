@@ -8,13 +8,13 @@ from datetime import timedelta
 
 RECORDED = ''
 UNRECORDED = '未登記'
-FRIEND_DISPLAYED_COLUMN = ['ID', 'UsedNames', 'Excellence', 'Defect', 'UsedCharacters', 'RaisedIn3Weeks',
-                           'RaisedIn2Months', 'AddedDate', 'LastProfession']
-FRIEND_UPDATED_COLUMN = ['UsedNames', 'Excellence', 'Defect', 'AddedDate']
-FRIEND_FOR_RECORD_COLUMN = ['ID', 'UsedNames', 'LastProfession', 'LastCharacter']
-UPDATE_BY_RECORD_COLUMN = ['UsedCharacters', 'RaisedIn3Weeks', 'RaisedIn2Months', 'LastProfession', 'LastCharacter']
-FRIEND_CLEAN_UP_COLUMN = FRIEND_DISPLAYED_COLUMN[1:9] + ['LastCharacter']
-ORDER_SELECTOR = ['Profession', 'In3Weeks', 'In2Months', 'AddedDate']
+FRIEND_MODIFIED_COLUMN = ['UsedNames', 'Excellence', 'Defect', 'AddedDate']
+UPDATED_BY_RECORD_COLUMN = ['UsedCharacters', 'Rank', 'RaisedIn3Weeks', 'RaisedIn2Months',
+                            'LastProfession', 'LastCharacter']
+FRIEND_CLEAN_UP_COLUMN = FRIEND_MODIFIED_COLUMN + UPDATED_BY_RECORD_COLUMN
+FRIEND_DISPLAYED_COLUMN = ['ID', 'UsedNames', 'Excellence', 'Defect', 'UsedCharacters', 'Rank',
+                           'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate', 'LastProfession']
+ORDER_SELECTOR = ['Profession', 'Rank', 'In3Weeks', 'In2Months', 'AddedDate']
 RECORD_DB_COLUMN = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
 RECORD_DISPLAYED_COLUMN = ['Status', 'FriendID', 'UsedNames', 'LastProfession',
                            'Character', 'CharacterLevel', 'Rank']
@@ -103,9 +103,9 @@ class FriendInfo(MainFrameWithTable):
                 data = iter(row)
                 self.table_model.addRow(ID=next(data), UsedNames=convert_to_str(next(data)),
                                         Excellence=convert_to_str(next(data)), Defect=convert_to_str(next(data)),
-                                        UsedCharacters=convert_to_str(next(data)), RaisedIn3Weeks=next(data),
-                                        RaisedIn2Months=next(data), AddedDate=next(data),
-                                        LastProfession=convert_to_str(next(data)))
+                                        UsedCharacters=convert_to_str(next(data)), Rank=next(data),
+                                        RaisedIn3Weeks=next(data), RaisedIn2Months=next(data),
+                                        AddedDate=next(data), LastProfession=convert_to_str(next(data)))
 
         self.set_order_in_table_model()
         self.redisplay_table()
@@ -113,10 +113,10 @@ class FriendInfo(MainFrameWithTable):
         self.table_view.hide_column('LastProfession')
 
         # 不限制會太寬，難以瀏覽全部資訊
-        self.table_view.resizeColumn(1, 120)
-        self.table_view.resizeColumn(2, 155)
+        self.table_view.resizeColumn(1, 125)
+        self.table_view.resizeColumn(2, 160)
         self.table_view.resizeColumn(3, 145)
-        self.table_view.resizeColumn(4, 150)
+        self.table_view.resizeColumn(4, 155)
 
     # 取得未使用的 ID，並將新資訊更新到該記錄上
     def adding_new_friend(self):
@@ -127,7 +127,8 @@ class FriendInfo(MainFrameWithTable):
         self.updating_page()
 
     def set_order_in_table_model(self):
-        column_names = dict(zip(ORDER_SELECTOR, ['LastProfession', 'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate']))
+        column_names = dict(zip(ORDER_SELECTOR, ['LastProfession', 'Rank', 'RaisedIn3Weeks',
+                                                 'RaisedIn2Months', 'AddedDate']))
         self.table_model.setSortOrder(columnName=column_names[self.order_selector.get()])
 
     # 更改好友資訊
@@ -145,7 +146,7 @@ class FriendInfo(MainFrameWithTable):
             friend_id = int(self.table_model.getCellRecord(row_number, 0))
             # 將該 ID 的資料全數清空，並將其對應的 Records 刪除
             DATABASE.execute('update ' + self.compose_table_name('Friend') +
-                             convert_data_to_update_command(FRIEND_CLEAN_UP_COLUMN, [''] * 9) +
+                             convert_data_to_update_command(FRIEND_CLEAN_UP_COLUMN, [''] * 10) +
                              ' where ID=' + str(friend_id))
             DATABASE.execute('delete from ' + self.compose_table_name('FriendRecord') +
                              ' where FriendID=' + str(friend_id))
@@ -238,7 +239,7 @@ class FriendRecord(MainFrameWithTable):
         # 建立 Friend_Record_List
         # 這邊取出 LastCharacter 只是為了給 UpdateFriendRecordWindow 使用，預先讀出
         self.friend_records = []
-        friends = DATABASE.execute('select ' + ','.join(FRIEND_FOR_RECORD_COLUMN) + ' from ' +
+        friends = DATABASE.execute('select ID, UsedNames, LastProfession, LastCharacter from ' +
                                    self.compose_table_name('Friend') + ' where UsedNames!=\'\'')
         for infos in friends:
             self.friend_records.append([UNRECORDED, infos[0], convert_to_str(infos[1]),
@@ -299,8 +300,9 @@ class FriendRecord(MainFrameWithTable):
 
 class UpdateFriendWindow(BasicWindow):
     def __init__(self, db_suffix, friend_info=None, friend_id=None):
-        BasicWindow.__init__(self, width=305, height=272)
+        BasicWindow.__init__(self, width=306, height=272)
         self.window.title('Friend Info')
+        self.window.geometry('+720+260')
         self.db_suffix = db_suffix
 
         self.friend_info = []
@@ -327,7 +329,7 @@ class UpdateFriendWindow(BasicWindow):
 
         Label(self.window, width=11, text='AddedDate', font=(MS_JH, 10), justify=CENTER)\
             .place(x=197, y=current_y + 1)
-        self.added_date = StringVar(value=self.friend_info[7])
+        self.added_date = StringVar(value=self.friend_info[8])
         Entry(self.window, width=11, textvariable=self.added_date, font=(MS_JH, 10), justify=CENTER)\
             .place(x=196, y=current_y + label_space + 1)
 
@@ -335,14 +337,14 @@ class UpdateFriendWindow(BasicWindow):
         Label(self.window, width=25, text='Excellence', font=(MS_JH, 12), justify=CENTER)\
             .place(x=29, y=current_y)
         self.excellence = StringVar(value=self.friend_info[2])
-        Entry(self.window, width=25, textvariable=self.excellence, font=(MS_JH, 12), justify=CENTER)\
-            .place(x=40, y=current_y + label_space)
+        Entry(self.window, width=28, textvariable=self.excellence, font=(MS_JH, 12), justify=CENTER)\
+            .place(x=27, y=current_y + label_space)
 
         current_y += 55
         Label(self.window, width=25, text='Defect', font=(MS_JH, 12), justify=CENTER).place(x=29, y=current_y)
         self.defect = StringVar(value=self.friend_info[3])
-        Entry(self.window, width=25, textvariable=self.defect, font=(MS_JH, 12), justify=CENTER)\
-            .place(x=40, y=current_y + label_space)
+        Entry(self.window, width=28, textvariable=self.defect, font=(MS_JH, 12), justify=CENTER)\
+            .place(x=27, y=current_y + label_space)
 
         # 送出的按鈕
         current_y += 66
@@ -365,12 +367,12 @@ class UpdateFriendWindow(BasicWindow):
         self.friend_info[1] = self.used_names.get()
         self.friend_info[2] = self.excellence.get()
         self.friend_info[3] = self.defect.get()
-        self.friend_info[7] = self.added_date.get()
+        self.friend_info[8] = self.added_date.get()
 
         # 更新到資料庫
-        values = [self.friend_info[1], self.friend_info[2], self.friend_info[3], self.friend_info[7]]
+        values = [self.friend_info[1], self.friend_info[2], self.friend_info[3], self.friend_info[8]]
         DATABASE.execute('update ' + self.get_db_table_name() +
-                         convert_data_to_update_command(FRIEND_UPDATED_COLUMN, values) +
+                         convert_data_to_update_command(FRIEND_MODIFIED_COLUMN, values) +
                          ' where ID=' + str(self.friend_info[0]))
         DATABASE.commit()
 
@@ -488,10 +490,11 @@ class FriendInfoUpdater:
         records = DATABASE.execute('select ' + ','.join(RECORD_DB_COLUMN[1:5]) + ' from FriendRecord' + self.db_suffix +
                                    ' where FriendID=' + str(friend_id) + ' order by RecordedDate DESC').fetchall()
 
-        # 最新一筆資料即可得到 LastProfession 與 LastCharacter
+        # 最新一筆資料即可得到 LastProfession LastCharacter Rank
         self.last_character = records[0][1]
         self.last_profession = DATABASE.execute('select Profession from Character where Nickname=' +
                                                 convert_datum_to_command(self.last_character)).fetchone()[0]
+        self.rank = records[0][3]
 
         # 找出 UsedCharacters RaisedIn3Weeks RaisedIn2Months
         self.raised_recorder = RaisedRecorder()
@@ -506,8 +509,8 @@ class FriendInfoUpdater:
         self.used_characters = self.character_recorder.get_used_characters()
 
         DATABASE.execute('update Friend' + self.db_suffix + convert_data_to_update_command(
-            UPDATE_BY_RECORD_COLUMN, [self.used_characters, self.raised_in_3_weeks, self.raised_in_2_months,
-                                      self.last_profession, self.last_character]) +
+            UPDATED_BY_RECORD_COLUMN, [self.used_characters, self.rank, self.raised_in_3_weeks,
+                                       self.raised_in_2_months, self.last_profession, self.last_character]) +
                          ' where ID=' + str(friend_id))
 
 
