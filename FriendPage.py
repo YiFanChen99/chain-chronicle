@@ -181,21 +181,24 @@ class FriendRecord(MainFrameWithTable):
         button["command"] = self.switching_to_friend_info
 
     def submitting(self):
-        updated_record_number = 0  # 數量計算
-
-        # 將已經登記的 record 更新到 DB 內
-        for data in self.friend_records:
-            if data[0] == RECORDED:
-                DATABASE.execute('insert into ' + self.compose_table_name('FriendRecord') +
-                                 ' (' + ','.join(RECORD_DB_COLUMN) + ')' +
-                                 convert_data_to_insert_command(data[1], self.date.get(),
-                                                                data[4], data[5], data[6]))
-                updated_record_number += 1
-        DATABASE.commit()
+        # 數量計算並要求確認，確認時才真正送出
+        updated_record_number = len([data for data in self.friend_records if data[0] == RECORDED])
+        if tkMessageBox.askyesno('Recording these records?', '總計 ' + str(updated_record_number) +
+                                 ' 筆記錄，\n是否確認送出？'):
+            # 將已經登記的 record 更新到 DB 內
+            for data in self.friend_records:
+                if data[0] == RECORDED:
+                    DATABASE.execute('insert into ' + self.compose_table_name('FriendRecord') +
+                                     ' (' + ','.join(RECORD_DB_COLUMN) + ')' +
+                                     convert_data_to_insert_command(data[1], self.date.get(),
+                                                                    data[4], data[5], data[6]))
+                    updated_record_number += 1
+            DATABASE.commit()
+        else:
+            return
 
         # 確認是否更新 FriendTable 中的資訊（RaisedIn3Weeks, LastCharacter等）
-        if tkMessageBox.askyesno('Updating Friend by records?', '共 ' + str(updated_record_number) +
-                                 ' 筆記錄記錄完成，\n是否要更新 Friend Info？'):
+        if tkMessageBox.askyesno('Updating Friend by records?', '記錄完成，\n是否要更新 Friend Info？'):
             update_friend_info_table(self.db_suffix)
 
         self.master.update_main_frame(FriendInfo(self.master, self.db_suffix))
@@ -398,8 +401,8 @@ class UpdateFriendRecordWindow(BasicWindow):
 
         current_y = 8
         Label(self.window, width=12, text='UsedNames :', font=(MS_JH, 12)).place(x=5, y=current_y)
-        Label(self.window, width=16, text=self.record[2], font=(MS_JH, 12),
-              justify=LEFT).place(x=30, y=current_y + label_space)
+        Label(self.window, width=20, text=self.record[2], font=(MS_JH, 12),
+              justify=LEFT).place(x=22, y=current_y + label_space)
 
         current_y = 70
         label = Label(self.window, width=10, text='Character', font=("", 12))
@@ -464,10 +467,10 @@ class UpdateFriendRecordWindow(BasicWindow):
 def is_name_match_query(query, used_names):
     if query == '':
         return True
-    elif query == '*j':
+    elif query.lower() == '*j':
         return is_any_japanese_character_contain(used_names)
     else:
-        return query.encode('utf8') in used_names
+        return query.lower().encode('utf8') in used_names.lower()
 
 
 # 重新統計 FriendRecord 並寫入 Friend Table 內
@@ -489,6 +492,10 @@ class FriendInfoUpdater:
         # 取出該 ID 對應的所有記錄，從最近排序到最久以前
         records = DATABASE.execute('select ' + ','.join(RECORD_DB_COLUMN[1:5]) + ' from FriendRecord' + self.db_suffix +
                                    ' where FriendID=' + str(friend_id) + ' order by RecordedDate DESC').fetchall()
+
+        # 新好友可能會尚無記錄可供更新，則不必處理
+        if len(records) == 0:
+            return
 
         # 最新一筆資料即可得到 LastProfession LastCharacter Rank
         self.last_character = records[0][1]

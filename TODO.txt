@@ -1,9 +1,4 @@
 
-記錄好友訊息，並能記錄每週好友
-	Friend: ID, Name, DateAdded, Excellence, Defect
-	FriendRecordJP: FriendID, DateRecorded, Rank, Character, CharacterLevel
-            tkMessageBox.askyesno(title, mess)
-
 所有角色的註記型能力特質
 	確認資料庫的連動關係，是否能保證左有右有
 
