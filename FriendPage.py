@@ -121,8 +121,13 @@ class FriendInfo(MainFrameWithTable):
     # 取得未使用的 ID，並將新資訊更新到該記錄上
     def adding_new_friend(self):
         new_id = DATABASE.execute('select ID from ' + self.compose_table_name('Friend') +
-                                  ' where UsedNames==\'\'').fetchone()[0]
-        popup = UpdateFriendWindow(self.db_suffix, friend_id=new_id)
+                                  ' where UsedNames==\'\'').fetchone()
+
+        if new_id is None:
+            tkMessageBox.showwarning("Can not add any friend", '已達好友上限')
+            return
+
+        popup = UpdateFriendWindow(self.db_suffix, friend_id=new_id[0])
         self.wait_window(popup)
         self.updating_page()
 
@@ -332,7 +337,7 @@ class UpdateFriendWindow(BasicWindow):
 
         Label(self.window, width=11, text='AddedDate', font=(MS_JH, 10), justify=CENTER)\
             .place(x=197, y=current_y + 1)
-        self.added_date = StringVar(value=self.friend_info[8])
+        self.added_date = StringVar(value=self.init_added_date())
         Entry(self.window, width=11, textvariable=self.added_date, font=(MS_JH, 10), justify=CENTER)\
             .place(x=196, y=current_y + label_space + 1)
 
@@ -380,6 +385,10 @@ class UpdateFriendWindow(BasicWindow):
         DATABASE.commit()
 
         self.destroy()
+
+    # 好友已存在時使用原記錄，若好友不存在時使用當天日期
+    def init_added_date(self):
+        return self.friend_info[8] if self.used_names.get() != '' else datetime.now().date()
 
     def get_db_table_name(self):
         return 'Friend' + self.db_suffix
@@ -562,19 +571,3 @@ class CharacterRecorder:
         for name, level in self.used_characters.iteritems():
             result += name + str(level) + '、'
         return result
-
-if __name__ == "__main__":
-    root = Tk()
-    init_size = str(MIN_WIDTH) + 'x' + str(MIN_HEIGHT)
-    root.geometry(init_size + '+510+265')
-    fin = [01, 'UsedNames', 'Excellence', 'Defect', 'UsedCharacters', 'RaisedIn3Weeks',
-           'RaisedIn2Months', '2014-09-17', 'LastProfession', 'LastCharacter']
-    # app = UpdateFriendWindow(db_suffix='JP', friend_info=fin)
-    #
-    # record = [RECORDED, 3, 'pig，亞馬卅那度', '戰士', '山貓', 60, 109]
-    # app = UpdateFriendRecordWindow(record)
-    # app.mainloop()
-
-    app = FriendInfo(master=root, db_suffix='TW')
-    # app = FriendRecord(master=root, db_suffix='JP')
-    app.mainloop()
