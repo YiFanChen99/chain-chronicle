@@ -109,6 +109,7 @@ class RecordOfDrawLots(MainFrameWithTable):
         self.updating_table()
 
     def adding_record(self):
+        # 該 Window 預設送出後不關閉，故需要提供更新的 callback method
         popup = AddRecordWindow(self.db_suffix, self.get_suitable_event_names(), self.update_all_records)
         self.wait_window(popup)
 
@@ -204,24 +205,31 @@ class RecordOfDrawLots(MainFrameWithTable):
         ratio = round(100.0 * numerator / total, 1)
         return str(ratio) + '%'
 
+    def do_double_clicking(self, event):
+        row = self.table_view.get_row_clicked(event)
+        record = self.get_record_by_times(int(self.table_model.getCellRecord(row, 0)))
 
-class AddRecordWindow(BasicWindow):
-    def __init__(self, db_suffix, event_names, callback):
+        popup = UpdatingRecordWindow(self.db_suffix, self.get_suitable_event_names(), record)
+        self.wait_window(popup)
+        # 暫時找不到方法修改已撈出的資料(因為tuple)，故接受重新撈出的方法
+        self.records_filter.update_raw_records()
+        self.updating_table()
+
+    def get_record_by_times(self, times):
+        for each_record in self.records_filter.filtered_records:
+            if each_record[0] == times:
+                return each_record
+
+
+class RecordWindow(BasicWindow):
+    def __init__(self, db_suffix, event_names):
         BasicWindow.__init__(self, width=565, height=118)
-        self.window.title('Add new record')
-
-        self.callback = callback
-
-        self.record_table = 'RecordOfDrawLots' + db_suffix
-        # 取得最近一筆資料，以作為預設值
-        command = 'select * from ' + self.record_table + \
-                  ' where Times = (select max(Times) from ' + self.record_table + ')'
-        self.last_record = DATABASE.execute(command).fetchone()
-
-        self.characters = None
-        self.update_characters()
 
         self.__init_widgets(event_names)
+
+        self.record_table = 'RecordOfDrawLots' + db_suffix
+        self.characters = None
+        self.update_characters()
 
     # noinspection PyAttributeOutsideInit
     def __init_widgets(self, event_names):
@@ -264,7 +272,7 @@ class AddRecordWindow(BasicWindow):
         self.cost_selector.place(x=463, y=40)
 
         # 送交的按鈕
-        button = Button(self.window, text="新增此記錄", width=38, borderwidth=3)
+        button = Button(self.window, text="送出此記錄", width=38, borderwidth=3)
         button.place(x=28, y=79)
         button["command"] = self.submitting
 
@@ -278,44 +286,17 @@ class AddRecordWindow(BasicWindow):
         button.place(x=438, y=79)
         button["command"] = self.closing_window
 
-        self.update_by_last_record()
-
-    def update_by_last_record(self):
-        self.times.set(self.last_record[0] + 1)
-        self.event_selector.set(self.last_record[1])
+    def adding_new_character(self):
+        popup = UpdateCharacterWindow.UpdateCharacterWindow()
+        self.wait_window(popup)
+        self.update_characters()
         self.updating_character_selector()
-        self.cost_selector.set(self.last_record[5])
 
-    def submitting(self):
-        if self.is_new_record_legal():
-            DATABASE.execute('insert into ' + self.record_table +
-                             '(' + ','.join(DB_TABLE) + ')' +
-                             convert_data_to_insert_command(self.times.get(), self.event_selector.get(),
-                                                            self.profession_selector.get(), self.rank_selector.get(),
-                                                            self.character_selector.get(), self.cost_selector.get()))
-            DATABASE.commit()
+    def update_characters(self):
+        self.characters = DATABASE.execute('select Nickname, Profession, Rank from Character').fetchall()
 
-            # 更新顯示的資料
-            self.last_record = [self.times.get(), self.event_selector.get(),
-                                self.profession_selector.get(), self.rank_selector.get(),
-                                self.character_selector.get(), self.cost_selector.get()]
-            self.update_by_last_record()
-            self.callback()
-
-    def is_new_record_legal(self):
-        error_message = ''
-        if self.profession_selector.get() == '':
-            error_message += '\"Profession\" 未填\n'
-        if self.rank_selector.get() == '':
-            error_message += '\"Rank\" 未填\n'
-        if self.character_selector.get() == '':
-            error_message += '\"Character\" 未填\n'
-
-        is_legal = (error_message == '')
-        if not is_legal:
-            tkMessageBox.showwarning("Can not add this record", error_message)
-
-        return is_legal
+    def closing_window(self):
+        self.destroy()
 
     # noinspection PyUnusedLocal
     def updating_character_selector(self, event=None):
@@ -332,14 +313,87 @@ class AddRecordWindow(BasicWindow):
         self.character_selector['values'] = character_matched
         self.character_selector.set('')
 
-    def adding_new_character(self):
-        popup = UpdateCharacterWindow.UpdateCharacterWindow()
-        self.wait_window(popup)
-        self.update_characters()
+    def submitting(self):
+        if self.is_new_record_legal():
+            self.do_submitting()
+
+    # Template Method
+    def do_submitting(self):
+        pass
+
+    def is_new_record_legal(self):
+        error_message = ''
+        if self.profession_selector.get() == '':
+            error_message += '\"Profession\" 未填\n'
+        if self.rank_selector.get() == '':
+            error_message += '\"Rank\" 未填\n'
+        if self.character_selector.get() == '':
+            error_message += '\"Character\" 未填\n'
+
+        is_legal = (error_message == '')
+        if not is_legal:
+            tkMessageBox.showwarning("Can not add this record", error_message)
+
+        return is_legal
+
+
+class AddRecordWindow(RecordWindow):
+    def __init__(self, db_suffix, event_names, callback):
+        RecordWindow.__init__(self, db_suffix, event_names)
+        self.window.title('Add new record')
+
+        self.callback = callback
+
+        # 取得最近一筆資料，以作為預設值
+        command = 'select * from ' + self.record_table + \
+                  ' where Times = (select max(Times) from ' + self.record_table + ')'
+        self.last_record = DATABASE.execute(command).fetchone()
+        self.reset_context()
+
+    def do_submitting(self):
+        DATABASE.execute('insert into ' + self.record_table +
+                         '(' + ','.join(DB_TABLE) + ')' +
+                         convert_data_to_insert_command(self.times.get(), self.event_selector.get(),
+                                                        self.profession_selector.get(), self.rank_selector.get(),
+                                                        self.character_selector.get(), self.cost_selector.get()))
+        DATABASE.commit()
+
+        # 更新顯示的資料
+        self.last_record = [self.times.get(), self.event_selector.get(),
+                            self.profession_selector.get(), self.rank_selector.get(),
+                            self.character_selector.get(), self.cost_selector.get()]
+        self.reset_context()
+        self.callback()
+
+    def reset_context(self):
+        self.times.set(self.last_record[0] + 1)
+        self.event_selector.set(self.last_record[1])
         self.updating_character_selector()
+        self.cost_selector.set(self.last_record[5])
 
-    def update_characters(self):
-        self.characters = DATABASE.execute('select Nickname, Profession, Rank from Character').fetchall()
 
-    def closing_window(self):
+class UpdatingRecordWindow(RecordWindow):
+    def __init__(self, db_suffix, event_names, record):
+        RecordWindow.__init__(self, db_suffix, event_names)
+        self.window.title('Update record')
+
+        self.__init_context(record)
+
+    def __init_context(self, record):
+        record = iter(record)
+        self.times.set(next(record))
+        self.event_selector.set(next(record))
+        self.profession_selector.set(next(record))
+        self.rank_selector.set(next(record))
+        self.character_selector.set(next(record))
+        self.cost_selector.set(next(record))
+
+    # 單純更新到資料庫，不必寫回原 record (因tuple的關係)
+    def do_submitting(self):
+        new_data = [self.event_selector.get(), self.profession_selector.get(), self.rank_selector.get(),
+                    self.character_selector.get(), self.cost_selector.get()]
+        DATABASE.execute('update ' + self.record_table + convert_data_to_update_command(
+            DB_TABLE[1:6], new_data) + ' where Times=' + str(self.times.get()))
+        DATABASE.commit()
+
         self.destroy()
