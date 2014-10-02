@@ -96,6 +96,15 @@ def bind_check_box_and_label(check_box, label):
     label.bind('<Button-1>', switching)
 
 
+def is_string_match_query(query, string):
+    if query == '':
+        return True
+    elif query.lower() == '*j':
+        return is_any_japanese_character_contain(string)
+    else:
+        return query.lower().encode('utf8') in string.lower()
+
+
 def is_any_japanese_character_contain(variable):
     variable = variable.decode('utf8')
     for character in variable:

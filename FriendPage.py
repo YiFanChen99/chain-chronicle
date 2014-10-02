@@ -94,7 +94,7 @@ class FriendInfo(MainFrameWithTable):
 
         # 將符合名稱篩選的好友加入欲呈現表格中
         records = [each for each in self.friends if
-                   is_name_match_query(self.queried_name.get(), convert_to_str(each[1]))]
+                   is_string_match_query(self.queried_name.get(), convert_to_str(each[1]))]
 
         if len(records) == 0:
             self.table_model.addRow(UsedNames='無任何記錄')
@@ -284,7 +284,7 @@ class FriendRecord(MainFrameWithTable):
     # 將符合設定的已登記/未登記紀錄回傳為 True，並根據名稱要求篩選
     def is_should_display_in_table(self, record):
         is_match_recorded_setting = self.is_show_recorded_friends.get() == (record[0] == RECORDED)
-        return is_match_recorded_setting and is_name_match_query(self.queried_name.get(), record[2])
+        return is_match_recorded_setting and is_string_match_query(self.queried_name.get(), record[2])
 
     # 若雙擊右側，則欲輸入好友記錄，若雙擊左側，則為更改好友資訊
     def do_double_clicking(self, event):
@@ -471,15 +471,6 @@ class UpdateFriendRecordWindow(BasicWindow):
         self.record[5] = self.character_level_var.get()
         self.record[6] = self.rank_var.get()
         self.destroy()
-
-
-def is_name_match_query(query, used_names):
-    if query == '':
-        return True
-    elif query.lower() == '*j':
-        return is_any_japanese_character_contain(used_names)
-    else:
-        return query.lower().encode('utf8') in used_names.lower()
 
 
 # 重新統計 FriendRecord 並寫入 Friend Table 內
