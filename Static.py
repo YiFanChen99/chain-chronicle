@@ -77,7 +77,7 @@ def convert_to_str(value):
 
 
 def convert_str_to_datetime(date_str):
-    return datetime.strptime(date_str, "%Y-%m-%d")
+    return datetime.strptime(date_str, "%Y-%m-%d") if date_str is not None else None
 
 
 def insert_with_empty_str(the_list):

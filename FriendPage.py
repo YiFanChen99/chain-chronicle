@@ -81,7 +81,8 @@ class FriendInfo(MainFrameWithTable):
         # 最後更新記錄時間
         date = convert_str_to_datetime(
             DATABASE.execute('select max(RecordedDate) from ' + self.compose_table_name('FriendRecord')).fetchone()[0])
-        self.last_recorded_str.set('Last Recorded: %02d/%02d' % (date.month, date.day))
+        if date is not None:
+            self.last_recorded_str.set('Last Recorded: %02d/%02d' % (date.month, date.day))
 
         self.updating_table()
 
