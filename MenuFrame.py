@@ -9,9 +9,8 @@ import os
 
 GROUP_STATIC_INFO = 'Static Info'
 GROUP_ACCOUNT_JP = 'Fuji Account'
-GROUP_ACCOUNT_TW = 'Yama Account'
-GROUP_ACCOUNT_CN = 'Yama2 Account'
-GROUPS = [GROUP_STATIC_INFO, GROUP_ACCOUNT_JP, GROUP_ACCOUNT_TW, GROUP_ACCOUNT_CN]
+GROUP_ACCOUNT_CN = 'Yama Account'
+GROUPS = [GROUP_STATIC_INFO, GROUP_ACCOUNT_JP, GROUP_ACCOUNT_CN]
 FILE_NAME = 'data\OtherInfo.txt'
 
 
@@ -26,7 +25,7 @@ class MenuFrame(Frame):
             def selecting_group(obj=self, my_index=group_index):
                 obj.selecting_group(my_index)
 
-            radiobuttons.create_button(70 + 150 * group_index, -1, GROUPS[group_index],
+            radiobuttons.create_button(115 + 165 * group_index, -1, GROUPS[group_index],
                                        selecting_group, width=14)
 
             # 預設選擇第一個
@@ -45,8 +44,6 @@ class MenuFrame(Frame):
             return SubMenuFrame.StaticGroupFrame(self.master, height=height)
         elif GROUPS[index] == GROUP_ACCOUNT_JP:
             return SubMenuFrame.AccountGroupFrame(self.master, height=height, db_suffix='JP')
-        elif GROUPS[index] == GROUP_ACCOUNT_TW:
-            return SubMenuFrame.AccountGroupFrame(self.master, height=height, db_suffix='TW')
         elif GROUPS[index] == GROUP_ACCOUNT_CN:
             return SubMenuFrame.AccountGroupFrame(self.master, height=height, db_suffix='CN')
         else:
