@@ -346,14 +346,20 @@ class UpdateFriendWindow(BasicWindow):
         Label(self.window, width=25, text='Excellence', font=(MS_JH, 12), justify=CENTER)\
             .place(x=29, y=current_y)
         self.excellence = StringVar(value=self.friend_info[2])
-        Entry(self.window, width=28, textvariable=self.excellence, font=(MS_JH, 12), justify=CENTER)\
-            .place(x=27, y=current_y + label_space)
+        excellence_entry = Entry(self.window, width=28, textvariable=self.excellence, font=(MS_JH, 12), justify=CENTER)
+        excellence_entry.place(x=27, y=current_y + label_space)
 
         current_y += 55
         Label(self.window, width=25, text='Defect', font=(MS_JH, 12), justify=CENTER).place(x=29, y=current_y)
         self.defect = StringVar(value=self.friend_info[3])
-        Entry(self.window, width=28, textvariable=self.defect, font=(MS_JH, 12), justify=CENTER)\
-            .place(x=27, y=current_y + label_space)
+        defect_entry = Entry(self.window, width=28, textvariable=self.defect, font=(MS_JH, 12), justify=CENTER)
+        defect_entry.place(x=27, y=current_y + label_space)
+        defect_entry.bind('<Return>', self.submitting)
+
+        # noinspection PyUnusedLocal
+        def move_focus_to_defect_entry(*args):
+            defect_entry.focus_set()
+        excellence_entry.bind('<Return>', move_focus_to_defect_entry)
 
         # 送出的按鈕
         current_y += 66
