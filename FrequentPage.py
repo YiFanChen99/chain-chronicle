@@ -121,10 +121,11 @@ class PowerConverter(Frame):
             self.adjustment.set(0)
 
         # 計算並改動
-        difference_ap = int(self.max_ap.get()) - int(self.current_ap.get()) - int(self.adjustment.get())
+        current_ap = int(self.current_ap.get())
+        difference_ap = int(self.max_ap.get()) - current_ap - int(self.adjustment.get())
         difference_time = timedelta(minutes=difference_ap * 8)
         self.last_calculation.set(LAST_CALCULATION + ' :   ' + self.convert_time_to_str(datetime.now()))
-        self.difference_for_max.set('%02d AP --> ' % difference_ap +
+        self.difference_for_max.set('%d+%02d AP --> ' % (current_ap, difference_ap) +
                                     self.convert_timedelta_to_str(difference_time))
         self.time_reaching_max_ap.set(REACHED_TIME + ' :   ' +
                                       self.convert_time_to_str(datetime.now() + difference_time))
@@ -146,9 +147,10 @@ class PowerConverter(Frame):
             self.goal.set(0)
 
         # 計算並改動
-        difference_ap = int(self.goal.get()) - int(self.current_ap.get())
+        current_ap = int(self.current_ap.get())
+        difference_ap = int(self.goal.get()) - current_ap
         difference_time = timedelta(minutes=difference_ap * 8)
-        self.difference_for_goal.set('%02d AP --> ' % difference_ap +
+        self.difference_for_goal.set('%d+%02d AP --> ' % (current_ap, difference_ap) +
                                      self.convert_timedelta_to_str(difference_time))
         self.time_reaching_goal_ap.set(REACHED_TIME + ' :   ' +
                                        self.convert_time_to_str(datetime.now() + difference_time))
