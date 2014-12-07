@@ -2,11 +2,13 @@
 __author__ = 'Ricky Chen'
 
 from MainFrame import *
+
 FONT = (MS_JH, 12)
 # For PowerConverter
 import codecs
 from configparser3 import configparser
 from datetime import timedelta
+
 AP_FILE_NAME = 'data/AP.txt'
 MAX_AP = 'Max AP'
 LAST_CALCULATION = 'Last Calculation'
@@ -14,6 +16,7 @@ DIFFERENCE = 'Difference'
 REACHED_TIME = 'Reached Time'
 # For DailyDroppedRecorder
 import Utilities
+
 DAILY_MISSIONS = ['週一法師', '週二戰士', '週三騎士', '週四僧侶', '週五弓手', '週末金錢']
 ALL_MISSIONS = '週一～五'
 DIFFICULTY = ['初級', '中級']
@@ -171,26 +174,26 @@ class DailyDroppedRecorder(Frame):
     def __init__(self, master, **kwargs):
         Frame.__init__(self, master, **kwargs)
 
-        self.stage_recorder = StageRecorder()
+        self.stage_model = StageDroppedRecordModel()
         self.__init_widgets()
 
         # 根據配置元件的設定更新 Model
-        self.changing_state()
+        self.changing_stage()
 
     def __init_widgets(self):
-        current_y = 21
+        current_y = 8
         self.__init_selecting_mission_widgets(current_y)
 
-        current_y += 151
+        current_y += 150
         self.__init_selecting_difficulty_widgets(current_y)
 
         # 配置「掉箱情況」區塊
-        current_y += 49
-        self.dropped_or_not_frame = DroppedOrNotRecorder(self, width=180, height=61)
+        current_y += 47
+        self.dropped_or_not_frame = CurrentDropped(self, self.stage_model, width=180, height=89)
         self.dropped_or_not_frame.place(x=0, y=current_y)
 
         # 配置顯示統計數據區塊
-        current_y += 69
+        current_y += 94
         self.vars = []
         self.__init_statistics_widgets(current_y)
 
@@ -198,7 +201,7 @@ class DailyDroppedRecorder(Frame):
     def __init_selecting_mission_widgets(self, y_pos):
         suitable_mission_index = self.get_suitable_daily_mission_index()
         self.current_mission = StringVar(value=DAILY_MISSIONS[suitable_mission_index])
-        self.current_mission.trace("w", self.changing_state)
+        self.current_mission.trace("w", self.changing_stage)
 
         radiobuttons = Utilities.RadiobuttonController(self, width=180, height=149, button_type=1)
         radiobuttons.place(x=0, y=y_pos)
@@ -215,6 +218,7 @@ class DailyDroppedRecorder(Frame):
         # 最後放上全部統計的選項
         def selecting_all_mission():
             self.current_mission.set(ALL_MISSIONS)
+
         radiobuttons.create_button(29, 113, ALL_MISSIONS, selecting_all_mission, width=12)
 
         # 根據目前時間初始化呈現，但於此不觸發任何事件
@@ -223,7 +227,7 @@ class DailyDroppedRecorder(Frame):
     # 配置「難度選擇」區塊
     def __init_selecting_difficulty_widgets(self, y_pos):
         self.current_difficulty = StringVar(value=DIFFICULTY[0])
-        self.current_difficulty.trace("w", self.changing_state)
+        self.current_difficulty.trace("w", self.changing_stage)
 
         radiobuttons = Utilities.RadiobuttonController(self, width=180, height=41, button_type=1)
         radiobuttons.place(x=0, y=y_pos)
@@ -254,31 +258,22 @@ class DailyDroppedRecorder(Frame):
 
     # noinspection PyUnusedLocal
     # 改變「掉箱情況」區塊的顯示，並重新抓出對應關卡的數據
-    def changing_state(self, *args):
+    def changing_stage(self, *args):
         # 若選擇「週一～五」時，禁止新增記錄，統計方法改變
         if self.current_mission.get().encode('utf-8') == ALL_MISSIONS:
-            self.stage_recorder.collect_all(self.current_difficulty.get())
-            self.dropped_or_not_frame.disable()
+            self.dropped_or_not_frame.submit_button['state'] = DISABLED
+            self.updating_statistics(collect_all_statistics(self.current_difficulty.get()))
         else:  # 其他選擇下，恢復允許新增記錄，並對單項統計
-            self.stage_recorder.change_stage(self.get_stage_name())
-            self.dropped_or_not_frame.enable()
-            self.dropped_or_not_frame.change_texts(self.stage_recorder.get_dropped_names())
-        self.updating_statistics()
-
-    # 新增資料到 Model，並更新回 DB
-    def submitting(self, new_record):
-        self.stage_recorder.add_record(new_record)
-        DATABASE.execute('update StageDroppedRecord' +
-                         convert_data_to_update_command(RECORD_TABLE, self.stage_recorder.records) +
-                         ' where StageID=' + str(self.stage_recorder.id))
-        DATABASE.commit()
-        self.updating_statistics()
+            self.stage_model.change_stage_by_name(self.get_stage_name())
+            self.dropped_or_not_frame.submit_button['state'] = NORMAL
+            self.dropped_or_not_frame.change_texts()
+            self.updating_statistics(self.stage_model.collect_statistics())
 
     # noinspection PyUnusedLocal
-    def updating_statistics(self, *args):
+    def updating_statistics(self, statistics):
         texts = ['Samples : ', '1st: ', '2nd: ', '3rd: ', '4th: ']
 
-        samples = self.stage_recorder.records[0]
+        samples, ratios = statistics
         if samples == 0:
             self.vars[0].set('無任何記錄')
             for index in range(1, 5):
@@ -286,8 +281,7 @@ class DailyDroppedRecorder(Frame):
         else:
             self.vars[0].set(texts[0] + str(samples))
             for index in range(1, 5):
-                ratio = '%2.1f%%' % (self.stage_recorder.records[index] * 100.0 / samples)
-                self.vars[index].set(texts[index] + ratio)
+                self.vars[index].set(texts[index] + '%2.1f%%' % (ratios[index - 1] * 100))
 
     @staticmethod
     # 回傳適合目前時間使用的曜日類別的位置
@@ -305,81 +299,126 @@ class DailyDroppedRecorder(Frame):
         self.vars.append(var)
 
 
-class StageRecorder():
-    def __init__(self, name=None):
-        if name is not None:
-            self.change_stage(name)
+# 記錄提升的掉箱率與掉箱情況，以送出到 StageDroppedRecordModel
+class CurrentDropped(Frame):
+    DEFAULT_DROPS = [1, 0, 0, 0]
 
-    # noinspection PyAttributeOutsideInit
-    def change_stage(self, name):
-        self.id = DATABASE.execute('select ID from Stage where Name=' +
-                                   convert_datum_to_command(name)).fetchone()[0]
-        self.records = list(DATABASE.execute('select ' + ','.join(RECORD_TABLE) +
-                                             ' from StageDroppedRecord where StageID=' + str(self.id)).fetchone())
-
-    # noinspection PyAttributeOutsideInit
-    # 統計一～五的情況
-    def collect_all(self, difficulty):
-        self.id = -1
-        self.records = [0, 0, 0, 0, 0]
-        all_records = DATABASE.execute('select ' + ','.join(RECORD_TABLE) + ' from StageDroppedRecord, Stage' +
-                                       ' where ID=StageID and StageID<12 and Name like \'%' + difficulty +
-                                       '\'').fetchall()
-        for records in all_records:
-            for i in range(5):
-                self.records[i] += records[i]
-
-    def get_dropped_names(self):
-        return DATABASE.execute('select Name from StageDroppedItem, Item' +
-                                ' where StageDroppedItem.ItemID = Item.ID and StageID=' +
-                                str(self.id) + ' order by Position ASC').fetchall()
-
-    def add_record(self, new_record):
-        self.records[0] += 1  # Total++
-        for index in range(4):
-            self.records[index + 1] += (new_record[index])
-
-
-class DroppedOrNotRecorder(Frame):
-    AMOUNT = 4
-    DEFAULT_VARIABLES = [1, 0, 0, 0]
-
-    def __init__(self, master, texts=None, **kwargs):
+    def __init__(self, master, stage_model, **kwargs):
         Frame.__init__(self, master, **kwargs)
-        self['bg'] = '#%02x%02x%02x' % (192, 192, 192)  # 預設底色
+        self.pack(fill=BOTH, expand=1)
+        self['bg'] = FRAME_BG_COLOR
 
-        if texts is None:
-            texts = [1, 2, 3, 4]
+        self.__init_widgets()
 
-        self.buttons = []
-        for index in range(self.AMOUNT):
-            button = Utilities.ToggleButton(self, selected=self.DEFAULT_VARIABLES[index], text=texts[index],
-                                            width=5, font=(MS_JH, 9))
+        self.stage_model = stage_model
+
+    def __init_widgets(self):
+        self.drop_buttons = []
+        for index in range(4):
+            button = Utilities.ToggleButton(self, selected=self.DEFAULT_DROPS[index], width=5, font=(MS_JH, 9))
             button.place(x=1 + 45 * index, y=2)
-            self.buttons.append(button)
+            self.drop_buttons.append(button)
+
+        self.raised_buttons = Utilities.RadiobuttonController(self, width=181, height=30, button_type=1)
+        self.raised_buttons.place(x=0, y=31)
+        self.raised_buttons.set_button_type(3)
+        self.raised_buttons.create_button(1, -1, '強運', width=12)
+        self.raised_buttons.create_button(94, -1, '帕布利卡', width=11)
+        self.raised_buttons.selecting_button(0, None)
 
         self.submit_button = Button(self, text='記錄', width=24, font=(MS_JH, 9))
-        self.submit_button.place(x=2, y=32)
+        self.submit_button.place(x=2, y=60)
         self.submit_button['command'] = self.submitting
 
-    # 將選擇的情況通知 master，並還原到預設值
+    # 將選擇的情況通知 stage_model，並還原到預設值
     def submitting(self):
-        values = []
-        for index in range(self.AMOUNT):
-            values.append(self.buttons[index].is_selected)
-            self.buttons[index].set_is_selected(self.DEFAULT_VARIABLES[index])
-        self.master.submitting(values)
+        raised = 0.3 if (self.raised_buttons.current_selected == 0) else 0.35
 
-    def change_texts(self, texts):
-        for index in range(self.AMOUNT):
-            self.buttons[index]['text'] = texts[index]
+        drops = []
+        for index in range(4):
+            drops.append(self.drop_buttons[index].is_selected)
+            self.drop_buttons[index].set_is_selected(self.DEFAULT_DROPS[index])
 
-    def enable(self):
-        for button in self.buttons:
-            button['state'] = NORMAL
-        self.submit_button['state'] = NORMAL
+        self.stage_model.add_record(raised, drops)
 
-    def disable(self):
-        for button in self.buttons:
-            button['state'] = DISABLED
-        self.submit_button['state'] = DISABLED
+        # 通知 master 更新統計結果
+        self.master.updating_statistics(self.stage_model.collect_statistics())
+
+    def change_texts(self):
+        texts = self.stage_model.get_dropped_items_names()
+        for index in range(4):
+            self.drop_buttons[index]['text'] = texts[index]
+
+
+# 負責更新與統計此 Stage 的掉落情形
+class StageDroppedRecordModel():
+    def __init__(self, stage_id=19):
+        self.stage_id = stage_id
+
+    def add_record(self, raised, new_drops):
+        total_drops = list(DATABASE.execute('select {0} from StageDroppedRecord2'.format(','.join(RECORD_TABLE)) +
+                                            ' where StageID={0} and Raised={1}'.format(self.stage_id, raised)
+                                            ).fetchone())
+
+        total_drops[0] += 1  # Total++
+        for index in range(4):
+            total_drops[index + 1] += (new_drops[index])
+
+        DATABASE.execute('update StageDroppedRecord2' +
+                         convert_data_to_update_command(RECORD_TABLE, total_drops) +
+                         ' where StageID={0} and Raised={1}'.format(self.stage_id, raised))
+        DATABASE.commit()
+
+    # 提供外部使用
+    def change_stage_by_name(self, stage_name, server_name='國服'):
+        self.stage_id = DATABASE.execute('select ID from Stage2 where Server={0} and Stage={1}'.format(
+            convert_datum_to_command(server_name), convert_datum_to_command(stage_name))).fetchone()[0]
+
+    def get_dropped_items_names(self):
+        return DATABASE.execute('select Name from StageDroppedItem, Item ' +
+                                'where StageDroppedItem.ItemID = Item.ID and StageID={0} '.format(self.stage_id) +
+                                'order by Position ASC').fetchall()
+
+    def collect_statistics(self):
+        (total, drop_ratios) = collect_raw_drops(self.stage_id)
+
+        if total != 0:
+            for index in range(4):
+                drop_ratios[index] /= total
+
+        return total, drop_ratios
+
+
+# 根據不同的 Raised 逆推回原始掉落機率
+def collect_raw_drops(stage_id):
+    total_count = 0
+    raw_drops = [0.0] * 4
+
+    records = DATABASE.execute('select Raised,{0} from StageDroppedRecord2 where StageID={1}'.format(
+        ','.join(RECORD_TABLE), stage_id)).fetchall()
+    for record in records:
+        total_count += record[1]
+        for i in range(4):
+            raw_drops[i] += (record[i + 2] / (1 + record[0]))
+
+    return total_count, raw_drops
+
+
+# 一到五的統計，根據難度篩選
+def collect_all_statistics(difficulty):
+    total_count = 0
+    raw_drops = [0.0] * 4
+    raw_drop_ratios = [0.0] * 4
+
+    records = DATABASE.execute('select Raised,{0} from StageDroppedRecord2, Stage2'.format(','.join(RECORD_TABLE)) +
+                               ' where ID=StageID and StageID>18 and StageID<31 and Stage like \'%' +
+                               difficulty + '\'').fetchall()
+    for record in records:
+        total_count += record[1]
+        for i in range(4):
+            raw_drops[i] += (record[i + 2] / (1 + record[0]))
+
+    for i in range(4):
+        raw_drop_ratios[i] += raw_drops[i] / total_count
+
+    return total_count, raw_drop_ratios
