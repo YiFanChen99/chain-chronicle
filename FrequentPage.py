@@ -127,7 +127,7 @@ class PowerConverter(Frame):
         current_ap = int(self.current_ap.get())
         difference_ap = int(self.max_ap.get()) - current_ap - int(self.adjustment.get())
         difference_time = timedelta(minutes=difference_ap * 8)
-        self.last_calculation.set(LAST_CALCULATION + ' :   ' + self.convert_time_to_str(datetime.now()))
+        self.last_calculation.set(LAST_CALCULATION + ' :  ' + self.convert_time_to_str(datetime.now()))
         self.difference_for_max.set('%d+%02d AP --> ' % (current_ap, difference_ap) +
                                     self.convert_timedelta_to_str(difference_time))
         self.time_reaching_max_ap.set(REACHED_TIME + ' :   ' +
@@ -155,12 +155,15 @@ class PowerConverter(Frame):
         difference_time = timedelta(minutes=difference_ap * 8)
         self.difference_for_goal.set('%d+%02d AP --> ' % (current_ap, difference_ap) +
                                      self.convert_timedelta_to_str(difference_time))
-        self.time_reaching_goal_ap.set(REACHED_TIME + ' :   ' +
+        self.time_reaching_goal_ap.set(REACHED_TIME + ' :  ' +
                                        self.convert_time_to_str(datetime.now() + difference_time))
 
     @staticmethod
     def convert_time_to_str(time):
-        return '%02d : %02d' % (time.hour - 12 if time.hour > 12 else time.hour, time.minute)
+        if time.hour > 12:
+            return '%02d:%02d PM' % (time.hour - 12, time.minute)
+        else:
+            return '%02d:%02d AM' % (time.hour, time.minute)
 
     @staticmethod
     def convert_timedelta_to_str(the_timedelta):
