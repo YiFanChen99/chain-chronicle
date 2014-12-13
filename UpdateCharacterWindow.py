@@ -8,118 +8,165 @@ TABLE = CHARACTER_DB_TABLE
 
 class UpdateCharacterWindow(BasicWindow):
     def __init__(self, character=None):
-        BasicWindow.__init__(self, width=564, height=255)
+        BasicWindow.__init__(self, width=558, height=285)
         self.window.title('Character Info')
-        self.window.geometry('+700+210')
+        self.window.geometry('+840+300')
 
         label_space = 22  # Label 與 輸入元件的距離
 
         # 第一個 Row
+        current_x = 16
         current_y = 3
-        Label(self.window, width=10, text='暱稱').place(x=10, y=current_y)
+        Label(self.window, width=10, text='暱稱').place(x=current_x, y=current_y)
         self.nickname = StringVar(value='')
-        Entry(self.window, width=10, textvariable=self.nickname).place(x=10, y=current_y + label_space)
+        Entry(self.window, width=10, textvariable=self.nickname).place(x=current_x, y=current_y + label_space)
 
-        Label(self.window, width=17, text='全名').place(x=89, y=current_y)
+        current_x += 80
+        Label(self.window, width=17, text='全名').place(x=current_x - 1, y=current_y)
         self.full_name = StringVar(value='')
-        Entry(self.window, width=17, textvariable=self.full_name).place(x=90, y=current_y + label_space)
+        Entry(self.window, width=17, textvariable=self.full_name).place(x=current_x, y=current_y + label_space)
 
-        Label(self.window, width=4, text='等級').place(x=220, y=current_y)
-        self.rank = ttk.Combobox(self.window, state='readonly', width=3, justify=CENTER)
-        self.rank['values'] = RANKS
-        self.rank.place(x=220, y=current_y + label_space - 2)
-
-        Label(self.window, width=5, text='Cost').place(x=272, y=current_y)
-        self.attendance_cost = StringVar(value='')
-        Entry(self.window, width=5, textvariable=self.attendance_cost).place(x=274, y=current_y + label_space)
-
-        Label(self.window, width=6, text='職業').place(x=321, y=current_y)
+        current_x += 133
+        Label(self.window, width=6, text='職業').place(x=current_x + 1, y=current_y)
         self.profession = ttk.Combobox(self.window, state='readonly', width=5, justify=CENTER)
         self.profession['values'] = PROFESSIONS
-        self.profession.place(x=320, y=current_y + label_space - 2)
+        self.profession.place(x=current_x, y=current_y + label_space - 2)
+        self.profession.bind('<<ComboboxSelected>>', self.filling_in_automatically_by_professions)
 
-        Label(self.window, width=6, text='武器種類').place(x=389, y=current_y)
+        current_x += 70
+        Label(self.window, width=4, text='等級').place(x=current_x, y=current_y)
+        self.rank = ttk.Combobox(self.window, state='readonly', width=3, justify=CENTER)
+        self.rank['values'] = RANKS
+        self.rank.place(x=current_x, y=current_y + label_space - 2)
+
+        current_x += 54
+        Label(self.window, width=5, text='Cost').place(x=current_x - 3, y=current_y)
+        self.attendance_cost = StringVar(value='')
+        Entry(self.window, width=5, textvariable=self.attendance_cost).place(x=current_x, y=current_y + label_space)
+
+        current_x += 46
+        Label(self.window, width=6, text='武器種類').place(x=current_x + 1, y=current_y)
         self.weapon_type = ttk.Combobox(self.window, state='readonly', width=5, justify=CENTER)
         self.weapon_type['values'] = WEAPONS
-        self.weapon_type.place(x=387, y=current_y + label_space - 2)
+        self.weapon_type.place(x=current_x, y=current_y + label_space - 2)
+        self.weapon_type.bind('<<ComboboxSelected>>', self.filling_in_automatically_by_weapon)
 
-        Label(self.window, width=6, text='成長類型').place(x=455, y=current_y)
-        self.exp_grown = ttk.Combobox(self.window, state='readonly', width=5, justify=CENTER)
+        current_x += 71
+        Label(self.window, width=6, text='成長類型').place(x=current_x + 2, y=current_y)
+        self.exp_grown = ttk.Combobox(self.window, state='readonly', width=6, justify=CENTER)
         self.exp_grown['values'] = EXP_GROWN
-        self.exp_grown.place(x=455, y=current_y + label_space - 2)
+        self.exp_grown.place(x=current_x, y=current_y + label_space - 2)
 
         # 第二個 Row
+        current_x = 15
         current_y = 52
-        Label(self.window, width=6, text='滿級Atk').place(x=9, y=current_y)
-        self.max_atk = StringVar(value='')
-        Entry(self.window, width=6, textvariable=self.max_atk).place(x=10, y=current_y + label_space)
-
-        Label(self.window, width=6, text='滿級HP').place(x=60, y=current_y)
-        self.max_hp = StringVar(value='')
-        Entry(self.window, width=6, textvariable=self.max_hp).place(x=61, y=current_y + label_space)
-
-        Label(self.window, width=6, text='突滿Atk').place(x=111, y=current_y)
-        self.max_atk_after_break = StringVar(value='')
-        Entry(self.window, width=6, textvariable=self.max_atk_after_break).place(x=112, y=current_y + label_space)
-
-        Label(self.window, width=6, text='突滿HP').place(x=162, y=current_y)
-        self.max_hp_after_break = StringVar(value='')
-        Entry(self.window, width=6, textvariable=self.max_hp_after_break).place(x=163, y=current_y + label_space)
-
-        Button(self.window, text="轉換", command=self.transforming_grown, width=4, borderwidth=3) \
-            .place(x=215, y=current_y + label_space - 13)
-
-        Label(self.window, width=6, text='Atk成長').place(x=263, y=current_y)
-        self.atk_grown = StringVar(value='')
-        Entry(self.window, width=6, textvariable=self.atk_grown).place(x=263, y=current_y + label_space)
-
-        Label(self.window, width=6, text='HP成長').place(x=314, y=current_y)
-        self.hp_grown = StringVar(value='')
-        Entry(self.window, width=6, textvariable=self.hp_grown).place(x=314, y=current_y + label_space)
-
-        Label(self.window, width=6, text='暴擊率').place(x=377, y=current_y)
+        Label(self.window, width=6, text='暴擊率').place(x=current_x, y=current_y)
         self.critical_rate = StringVar(value='')
-        Entry(self.window, width=6, textvariable=self.critical_rate).place(x=377, y=current_y + label_space)
+        Entry(self.window, width=6, textvariable=self.critical_rate).place(x=current_x, y=current_y + label_space)
 
-        Label(self.window, width=6, text='攻速').place(x=429, y=current_y)
+        current_x += 52
+        Label(self.window, width=6, text='攻速').place(x=current_x, y=current_y)
         self.atk_speed = StringVar(value='')
-        Entry(self.window, width=6, textvariable=self.atk_speed).place(x=429, y=current_y + label_space)
+        Entry(self.window, width=6, textvariable=self.atk_speed).place(x=current_x, y=current_y + label_space)
 
-        Label(self.window, width=6, text='跑速').place(x=481, y=current_y)
-        self.walk_speed = StringVar(value='')
-        Entry(self.window, width=6, textvariable=self.walk_speed).place(x=481, y=current_y + label_space)
+        current_x += 57
+        Label(self.window, width=6, text='滿級Atk').place(x=current_x - 1, y=current_y)
+        self.max_atk = StringVar(value='')
+        Entry(self.window, width=6, textvariable=self.max_atk).place(x=current_x, y=current_y + label_space)
 
-        # 第三個 Row
-        current_y = 101
-        Label(self.window, width=6, text='技能花費').place(x=12, y=current_y)
-        self.active_cost = ttk.Combobox(self.window, state='readonly', width=5, justify=CENTER)
-        self.active_cost['values'] = [3, 2, 1]
-        self.active_cost.place(x=10, y=current_y + label_space - 2)
+        current_x += 51
+        Label(self.window, width=6, text='滿級HP').place(x=current_x - 1, y=current_y)
+        self.max_hp = StringVar(value='')
+        Entry(self.window, width=6, textvariable=self.max_hp).place(x=current_x, y=current_y + label_space)
 
-        Label(self.window, width=46, text='主動技').place(x=82, y=current_y)
-        self.active = StringVar(value='')
-        Entry(self.window, width=46, textvariable=self.active).place(x=82, y=current_y + label_space)
+        current_x += 51
+        Label(self.window, width=6, text='突滿Atk').place(x=current_x - 1, y=current_y)
+        self.max_atk_after_break = StringVar(value='')
+        Entry(self.window, width=6, textvariable=self.max_atk_after_break).place(x=current_x, y=current_y + label_space)
 
-        Label(self.window, width=18, text='備註').place(x=419, y=current_y)
+        current_x += 51
+        Label(self.window, width=6, text='突滿HP').place(x=current_x - 1, y=current_y)
+        self.max_hp_after_break = StringVar(value='')
+        Entry(self.window, width=6, textvariable=self.max_hp_after_break).place(x=current_x, y=current_y + label_space)
+
+        current_x += 52
+        Button(self.window, text="轉換", command=self.transforming_grown, width=4, borderwidth=3) \
+            .place(x=current_x, y=current_y + label_space - 13)
+
+        current_x += 48
+        Label(self.window, width=6, text='Atk成長').place(x=current_x, y=current_y)
+        self.atk_grown = StringVar(value='')
+        Entry(self.window, width=6, textvariable=self.atk_grown).place(x=current_x, y=current_y + label_space)
+
+        current_x += 51
+        Label(self.window, width=6, text='HP成長').place(x=current_x, y=current_y)
+        self.hp_grown = StringVar(value='')
+        Entry(self.window, width=6, textvariable=self.hp_grown).place(x=current_x, y=current_y + label_space)
+
+        current_x += 57
+        Label(self.window, width=7, text='備註').place(x=current_x - 1, y=current_y)
         self.note = StringVar(value='')
-        Entry(self.window, width=18, textvariable=self.note).place(x=420, y=current_y + label_space)
+        Entry(self.window, width=7, textvariable=self.note).place(x=current_x, y=current_y + label_space)
 
-        # 第四個 Row
-        current_y = 150
-        Label(self.window, width=38, text='被動技1').place(x=10, y=current_y)
+        # 主動技、被動與絆的 Rows
+        current_y = 108
+        Label(self.window, width=6, text='技能花費').place(x=13, y=current_y)
+        self.active_cost = ttk.Combobox(self.window, state='readonly', width=3, justify=CENTER)
+        self.active_cost['values'] = [3, 2, 1]
+        self.active_cost.place(x=70, y=current_y - 2)
+        self.active = StringVar(value='')
+        Entry(self.window, width=59, textvariable=self.active).place(x=123, y=current_y)
+        current_y += 33
+        Label(self.window, width=6, text='被動技1').place(x=12, y=current_y - 1)
         self.passive1 = StringVar(value='')
-        Entry(self.window, width=38, textvariable=self.passive1).place(x=10, y=current_y + label_space)
-
-        Label(self.window, width=37, text='被動技2').place(x=288, y=current_y)
+        Entry(self.window, width=67, textvariable=self.passive1).place(x=68, y=current_y)
+        current_y += 32
+        Label(self.window, width=6, text='被動技2').place(x=12, y=current_y - 1)
         self.passive2 = StringVar(value='')
-        Entry(self.window, width=37, textvariable=self.passive2).place(x=288, y=current_y + label_space)
+        Entry(self.window, width=67, textvariable=self.passive2).place(x=68, y=current_y)
+        current_y += 32
+        Label(self.window, width=6, text='絆能力').place(x=12, y=current_y - 1)
+        self.attachment = StringVar(value='')
+        Entry(self.window, width=67, textvariable=self.attachment).place(x=68, y=current_y)
 
         # 最後一個 Row
-        current_y = 215
-        Button(self.window, text="Submit", command=self.submitting, width=33, borderwidth=3).place(x=24, y=current_y)
-        Button(self.window, text="Cancel", command=self.destroy, width=33, borderwidth=3).place(x=290, y=current_y)
+        current_y += 38
+        Button(self.window, text="Submit", command=self.submitting, width=33, borderwidth=3).place(x=23, y=current_y)
+        Button(self.window, text="Cancel", command=self.destroy, width=33, borderwidth=3).place(x=289, y=current_y)
 
         self.__init_character(character)
+
+    # noinspection PyUnusedLocal
+    # 根據選擇職業，預設填入對應資訊
+    def filling_in_automatically_by_professions(self, event=None):
+        profession = self.profession.get()
+        if profession == PROFESSIONS[0]:  # 戰士
+            self.weapon_type.set(WEAPONS[0])
+            self.critical_rate.set(0.4)
+            self.atk_speed.set(1.5)
+        elif profession == PROFESSIONS[1]:  # 騎士
+            self.weapon_type.set(WEAPONS[0])
+            self.critical_rate.set(0)
+            self.atk_speed.set(1.75)
+        elif profession == PROFESSIONS[2]:  # 弓手
+            self.weapon_type.set(WEAPONS[3])
+            self.critical_rate.set(0)
+            self.atk_speed.set(2)
+        elif profession == PROFESSIONS[3]:  # 法師
+            self.weapon_type.set(WEAPONS[4])
+            self.critical_rate.set(0)
+            self.atk_speed.set(2)
+        else:  # 僧侶
+            self.weapon_type.set(WEAPONS[5])
+            self.critical_rate.set(0)
+            self.atk_speed.set(2)
+
+    # noinspection PyUnusedLocal
+    # 根據選擇武器，預設填入對應資訊
+    def filling_in_automatically_by_weapon(self, event=None):
+        weapon = self.weapon_type.get()
+        if weapon == WEAPONS[7]:  # 銃/ 狙
+            self.atk_speed.set(6)
 
     # 若四格都有輸入，則會計算出每突的成長值
     def transforming_grown(self):
@@ -142,13 +189,13 @@ class UpdateCharacterWindow(BasicWindow):
         DATABASE.execute('insert into Character(' + ','.join(TABLE) + ')' +
                          convert_data_to_insert_command(full_name, self.nickname.get(),
                                                         self.profession.get(), self.rank.get(),
-                                                        self.active.get(),
-                                                        self.active_cost.get(), self.passive1.get(),
-                                                        self.passive2.get(), self.weapon_type.get(),
+                                                        self.active.get(), self.active_cost.get(),
+                                                        self.passive1.get(), self.passive2.get(),
+                                                        self.attachment.get(), self.weapon_type.get(),
                                                         self.exp_grown.get(), self.attendance_cost.get(),
                                                         self.max_atk.get(), self.max_hp.get(),
                                                         self.atk_grown.get(), self.hp_grown.get(),
-                                                        self.atk_speed.get(), self.walk_speed.get(),
+                                                        self.atk_speed.get(),
                                                         self.critical_rate.get(), self.note.get()))
         DATABASE.commit()
         self.destroy()
@@ -170,6 +217,7 @@ class UpdateCharacterWindow(BasicWindow):
             self.active_cost.set(next(data))
             self.passive1.set(convert_to_str(next(data)))
             self.passive2.set(convert_to_str(next(data)))
+            self.attachment.set(convert_to_str(next(data)))
             self.weapon_type.set(convert_to_str(next(data)))
             self.exp_grown.set(convert_to_str(next(data)))
             self.attendance_cost.set(next(data))
@@ -178,8 +226,5 @@ class UpdateCharacterWindow(BasicWindow):
             self.atk_grown.set(next(data))
             self.hp_grown.set(next(data))
             self.atk_speed.set(next(data))
-            self.walk_speed.set(next(data))
             self.critical_rate.set(next(data))
             self.note.set(convert_to_str(next(data)))
-        else:
-            self.walk_speed.set(1.5)

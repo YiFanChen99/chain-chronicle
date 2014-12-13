@@ -19,9 +19,9 @@ FRAME_BG_COLOR = '#%02x%02x%02x' % (192, 192, 192)
 DATABASE = sqlite3.connect('data/ChainChronicle.sqlite')
 # Character 表格中的各欄位
 CHARACTER_DB_TABLE = ['FullName', 'Nickname', 'Profession', 'Rank',
-                      'Active', 'ActiveCost', 'Passive1', 'Passive2', 'WeaponType',
+                      'Active', 'ActiveCost', 'Passive1', 'Passive2', 'Attachment', 'WeaponType',
                       'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown',
-                      'HPGrown', 'AtkSpeed', 'WalkSpeed', 'CriticalRate', 'Note']
+                      'HPGrown', 'AtkSpeed', 'CriticalRate', 'Note']
 MS_JH = 'Microsoft JhengHei'  # 微軟正黑體
 
 

@@ -97,10 +97,10 @@ class Character(MainFrameWithTable):
                                     Profession=convert_to_str(next(data)), Rank=next(data),
                                     Active=convert_to_str(next(data)), ActiveCost=next(data),
                                     Passive1=convert_to_str(next(data)), Passive2=convert_to_str(next(data)),
-                                    WeaponType=convert_to_str(next(data)),
+                                    Attachment=convert_to_str(next(data)), WeaponType=convert_to_str(next(data)),
                                     ExpGrown=convert_to_str(next(data)), AttendanceCost=next(data),
                                     MaxAtk=next(data), MaxHP=next(data), AtkGrown=next(data),
-                                    HPGrown=next(data), AtkSpeed=next(data), WalkSpeed=next(data),
+                                    HPGrown=next(data), AtkSpeed=next(data),
                                     CriticalRate=next(data), Note=convert_to_str(next(data)))
 
         self.table_model.setSortOrder(columnName='Rank', reverse=1)

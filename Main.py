@@ -58,6 +58,6 @@ class Main(Frame):
 if __name__ == "__main__":
     root = Tk()
     init_size = str(MIN_WIDTH) + 'x' + str(MIN_HEIGHT)
-    root.geometry(init_size + '+510+265')
+    root.geometry(init_size + '+800+350')
     app = Main(master=root)
     app.mainloop()

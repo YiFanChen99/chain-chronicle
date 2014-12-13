@@ -356,7 +356,7 @@ class StageDroppedRecordModel():
         self.stage_id = stage_id
 
     def add_record(self, raised, new_drops):
-        total_drops = list(DATABASE.execute('select {0} from StageDroppedRecord2'.format(','.join(RECORD_TABLE)) +
+        total_drops = list(DATABASE.execute('select {0} from StageDroppedRecord'.format(','.join(RECORD_TABLE)) +
                                             ' where StageID={0} and Raised={1}'.format(self.stage_id, raised)
                                             ).fetchone())
 
@@ -364,14 +364,14 @@ class StageDroppedRecordModel():
         for index in range(4):
             total_drops[index + 1] += (new_drops[index])
 
-        DATABASE.execute('update StageDroppedRecord2' +
+        DATABASE.execute('update StageDroppedRecord' +
                          convert_data_to_update_command(RECORD_TABLE, total_drops) +
                          ' where StageID={0} and Raised={1}'.format(self.stage_id, raised))
         DATABASE.commit()
 
     # 提供外部使用
     def change_stage_by_name(self, stage_name, server_name='國服'):
-        self.stage_id = DATABASE.execute('select ID from Stage2 where Server={0} and Stage={1}'.format(
+        self.stage_id = DATABASE.execute('select ID from Stage where Server={0} and Stage={1}'.format(
             convert_datum_to_command(server_name), convert_datum_to_command(stage_name))).fetchone()[0]
 
     def get_dropped_items_names(self):
@@ -394,7 +394,7 @@ def collect_raw_drops(stage_id):
     total_count = 0
     raw_drops = [0.0] * 4
 
-    records = DATABASE.execute('select Raised,{0} from StageDroppedRecord2 where StageID={1}'.format(
+    records = DATABASE.execute('select Raised,{0} from StageDroppedRecord where StageID={1}'.format(
         ','.join(RECORD_TABLE), stage_id)).fetchall()
     for record in records:
         total_count += record[1]
@@ -410,7 +410,7 @@ def collect_all_statistics(difficulty):
     raw_drops = [0.0] * 4
     raw_drop_ratios = [0.0] * 4
 
-    records = DATABASE.execute('select Raised,{0} from StageDroppedRecord2, Stage2'.format(','.join(RECORD_TABLE)) +
+    records = DATABASE.execute('select Raised,{0} from StageDroppedRecord, Stage'.format(','.join(RECORD_TABLE)) +
                                ' where ID=StageID and StageID>18 and StageID<31 and Stage like \'%' +
                                difficulty + '\'').fetchall()
     for record in records:
