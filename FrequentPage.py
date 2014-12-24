@@ -383,7 +383,7 @@ class StageDroppedRecordModel():
                                 'order by Position ASC').fetchall()
 
     def collect_statistics(self):
-        (total, drop_ratios) = collect_raw_drops(self.stage_id)
+        (total, drop_ratios) = collect_stage_statistics(self.stage_id)
 
         if total != 0:
             for index in range(4):
@@ -392,36 +392,35 @@ class StageDroppedRecordModel():
         return total, drop_ratios
 
 
-# 根據不同的 Raised 逆推回原始掉落機率
-def collect_raw_drops(stage_id):
-    total_count = 0
-    raw_drops = [0.0] * 4
-
+# 根據不同的關卡，算得特定掉落加成下的掉落機率
+def collect_stage_statistics(stage_id):
     records = DATABASE.execute('select Raised,{0} from StageDroppedRecord where StageID={1}'.format(
         ','.join(RECORD_TABLE), stage_id)).fetchall()
-    for record in records:
-        total_count += record[1]
-        for i in range(4):
-            raw_drops[i] += (record[i + 2] / (1 + record[0]))
-
-    return total_count, raw_drops
+    return calculate_rate_by_specific_dropped_raise(records)
 
 
-# 一到五的統計，根據難度篩選
+# 根據一到五的不同難度耀日，算得特定掉落加成下的掉落機率
 def collect_all_statistics(difficulty):
-    total_count = 0
-    raw_drops = [0.0] * 4
-    raw_drop_ratios = [0.0] * 4
-
     records = DATABASE.execute('select Raised,{0} from StageDroppedRecord, Stage'.format(','.join(RECORD_TABLE)) +
                                ' where ID=StageID and StageID>18 and StageID<31 and Stage like \'%' +
                                difficulty + '\'').fetchall()
-    for record in records:
-        total_count += record[1]
-        for i in range(4):
-            raw_drops[i] += (record[i + 2] / (1 + record[0]))
 
+    total_count, raw_drops = calculate_rate_by_specific_dropped_raise(records)
+    raw_drop_ratios = [0.0] * 4
     for i in range(4):
         raw_drop_ratios[i] += raw_drops[i] / total_count
 
     return total_count, raw_drop_ratios
+
+
+# 計算一律帶強運時的掉落機率
+def calculate_rate_by_specific_dropped_raise(records):
+    total_count = 0
+    raw_drops = [0.0] * 4
+
+    for record in records:
+        total_count += record[1]
+        for i in range(4):
+            raw_drops[i] += (record[i + 2] / (1 + record[0]) * 1.3)
+
+    return total_count, raw_drops
