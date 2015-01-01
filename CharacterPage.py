@@ -2,7 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from MainFrame import *
-import UpdateCharacterWindow
+from Window.CharacterInfoWindow import CharacterInfoWindow
 import Utilities
 
 TABLE = CHARACTER_DB_TABLE
@@ -126,7 +126,7 @@ class Character(MainFrameWithTable):
             self.records_filter.add_filter(8, weapon)
 
     def adding_character(self):
-        popup = UpdateCharacterWindow.UpdateCharacterWindow()
+        popup = CharacterInfoWindow()
         self.wait_window(popup)
         self.records_filter.update_raw_records()
         self.updating_table()
@@ -135,6 +135,6 @@ class Character(MainFrameWithTable):
         row = self.table_view.get_row_clicked(event)
         character = self.table_model.getCellRecord(row, 0)
 
-        popup = UpdateCharacterWindow.UpdateCharacterWindow(character)
+        popup = CharacterInfoWindow(character)
         self.wait_window(popup)
         self.updating_table()

@@ -2,7 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-from UIUtility.Selector import ProfessionSelector, RankSelector
+from Window import CharacterSelectionWindow
 
 
 class Main(Frame):
@@ -11,11 +11,9 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        self.win = ProfessionSelector(self, self.callback, height=43)
-        self.win.place(x=10, y=30)
+        self.win = CharacterSelectionWindow.CharacterSelectionWindow(None)
+        self.wait_window(self.win)
 
-        self.win = RankSelector(self, self.callback, height=43)
-        self.win.place(x=10, y=80)
 
     def callback(self, pro):
         print pro

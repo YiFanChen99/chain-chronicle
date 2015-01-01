@@ -4,8 +4,7 @@ __author__ = 'Ricky Chen'
 from Tkinter import *
 from PIL import ImageTk
 from ModelUtility.GroupController import RadioGroupController
-
-IMAGE_FOLDER = '../images/'
+from ModelUtility.CommonString import *
 
 
 class BaseSelector(Canvas):
@@ -19,7 +18,8 @@ class BaseSelector(Canvas):
 
 
 class ProfessionSelector(BaseSelector):
-    PROFESSIONS = ['**', u'戰士', u'騎士', u'弓手', u'法師', u'僧侶']
+    OPTIONS = [CONDITIONLESS]
+    OPTIONS.extend(PROFESSIONS[0:5])
 
     def __init__(self, master, callback, width=194, height=43, **kwargs):
         BaseSelector.__init__(self, master, callback, width=width, height=height, **kwargs)
@@ -63,14 +63,14 @@ class ProfessionSelector(BaseSelector):
 
     @property
     def current_profession(self):
-        return self.PROFESSIONS[self.radio_group.current_selection + 1]
+        return self.OPTIONS[self.radio_group.current_selection + 1]
 
     def notify(self):
         return self.callback(self.current_profession)
 
 
 class RankSelector(BaseSelector):
-    RANKS = ['**', '5', '4', '3', '2and1']
+    OPTIONS = [CONDITIONLESS, '5', '4', '3', BOTH_2_AND_1]
 
     def __init__(self, master, callback, width=194, height=43, **kwargs):
         BaseSelector.__init__(self, master, callback, width=width, height=height, **kwargs)
@@ -114,7 +114,7 @@ class RankSelector(BaseSelector):
 
     @property
     def current_rank(self):
-        return self.RANKS[self.radio_group.current_selection + 1]
+        return self.OPTIONS[self.radio_group.current_selection + 1]
 
     def notify(self):
         return self.callback(self.current_rank)

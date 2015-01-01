@@ -3,7 +3,7 @@ __author__ = 'Ricky Chen'
 
 from MainFrame import *
 from BasicWindow import *
-import UpdateCharacterWindow
+from Window.CharacterInfoWindow import CharacterInfoWindow
 import Utilities
 from datetime import timedelta
 
@@ -287,7 +287,7 @@ class RecordWindow(BasicWindow):
         button["command"] = self.closing_window
 
     def adding_new_character(self):
-        popup = UpdateCharacterWindow.UpdateCharacterWindow()
+        popup = CharacterInfoWindow()
         self.wait_window(popup)
         self.update_characters()
         self.updating_character_selector()

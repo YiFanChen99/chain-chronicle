@@ -3,7 +3,7 @@ __author__ = 'Ricky Chen'
 
 from MainFrame import *
 from BasicWindow import BasicWindow
-import CharacterSelectorWindow
+from Window.CharacterSelectionWindow import CharacterSelectionWindow
 from datetime import timedelta
 
 RECORDED = ''
@@ -428,8 +428,8 @@ class UpdateFriendRecordWindow(BasicWindow):
         entry.place(x=9, y=current_y + label_space)
 
         # noinspection PyUnusedLocal
-        def selecting_character(obj=self, character_selected=self.character_var, *args):
-            popup = CharacterSelectorWindow.CharacterSelectorWindow(character_selected)
+        def selecting_character(obj=self, character_on_selected=self.character_var, *args):
+            popup = CharacterSelectionWindow(character_on_selected)
             popup.window.geometry('+732+270')
             self.wait_window(popup)
             self.character_level_entry.focus_set()

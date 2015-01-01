@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ricky Chen'
 
-from BasicWindow import *
+from Window.BasicWindow import *
+from ModelUtility.CommonString import *
+from ModelUtility.DBAccessor import *
 
 TABLE = CHARACTER_DB_TABLE
 
 
-class UpdateCharacterWindow(BasicWindow):
+class CharacterInfoWindow(BasicWindow):
     def __init__(self, character=None):
         BasicWindow.__init__(self, width=558, height=285)
         self.window.title('Character Info')
@@ -184,26 +186,26 @@ class UpdateCharacterWindow(BasicWindow):
     def submitting(self):
         # 將可能存在資料庫的資料先刪除，接續之後的插入就是更新動作了
         full_name = self.full_name.get()
-        DATABASE.execute('delete from Character where FullName=' + convert_datum_to_command(full_name))
+        DBAccessor.execute('delete from Character where FullName=' + convert_datum_to_command(full_name))
 
-        DATABASE.execute('insert into Character(' + ','.join(TABLE) + ')' +
-                         convert_data_to_insert_command(full_name, self.nickname.get(),
-                                                        self.profession.get(), self.rank.get(),
-                                                        self.active.get(), self.active_cost.get(),
-                                                        self.passive1.get(), self.passive2.get(),
-                                                        self.attachment.get(), self.weapon_type.get(),
-                                                        self.exp_grown.get(), self.attendance_cost.get(),
-                                                        self.max_atk.get(), self.max_hp.get(),
-                                                        self.atk_grown.get(), self.hp_grown.get(),
-                                                        self.atk_speed.get(),
-                                                        self.critical_rate.get(), self.note.get()))
-        DATABASE.commit()
+        DBAccessor.execute('insert into Character(' + ','.join(TABLE) + ')' +
+                           convert_data_to_insert_command(full_name, self.nickname.get(),
+                                                          self.profession.get(), self.rank.get(),
+                                                          self.active.get(), self.active_cost.get(),
+                                                          self.passive1.get(), self.passive2.get(),
+                                                          self.attachment.get(), self.weapon_type.get(),
+                                                          self.exp_grown.get(), self.attendance_cost.get(),
+                                                          self.max_atk.get(), self.max_hp.get(),
+                                                          self.atk_grown.get(), self.hp_grown.get(),
+                                                          self.atk_speed.get(),
+                                                          self.critical_rate.get(), self.note.get()))
+        DBAccessor.commit()
         self.destroy()
 
     @staticmethod
     def select_character(character):
         condition = ' where Nickname=' + convert_datum_to_command(character)
-        return DATABASE.execute('select * from Character' + condition).fetchone()
+        return DBAccessor.execute('select * from Character' + condition).fetchone()
 
     # 當有特定的 character 時，讀取其資料並更新各元件
     def __init_character(self, character):
