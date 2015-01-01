@@ -2,7 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-from Window import CharacterSelectionWindow
+from Window.CharacterWindow import CharacterSelectionWindow
 
 
 class Main(Frame):
@@ -11,7 +11,7 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        self.win = CharacterSelectionWindow.CharacterSelectionWindow(None)
+        self.win = CharacterSelectionWindow(None)
         self.wait_window(self.win)
 
 

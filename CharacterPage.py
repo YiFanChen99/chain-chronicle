@@ -2,7 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from MainFrame import *
-from Window.CharacterInfoWindow import CharacterInfoWindow
+from Window.CharacterWindow import CharacterInfoWindow
 import Utilities
 
 TABLE = CHARACTER_DB_TABLE

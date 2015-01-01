@@ -1,6 +1,4 @@
 
-BaseWindow使用者轉移。
-
 RecordsFilter 改寫，變成可以對特定多欄位篩選。
 CharacterPage改寫，套用圖片的canvas。
 
@@ -15,6 +13,8 @@ ap效益maybe? 打幾場升級，關卡註記
 
 次要（有按順序）：
 「新增酒廠」的功能。
+RecordOfDrawLotsPage 內的 Windows 的職業與等級選擇用 Canvas。
+CharacterPage 內的 CharacterInfoWindow 的職業與等級選擇用 Canvas。
 
 次次要（無按順序）：
 記錄好友現況時，若有更改好友ID，則送出後統計時會找不到而出錯，但只要再刷新後統計即可。也可以避免在該時改名。
