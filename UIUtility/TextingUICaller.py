@@ -2,8 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-from Utility.Selector import ProfessionSelector, RankSelector
-from Utility.GroupController import FilterGroupController
+from UIUtility.Selector import ProfessionSelector, RankSelector
 
 
 class Main(Frame):

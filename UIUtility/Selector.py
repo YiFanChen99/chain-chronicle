@@ -3,7 +3,7 @@ __author__ = 'Ricky Chen'
 
 from Tkinter import *
 from PIL import ImageTk
-from GroupController import RadioGroupController, FilterGroupController
+from ModelUtility.GroupController import RadioGroupController
 
 IMAGE_FOLDER = '../images/'
 
@@ -84,7 +84,9 @@ class RankSelector(BaseSelector):
         distance = 37
 
         current_x = (self.width - 182) / 2
-        Label(self, image=self.image_rank_star).place(x=current_x, y=y_position)
+        button = Button(self, image=self.image_rank_star)
+        button.place(x=current_x, y=y_position)
+        button.bind("<Button>", self.cleaning_current_selection)
         current_x += distance + 1
         button = Button(self, image=self.image_rank_5)
         button.place(x=current_x, y=y_position)
@@ -116,3 +118,7 @@ class RankSelector(BaseSelector):
 
     def notify(self):
         return self.callback(self.current_rank)
+
+    # noinspection PyUnusedLocal
+    def cleaning_current_selection(self, event):
+        self.radio_group.clean_current_selection()

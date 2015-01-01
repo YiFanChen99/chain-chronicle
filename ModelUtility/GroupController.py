@@ -4,6 +4,7 @@ __author__ = 'Ricky Chen'
 
 class BaseGroupController():
     def __init__(self, callback):
+        # 設成 field 而非 static，使不同用途時可以調整
         self.default_selected_color = '#%02x%02x%02x' % (32, 32, 32)
         self.default_unselected_color = '#%02x%02x%02x' % (240, 240, 240)
 
@@ -55,6 +56,15 @@ class RadioGroupController(BaseGroupController):
             self.current_selection = index
             self.callback()
 
+    def clean_current_selection(self):
+        if self.is_zero_selectionable:
+            if self.current_selection != self.DEFAULT_SELECTION:
+                self.change_button_state(self.current_selection, False)
+                self.current_selection = self.DEFAULT_SELECTION
+                self.callback()
+        else:
+            raise Exception("Is not zero-selectionable!")
+
 
 class FilterGroupController(BaseGroupController):
     def __init__(self, callback):
@@ -69,3 +79,8 @@ class FilterGroupController(BaseGroupController):
             self.current_selections.append(index)
             self.change_button_state(index, True)
         self.callback()
+
+    def clean_current_selections(self):
+        for index in self.current_selections:
+            self.change_button_state(index, False)
+            self.current_selections.remove(index)
