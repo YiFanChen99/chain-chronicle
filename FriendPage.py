@@ -28,6 +28,7 @@ class FriendInfo(MainFrameWithTable):
         self.__init_upper_frame()
 
         self.friends = []
+        self.__init_since_last_record()
         self.updating_page()
 
     def switching_to_friend_record(self):
@@ -61,9 +62,18 @@ class FriendInfo(MainFrameWithTable):
         self.friend_count_str = StringVar()
         Label(self, textvariable=self.friend_count_str, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
 
-        basic_x = 555
-        self.last_recorded_str = StringVar()
-        Label(self, textvariable=self.last_recorded_str, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
+        basic_x = 565
+        self.since_last_record_str = StringVar()
+        Label(self, textvariable=self.since_last_record_str, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
+
+    def __init_since_last_record(self):
+        # 欲取得最後更新全體記錄的時間，但只用了效果類似的手段（抓不特定老朋友最後被更新的時間）
+        date = convert_str_to_datetime(
+            DATABASE.execute(
+                "select max({2}) from {0} where {1} = (select {1} from {0} where {2} = (select min({2}) from {0}))".format(
+                    self.compose_table_name('FriendRecord'), 'FriendID', 'RecordedDate')).fetchone()[0])
+        if date is not None:
+            self.since_last_record_str.set('Since: %d days ago' % (datetime.now() - date).days)
 
     def updating_page(self):
         # 建立 Friend_List
@@ -72,14 +82,6 @@ class FriendInfo(MainFrameWithTable):
                                          self.compose_table_name('Friend') + ' where UsedNames!=\'\'').fetchall()]
 
         self.friend_count_str.set('Friends: %02d' % len(self.friends))  # 好友總數
-
-        # 欲取得最後更新全體記錄的時間，但只用了效果類似的手段（抓不特定老朋友最後被更新的時間）
-        date = convert_str_to_datetime(
-            DATABASE.execute(
-                "select max({2}) from {0} where {1} = (select {1} from {0} where {2} = (select min({2}) from {0}))".format(
-                    self.compose_table_name('FriendRecord'), 'FriendID', 'RecordedDate')).fetchone()[0])
-        if date is not None:
-            self.last_recorded_str.set('Last Recorded: %02d/%02d' % (date.month, date.day))
 
         self.updating_table()
 
