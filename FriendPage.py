@@ -12,7 +12,7 @@ FRIEND_CLEAN_UP_COLUMN = FRIEND_MODIFIED_COLUMN + UPDATED_BY_RECORD_COLUMN
 ORDER_SELECTOR = ['Profession', 'Rank', 'In3Weeks', 'In2Months', 'AddedDate']
 RECORD_DB_COLUMN = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
 RECORD_DISPLAYED_COLUMN = ['Status', 'FriendID', 'UsedNames', 'LastProfession',
-                           'Character', 'CharacterLevel', 'Rank']
+                           'Character', 'CharacterLevel', 'Rank', 'LastRank']
 
 
 class FriendInfo(MainFrameWithTable):
@@ -73,9 +73,11 @@ class FriendInfo(MainFrameWithTable):
 
         self.friend_count_str.set('Friends: %02d' % len(self.friends))  # 好友總數
 
-        # 最後更新記錄時間
+        # 欲取得最後更新全體記錄的時間，但只用了效果類似的手段（抓不特定老朋友最後被更新的時間）
         date = convert_str_to_datetime(
-            DATABASE.execute('select max(RecordedDate) from ' + self.compose_table_name('FriendRecord')).fetchone()[0])
+            DATABASE.execute(
+                "select max({2}) from {0} where {1} = (select {1} from {0} where {2} = (select min({2}) from {0}))".format(
+                    self.compose_table_name('FriendRecord'), 'FriendID', 'RecordedDate')).fetchone()[0])
         if date is not None:
             self.last_recorded_str.set('Last Recorded: %02d/%02d' % (date.month, date.day))
 
@@ -184,8 +186,8 @@ class FriendRecord(MainFrameWithTable):
     def submitting(self):
         # 數量計算並要求確認，確認時才真正送出
         updated_record_number = len([data for data in self.friend_records if data[0] == RECORDED])
-        if tkMessageBox.askyesno('Recording these records?', '總計 ' + str(updated_record_number) +
-                                 ' 筆記錄，\n是否確認送出？'):
+        if tkMessageBox.askyesno('Recording these records?', '總計 {0} 筆記錄，\n是否確認送出？'.format(
+                str(updated_record_number))):
             # 將已經登記的 record 更新到 DB 內
             for data in self.friend_records:
                 if data[0] == RECORDED:
@@ -243,11 +245,11 @@ class FriendRecord(MainFrameWithTable):
         # 建立 Friend_Record_List
         # 這邊取出 LastCharacter 只是為了給 UpdateFriendRecordWindow 使用，預先讀出
         self.friend_records = []
-        friends = DATABASE.execute('select ID, UsedNames, LastProfession, LastCharacter from ' +
+        friends = DATABASE.execute('select ID, UsedNames, LastProfession, Rank, LastCharacter from ' +
                                    self.compose_table_name('Friend') + ' where UsedNames!=\'\'')
         for infos in friends:
             self.friend_records.append([UNRECORDED, infos[0], convert_to_str(infos[1]),
-                                        convert_to_str(infos[2]), '', None, None, convert_to_str(infos[3])])
+                                        convert_to_str(infos[2]), '', None, None, infos[3], convert_to_str(infos[4])])
 
         self.friend_count_str.set('Friends: %02d' % len(self.friend_records))  # 好友總數
 
@@ -269,7 +271,7 @@ class FriendRecord(MainFrameWithTable):
                 data = iter(row)
                 self.table_model.addRow(Status=next(data), FriendID=next(data), UsedNames=next(data),
                                         LastProfession=next(data), Character=next(data), CharacterLevel=next(data),
-                                        Rank=next(data))
+                                        Rank=next(data), LastRank=next(data))
 
         self.table_model.setSortOrder(columnName='LastProfession')
 
