@@ -68,6 +68,10 @@ class ProfessionSelector(BaseSelector):
     def notify(self):
         return self.callback(self.current_profession)
 
+    # noinspection PyUnusedLocal
+    def clean_current_selection(self, event=None):
+        self.radio_group.clean_current_selection()
+
 
 class RankSelector(BaseSelector):
     OPTIONS = [CONDITIONLESS, '5', '4', '3', BOTH_2_AND_1]
@@ -86,7 +90,7 @@ class RankSelector(BaseSelector):
         current_x = (self.width - 182) / 2
         button = Button(self, image=self.image_rank_star)
         button.place(x=current_x, y=y_position)
-        button.bind("<Button>", self.cleaning_current_selection)
+        button.bind("<Button>", self.clean_current_selection)
         current_x += distance + 1
         button = Button(self, image=self.image_rank_5)
         button.place(x=current_x, y=y_position)
@@ -120,5 +124,5 @@ class RankSelector(BaseSelector):
         return self.callback(self.current_rank)
 
     # noinspection PyUnusedLocal
-    def cleaning_current_selection(self, event):
+    def clean_current_selection(self, event=None):
         self.radio_group.clean_current_selection()

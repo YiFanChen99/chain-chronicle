@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ricky Chen'
 
-from Window.BasicWindow import *
+from BasicWindow import *
+from CharacterWindow import CharacterInfoWindow
 from ModelUtility.DBAccessor import *
 from ModelUtility.CommonString import *
-from Window.CharacterWindow import CharacterInfoWindow
 
 
 class RecordWindow(BasicWindow):

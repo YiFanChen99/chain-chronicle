@@ -5,7 +5,7 @@ from Tkinter import *
 from Static import *
 import FrequentPage
 import Utilities
-import CharacterPage
+from MainFrameNew.CharacterFrame import Character
 import RecordOfDrawLotsPage
 import FriendPage
 
@@ -51,7 +51,7 @@ class StaticGroupFrame(SubMenuFrame):
         if index == 0:
             return FrequentPage.Frequent(self.master)
         elif index == 1:
-            return CharacterPage.Character(self.master)
+            return Character(self.master)
         else:
             raise Exception("Wrong group selected!")
 

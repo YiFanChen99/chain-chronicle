@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ricky Chen'
 
-from Window.BasicWindow import *
+from BasicWindow import *
 from UIUtility.Selector import ProfessionSelector, RankSelector
 from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
@@ -22,11 +22,8 @@ class CharacterSelectionWindow(BasicWindow):
         self.__init_widgets()
 
     def __init_widgets(self):
-        self.profession_selector = ProfessionSelector(self.window, self.updating_profession)
-        self.profession_selector.place(x=3, y=3)
-
-        self.rank_selector = RankSelector(self.window, self.updating_rank)
-        self.rank_selector.place(x=3, y=49)
+        ProfessionSelector(self.window, self.updating_profession).place(x=3, y=3)
+        RankSelector(self.window, self.updating_rank).place(x=3, y=49)
 
         Label(self.window, text='Character', width=10, font=("", 12)).place(x=205, y=14)
         self.character_selector = ttk.Combobox(self.window, state='readonly', width=10, justify=CENTER)
@@ -59,7 +56,7 @@ class CharacterSelectionWindow(BasicWindow):
     def updating_character_selector(self):
         character_matched = []
         for character_infos in self.records:
-            if (match_requested(character_infos[1], self.requested_profession)) and \
+            if (match_request(character_infos[1], self.requested_profession)) and \
                     (match_requested_rank(character_infos[2], self.requested_rank)):
                 character_matched.append(character_infos[0])
         self.character_selector['values'] = character_matched

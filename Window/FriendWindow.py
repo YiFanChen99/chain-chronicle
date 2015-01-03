@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ricky Chen'
 
-from Window.BasicWindow import *
+from BasicWindow import *
+from CharacterWindow import CharacterSelectionWindow
 from ModelUtility.DBAccessor import *
 from ModelUtility.CommonString import *
-from Window.CharacterWindow import CharacterSelectionWindow
 
 
 class UpdateFriendWindow(BasicWindow):

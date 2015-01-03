@@ -4,6 +4,8 @@ __author__ = 'Ricky Chen'
 from Tkinter import *
 from Window.CharacterWindow import CharacterSelectionWindow
 from ModelUtility.DBAccessor import *
+from ModelUtility.FilterManager import *
+from MainFrameNew.CharacterFrame import *
 
 
 class Main(Frame):
@@ -12,24 +14,11 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        # self.win = CharacterSelectionWindow(None)
-        # self.wait_window(self.win)
+        frame = Character(self, width=1000, height=1000)
+        frame.place(x=100, y=50)
 
 
 
-        print DBAccessor.execute('select FriendID, min(RecordedDate) from FriendRecordJP').fetchall()
-        # t2command = ' where FriendID = (select FriendID from FriendRecordJP where FriendID=3)'
-        # t2command = ''
-        # t2command = ' where FriendID = (select FriendID, RecordedDate from FriendRecordJP where (RecordedDate in min(RecordedDate)))'
-        # date = convert_str_to_datetime(
-        #     DBAccessor.execute('select FriendID, max(RecordedDate) from FriendRecordJP' + t2command).fetchone()[0])
-        aa= 'select max({2}) from {0} where {1} = (select {1} from {0} where {2} = (select min({2}) from {0}))'.format('FriendRecordJP', 'FriendID', 'RecordedDate')
-        print DBAccessor.execute(aa).fetchone()[0]
-
-
-
-    def callback(self, pro):
-        print pro
 
 
 if __name__ == "__main__":
@@ -39,3 +28,66 @@ if __name__ == "__main__":
     app = Main(root)
     app.mainloop()
 
+
+# try:
+#     #~~ For Python 2.x
+#     import Tkinter as tk
+# except ImportError:
+#     #~~ For Python 3.x
+#     import tkinter as tk
+#
+# APP_WIN_XPOS = 100
+# APP_WIN_YPOS = 100
+# APP_WIN_WIDTH = 500
+# APP_WIN_HEIGHT = 500
+# APP_WIN_TITLE = 'Overlapping Widgets'
+# APP_BACK_GND = 'palegoldenrod'
+#
+# MSG_01 = 'Lower Frame'
+# MSG_02 = 'Lift Frame'
+#
+# class App(object):
+#
+#     def __init__(self):
+#
+#         self.win = tk.Tk()
+#         self.win.geometry('+{0}+{1}'.format(APP_WIN_XPOS, APP_WIN_YPOS))
+#         self.win.geometry('{0}x{1}'.format(APP_WIN_WIDTH, APP_WIN_HEIGHT))
+#         self.win.protocol("WM_DELETE_WINDOW", self.close)
+#         self.win.config(bg=APP_BACK_GND)
+#
+#         self.swap_state = tk.StringVar()
+#
+#         canvas = tk.Canvas(self.win, highlightthickness=0,
+#             bg='steelblue')
+#         canvas.place(x=20, y=20, width=300, height=300)
+#
+#         self.frame = tk.Frame(self.win, bg='green')
+#         self.frame.place(x=200, y=200, width=200, height=200)
+#
+#         tk.Button(self.win, textvariable=self.swap_state,
+#             command=self.swap).pack(side='bottom', pady=2)
+#
+#         self.swap_state.set(MSG_01)
+#
+#     def swap(self):
+#         message = self.swap_state.get()
+#         if message == MSG_01:
+#             self.frame.lower()
+#             self.swap_state.set(MSG_02)
+#
+#         if message == MSG_02:
+#             self.frame.lift()
+#             self.swap_state.set(MSG_01)
+#
+#     def close(self):
+#         self.win.destroy()
+#         print ("Shut down application")
+#
+#     def run(self):
+#         self.win.mainloop()
+#
+# app = App()
+# app.win.title("Tk App Templates")
+#
+# app.run()
