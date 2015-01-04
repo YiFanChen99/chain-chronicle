@@ -5,31 +5,38 @@ from BasicWindow import *
 from UIUtility.Selector import ProfessionSelector, RankSelector
 from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
+from ModelUtility.FilterManager import FilterManager
 
 
 class CharacterSelectionWindow(BasicWindow):
     def __init__(self, character_on_selected):
-        BasicWindow.__init__(self, width=316, height=144)
+        BasicWindow.__init__(self, width=316, height=145)
         self.window.title('Character selection')
 
         self.character_on_selected = character_on_selected
 
         self.records = None
         self.update_records()
-        self.requested_profession = CONDITIONLESS
-        self.requested_rank = CONDITIONLESS
+        self.filter_manager = FilterManager()
+        self.filter_manager.add_comparison_rule(0)
 
         self.__init_widgets()
 
     def __init_widgets(self):
-        ProfessionSelector(self.window, self.updating_profession).place(x=3, y=3)
-        RankSelector(self.window, self.updating_rank).place(x=3, y=49)
+        ProfessionSelector(self.window, self.updating_request_profession).place(x=3, y=3)
+        RankSelector(self.window, self.updating_request_rank).place(x=3, y=49)
 
-        Label(self.window, text='Character', width=10, font=("", 12)).place(x=205, y=14)
+        Label(self.window, text='篩選', width=5, font=("", 11)).place(x=208, y=3)
+        self.name_request = StringVar(value='')
+        entry = Entry(self.window, width=7, textvariable=self.name_request, font=("", 11))
+        entry.place(x=226, y=22)
+        entry.bind('<Return>', self.updating_character_selector)
+
+        Label(self.window, text='Character', width=10, font=("", 12)).place(x=204, y=47)
         self.character_selector = ttk.Combobox(self.window, state='readonly', width=10, justify=CENTER)
-        self.character_selector.place(x=209, y=43)
+        self.character_selector.place(x=209, y=68)
 
-        y_position = 103
+        y_position = 104
         # 送交的按鈕
         button = Button(self.window, text="選擇此角色", width=11, borderwidth=3)
         button.place(x=15, y=y_position)
@@ -45,22 +52,23 @@ class CharacterSelectionWindow(BasicWindow):
         button.place(x=217, y=y_position)
         button["command"] = self.destroy
 
-    def updating_profession(self, profession):
-        self.requested_profession = profession
+    def updating_request_profession(self, profession):
+        self.filter_manager.add_specific_condition(1, profession)
         self.updating_character_selector()
 
-    def updating_rank(self, rank):
-        self.requested_rank = rank
+    def updating_request_rank(self, rank):
+        self.filter_manager.add_specific_condition(2, rank, match_requested_rank)
         self.updating_character_selector()
 
-    def updating_character_selector(self):
-        character_matched = []
-        for character_infos in self.records:
-            if (match_request(character_infos[1], self.requested_profession)) and \
-                    (match_requested_rank(character_infos[2], self.requested_rank)):
-                character_matched.append(character_infos[0])
-        self.character_selector['values'] = character_matched
+    # 清除原本的選擇，並更新可選擇的角色
+    # noinspection PyUnusedLocal
+    def updating_character_selector(self, event=None):
         self.character_selector.set('')
+        character_matched = []
+        for character_infos in self.filter_manager.filter(self.records, convert_to_str(self.name_request.get())):
+            character_matched.append(character_infos[0])
+        self.character_selector['values'] = character_matched
+        self.character_selector.focus_set()
 
     # 有選擇的情況下才儲存並回傳，否則彈出錯誤視窗
     def submitting(self):
