@@ -162,7 +162,7 @@ class UpdateFriendRecordWindow(BasicWindow):
         record = self.record
 
         # 角色未選擇時套用前記錄，已選擇便用已選擇
-        self.character_var.set(record[7] if record[4] == '' else record[4])
+        self.character_var.set(record[8] if record[4] == '' else record[4])
 
         # 角色等級/Rank等級未選擇時為空，已選擇便用已選擇
         self.character_level_var.set('' if record[5] is None else record[5])
