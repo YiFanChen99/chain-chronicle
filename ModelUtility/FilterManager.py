@@ -9,9 +9,6 @@ class FilterManager():
         self.__comparison_rules = {}
         self.__specific_conditions = {}
 
-    def initialize(self, records):
-        self.__records = records
-
     def add_comparison_rule(self, index, rule=sub_match_request):
         self.__comparison_rules[index] = rule
 
@@ -24,11 +21,20 @@ class FilterManager():
     def clean_specific_condition(self):
         self.__specific_conditions = {}
 
-    def filter(self, records, request):
-        return self.__filter_by_comparison_rules(self.__filter_by_specific_conditions(records), request)
+    def filter(self, records, multi_request):
+        return self.__filter_by_comparison_rules(self.__filter_by_specific_conditions(records), multi_request)
 
     # 若 request 沒內容代表全部允許，否則依照 request 進行部分比對
-    def __filter_by_comparison_rules(self, records, request):
+    def __filter_by_comparison_rules(self, records, multi_request):
+        results = records
+
+        requests = multi_request.split(' ')
+        for request in requests:
+            results = self.__filter_by_comparison_rules_with_single_request(results, request)
+
+        return results
+
+    def __filter_by_comparison_rules_with_single_request(self, records, request):
         if request == '':
             return records
 
