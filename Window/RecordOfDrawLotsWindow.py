@@ -5,72 +5,66 @@ from BasicWindow import *
 from CharacterWindow import CharacterInfoWindow
 from ModelUtility.DBAccessor import *
 from ModelUtility.CommonString import *
+from ModelUtility.Comparator import match_requested_rank
+from ModelUtility.Filter import FilterManager
+from UIUtility.Selector import ProfessionSelector, RankSelector
 
 
 class RecordWindow(BasicWindow):
     def __init__(self, db_suffix, event_names):
-        BasicWindow.__init__(self, width=565, height=118)
+        BasicWindow.__init__(self, width=518, height=156)
+        self.window.geometry('+840+300')
 
         self.__init_widgets(event_names)
 
+        self.filter_manager = FilterManager()
         self.record_table = 'RecordOfDrawLots' + db_suffix
         self.characters = None
         self.update_characters()
 
     # noinspection PyAttributeOutsideInit
     def __init_widgets(self, event_names):
-        # 各 Column 的標題: 筆數, 酒廠, 職業, 等級, 角色, 花費
-        Label(self.window, text=DRAW_LOTS_DB_TABLE[0], width=6, font=("", 12)).place(x=3, y=9)
-        Label(self.window, text=DRAW_LOTS_DB_TABLE[1], width=14, font=("", 12)).place(x=56, y=9)
-        Label(self.window, text=DRAW_LOTS_DB_TABLE[2], width=7, font=("", 12)).place(x=200, y=9)
-        Label(self.window, text=DRAW_LOTS_DB_TABLE[3], width=5, font=("", 12)).place(x=286, y=9)
-        Label(self.window, text=DRAW_LOTS_DB_TABLE[4], width=11, font=("", 12)).place(x=349, y=9)
-        Label(self.window, text=DRAW_LOTS_DB_TABLE[5], width=9, font=("", 12)).place(x=453, y=9)
+        # 筆數
+        current_y = 23
+        Label(self.window, text=DRAW_LOTS_DB_TABLE[0], width=6, font=("", 12)).place(x=3, y=current_y)
+        self.times = Variable()  # 下一次的筆數
+        Label(self.window, textvariable=self.times, width=6, font=("", 12)).place(x=3, y=current_y + 27)
 
-        # 下一次的筆數
-        self.times = Variable()
-        Label(self.window, textvariable=self.times, width=6, font=("", 12)).place(x=3, y=40)
-
-        # 選擇酒廠
+        # 酒廠
+        Label(self.window, text=DRAW_LOTS_DB_TABLE[1], width=14, font=("", 12)).place(x=56, y=current_y)
         self.event_selector = ttk.Combobox(self.window, state='readonly', width=14, justify=CENTER)
         self.event_selector['values'] = event_names
-        self.event_selector.place(x=63, y=40)
+        self.event_selector.place(x=63, y=current_y + 27)
 
-        # 選擇職業
-        self.profession_selector = ttk.Combobox(self.window, state='readonly', width=7, justify=CENTER)
-        self.profession_selector['values'] = PROFESSIONS
-        self.profession_selector.place(x=199, y=40)
-        self.profession_selector.bind('<<ComboboxSelected>>', self.updating_character_selector)
+        # 選擇職業、等級
+        self.profession_selector = ProfessionSelector(self.window, self.updating_request_profession)
+        self.profession_selector.place(x=197, y=7)
+        self.rank_selector = RankSelector(self.window, self.updating_request_rank)
+        self.rank_selector.place(x=197, y=55)
 
-        # 選擇等級
-        self.rank_selector = ttk.Combobox(self.window, state='readonly', width=5, justify=CENTER)
-        self.rank_selector['values'] = RANKS_WHEN_DRAW_LOTS
-        self.rank_selector.place(x=285, y=40)
-        self.rank_selector.bind('<<ComboboxSelected>>', self.updating_character_selector)
-
-        # 選擇角色
+        # 角色
+        current_x = 396
+        Label(self.window, text=DRAW_LOTS_DB_TABLE[4], width=11, font=("", 12)).place(x=current_x, y=4)
         self.character_selector = ttk.Combobox(self.window, state='readonly', width=10, justify=CENTER)
-        self.character_selector.place(x=358, y=40)
+        self.character_selector.place(x=current_x + 9, y=23)
 
-        # 選擇花費
+        # 花費
+        Label(self.window, text=DRAW_LOTS_DB_TABLE[5], width=9, font=("", 12)).place(x=current_x + 6, y=53)
         self.cost_selector = ttk.Combobox(self.window, state='readonly', width=8, justify=CENTER)
         self.cost_selector['values'] = DRAW_LOTS_COST
-        self.cost_selector.place(x=463, y=40)
+        self.cost_selector.place(x=current_x + 14, y=72)
 
-        # 送交的按鈕
-        button = Button(self.window, text="送出此記錄", width=38, borderwidth=3)
-        button.place(x=28, y=79)
+        # 送交、新增角色、取消並關閉的按鈕
+        current_y = 116
+        button = Button(self.window, text="送出此記錄", width=37, borderwidth=3)
+        button.place(x=19, y=current_y)
         button["command"] = self.submitting
-
-        # 新增角色的按鈕
-        button = Button(self.window, text="新增角色", width=12, borderwidth=3)
-        button.place(x=326, y=79)
+        button = Button(self.window, text="新增角色", width=11, borderwidth=3)
+        button.place(x=307, y=current_y)
         button["command"] = self.adding_new_character
-
-        # 取消並關閉的按鈕
-        button = Button(self.window, text="關閉視窗", width=12, borderwidth=3)
-        button.place(x=438, y=79)
-        button["command"] = self.closing_window
+        button = Button(self.window, text="關閉視窗", width=11, borderwidth=3)
+        button.place(x=410, y=current_y)
+        button["command"] = self.destroy
 
     def adding_new_character(self):
         popup = CharacterInfoWindow()
@@ -81,46 +75,56 @@ class RecordWindow(BasicWindow):
     def update_characters(self):
         self.characters = DBAccessor.execute('select Nickname, Profession, Rank from Character').fetchall()
 
-    def closing_window(self):
-        self.destroy()
+    def updating_request_profession(self, profession):
+        self.filter_manager.set_specific_condition(1, profession)
+        self.updating_character_selector()
+
+    def updating_request_rank(self, rank):
+        self.filter_manager.set_specific_condition(2, rank, match_requested_rank)
+        self.updating_character_selector()
 
     # noinspection PyUnusedLocal
     def updating_character_selector(self, event=None):
-        requested_profession = self.profession_selector.get()
-        requested_rank = self.rank_selector.get()
-
-        # 依序對職業與等級進行篩選(if需要)
-        character_matched = []
-        for character_infos in self.characters:
-            if (requested_profession == '' or requested_profession == character_infos[1]) and \
-                    (requested_rank == '' or int(requested_rank) == character_infos[2]):
-                character_matched.append(character_infos[0])
-
-        self.character_selector['values'] = character_matched
         self.character_selector.set('')
+        character_matched = []
+        for character_infos in self.filter_manager.filter(self.characters):
+            character_matched.append(character_infos[0])
+        self.character_selector['values'] = character_matched
+        self.character_selector.focus_set()
 
     def submitting(self):
-        if self.is_new_record_legal():
+        if self.is_submitting_record_legal():
             self.do_submitting()
 
     # Template Method
     def do_submitting(self):
         pass
 
-    def is_new_record_legal(self):
+    def is_submitting_record_legal(self):
         error_message = ''
-        if self.profession_selector.get() == '':
-            error_message += '\"Profession\" 未填\n'
-        if self.rank_selector.get() == '':
-            error_message += '\"Rank\" 未填\n'
+        if self.profession_selector.current_profession not in PROFESSIONS:
+            error_message += '\"Profession\" 錯誤\n'
+        if self.get_legal_rank() not in RANKS_WHEN_DRAW_LOTS:
+            error_message += '\"Rank\" 錯誤\n'
         if self.character_selector.get() == '':
             error_message += '\"Character\" 未填\n'
 
         is_legal = (error_message == '')
         if not is_legal:
-            tkMessageBox.showwarning("Can not add this record", error_message)
+            tkMessageBox.showwarning("Can not submit this record", error_message)
 
         return is_legal
+
+    def get_legal_rank(self):
+        rank = self.rank_selector.current_rank
+        if rank == '5':
+            return 5
+        elif rank == '4':
+            return 4
+        elif rank == '3':
+            return 3
+        else:
+            return -1
 
 
 class AddRecordWindow(RecordWindow):
@@ -137,16 +141,15 @@ class AddRecordWindow(RecordWindow):
         self.reset_context()
 
     def do_submitting(self):
-        DBAccessor.execute('insert into ' + self.record_table +
-                           '(' + ','.join(DRAW_LOTS_DB_TABLE) + ')' +
-                           convert_data_to_insert_command(self.times.get(), self.event_selector.get(),
-                                                          self.profession_selector.get(), self.rank_selector.get(),
-                                                          self.character_selector.get(), self.cost_selector.get()))
+        DBAccessor.execute('insert into {0}({1})'.format(self.record_table, ','.join(DRAW_LOTS_DB_TABLE)) +
+                           convert_data_to_insert_command(
+                               self.times.get(), self.event_selector.get(), self.profession_selector.current_profession,
+                               self.get_legal_rank(), self.character_selector.get(), self.cost_selector.get()))
         DBAccessor.commit()
 
         # 更新顯示的資料
         self.last_record = [self.times.get(), self.event_selector.get(),
-                            self.profession_selector.get(), self.rank_selector.get(),
+                            self.profession_selector.current_profession, self.get_legal_rank(),
                             self.character_selector.get(), self.cost_selector.get()]
         self.reset_context()
         self.callback()
@@ -169,14 +172,14 @@ class UpdatingRecordWindow(RecordWindow):
         record = iter(record)
         self.times.set(next(record))
         self.event_selector.set(next(record))
-        self.profession_selector.set(next(record))
-        self.rank_selector.set(next(record))
+        self.profession_selector.select(next(record))
+        self.rank_selector.select(str(next(record)))
         self.character_selector.set(next(record))
         self.cost_selector.set(next(record))
 
-    # 單純更新到資料庫，不必寫回原 record (因tuple的關係)
+    # 單純更新到資料庫，不寫回原 record (因tuple的關係)
     def do_submitting(self):
-        new_data = [self.event_selector.get(), self.profession_selector.get(), self.rank_selector.get(),
+        new_data = [self.event_selector.get(), self.profession_selector.current_profession, self.get_legal_rank(),
                     self.character_selector.get(), self.cost_selector.get()]
         DBAccessor.execute('update ' + self.record_table + convert_data_to_update_command(
             DRAW_LOTS_DB_TABLE[1:6], new_data) + ' where Times=' + str(self.times.get()))

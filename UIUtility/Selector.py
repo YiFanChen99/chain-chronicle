@@ -72,6 +72,10 @@ class ProfessionSelector(BaseSelector):
     def clean_current_selection(self, event=None):
         self.radio_group.clean_current_selection()
 
+    def select(self, key):
+        index = self.OPTIONS.index(key)
+        self.radio_group.selecting_button(index - 1)
+
 
 class RankSelector(BaseSelector):
     OPTIONS = [CONDITIONLESS, '5', '4', '3', BOTH_2_AND_1]
@@ -126,3 +130,7 @@ class RankSelector(BaseSelector):
     # noinspection PyUnusedLocal
     def clean_current_selection(self, event=None):
         self.radio_group.clean_current_selection()
+
+    def select(self, key):
+        index = self.OPTIONS.index(key)
+        self.radio_group.selecting_button(index - 1)
