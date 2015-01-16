@@ -81,24 +81,6 @@ def convert_str_to_datetime(date_str):
     return datetime.strptime(date_str, "%Y-%m-%d") if date_str is not None else None
 
 
-# TODO 未搬移，但不一定需要
-def insert_with_empty_str(the_list):
-    result = ['']
-    result.extend(the_list)
-    return result
-
-
-# TODO 未搬移
-# 使點擊 label 與點擊 check box 有相同效果
-# p.s. Checkbutton 本身就有 variable 可以用，還有 onvalue 等內建能力，
-# 但缺點在無法調整文字與格子的相對位置，故需要調整要手動建立並 binding
-def bind_check_box_and_label(check_box, label):
-    # noinspection PyUnusedLocal
-    def switching(*args):
-        check_box.toggle()
-    label.bind('<Button-1>', switching)
-
-
 # TODO 未搬移
 def is_string_match_query(query, string):
     if query == '':

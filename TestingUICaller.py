@@ -4,8 +4,8 @@ __author__ = 'Ricky Chen'
 from Tkinter import *
 from Window.CharacterWindow import CharacterSelectionWindow
 from ModelUtility.DBAccessor import *
-from ModelUtility.FilterManager import *
-from MainFrameNew.CharacterFrame import *
+from ModelUtility.Filter import *
+from MainFrameNew.RecordOfDrawLotsFrame import *
 
 
 class Main(Frame):
@@ -14,11 +14,8 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        frame = Character(self, width=1000, height=1000)
-        frame.place(x=100, y=50)
-
-
-
+        frame = RecordOfDrawLots(self, 'JP', width=1000, height=1000)
+        frame.place(x=10, y=10)
 
 
 if __name__ == "__main__":

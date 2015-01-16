@@ -3,7 +3,7 @@ __author__ = 'Ricky Chen'
 
 from BaseFrame import *
 from Window.CharacterWindow import CharacterInfoWindow
-from ModelUtility.FilterManager import FilterManager
+from ModelUtility.Filter import FilterManager
 from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
 from UIUtility.Selector import ProfessionSelector, RankSelector
@@ -84,19 +84,19 @@ class Character(MainFrameWithTable):
         self.redisplay_table()
 
     def __init_filter_manager(self):
-        self.filter_manager.add_comparison_rule(0)
-        self.filter_manager.add_comparison_rule(1)
-        self.filter_manager.add_comparison_rule(4)
-        self.filter_manager.add_comparison_rule(6)
-        self.filter_manager.add_comparison_rule(7)
-        self.filter_manager.add_comparison_rule(8)
+        self.filter_manager.set_comparison_rule(0)
+        self.filter_manager.set_comparison_rule(1)
+        self.filter_manager.set_comparison_rule(4)
+        self.filter_manager.set_comparison_rule(6)
+        self.filter_manager.set_comparison_rule(7)
+        self.filter_manager.set_comparison_rule(8)
 
     def updating_profession(self, request):
-        self.filter_manager.add_specific_condition(2, request)
+        self.filter_manager.set_specific_condition(2, request)
         self.updating_table()
 
     def updating_rank(self, request):
-        self.filter_manager.add_specific_condition(3, request, match_requested_rank)
+        self.filter_manager.set_specific_condition(3, request, match_requested_rank)
         self.updating_table()
 
     def clearing_filters(self):

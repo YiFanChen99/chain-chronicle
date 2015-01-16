@@ -5,7 +5,7 @@ from BasicWindow import *
 from UIUtility.Selector import ProfessionSelector, RankSelector
 from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
-from ModelUtility.FilterManager import FilterManager
+from ModelUtility.Filter import FilterManager
 
 
 class CharacterSelectionWindow(BasicWindow):
@@ -18,7 +18,7 @@ class CharacterSelectionWindow(BasicWindow):
         self.records = None
         self.update_records()
         self.filter_manager = FilterManager()
-        self.filter_manager.add_comparison_rule(0)
+        self.filter_manager.set_comparison_rule(0)
 
         self.__init_widgets()
 
@@ -53,11 +53,11 @@ class CharacterSelectionWindow(BasicWindow):
         button["command"] = self.destroy
 
     def updating_request_profession(self, profession):
-        self.filter_manager.add_specific_condition(1, profession)
+        self.filter_manager.set_specific_condition(1, profession)
         self.updating_character_selector()
 
     def updating_request_rank(self, rank):
-        self.filter_manager.add_specific_condition(2, rank, match_requested_rank)
+        self.filter_manager.set_specific_condition(2, rank, match_requested_rank)
         self.updating_character_selector()
 
     # 清除原本的選擇，並更新可選擇的角色

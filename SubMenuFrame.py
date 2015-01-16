@@ -6,7 +6,7 @@ from Static import *
 import FrequentPage
 import Utilities
 from MainFrameNew.CharacterFrame import Character
-import RecordOfDrawLotsPage
+from MainFrameNew.RecordOfDrawLotsFrame import RecordOfDrawLots
 import FriendPage
 
 
@@ -67,12 +67,12 @@ class AccountGroupFrame(SubMenuFrame):
         frame_name = self.Frames[index]
         if frame_name == 'MyCharacter':
              # TODO MyCharacter
-            return RecordOfDrawLotsPage.MainFrame(self.master, self.db_suffix, width=100, height=100, background='blue')
+            return FrequentPage.MainFrame(self.master, self.db_suffix, width=100, height=100, background='blue')
         elif frame_name == 'Resource':
              # TODO Resource
-            return RecordOfDrawLotsPage.MainFrame(self.master, self.db_suffix, width=100, height=100, background='red')
+            return FrequentPage.MainFrame(self.master, self.db_suffix, width=100, height=100, background='red')
         elif frame_name == 'RecordOfDrawLots':
-            return RecordOfDrawLotsPage.RecordOfDrawLots(self.master, self.db_suffix)
+            return RecordOfDrawLots(self.master, self.db_suffix)
         elif frame_name == 'Friend':
             return FriendPage.FriendInfo(self.master, self.db_suffix)
         else:

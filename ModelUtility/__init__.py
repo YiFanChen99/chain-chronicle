@@ -4,4 +4,5 @@ __author__ = 'Ricky Chen'
 import DBAccessor
 import GroupController
 import CommonString
-import FilterManager
+import Filter
+import Utility

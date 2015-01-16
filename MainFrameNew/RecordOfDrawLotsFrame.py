@@ -1,31 +1,35 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ricky Chen'
 
-from MainFrame import *
-import Utilities
-from datetime import timedelta
+from BaseFrame import *
 from Window.RecordOfDrawLotsWindow import AddRecordWindow, UpdatingRecordWindow
+from ModelUtility.DBAccessor import *
+from ModelUtility.Utility import bind_check_box_and_label
+from ModelUtility.Comparator import match_requested_rank
+from UIUtility.Combobox import FilterCombobox
+from ModelUtility.Filter import FilterManager
+from datetime import timedelta
 
 DB_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
+EVENT_DURATION_TOLERANCE = 2
 
 
 class RecordOfDrawLots(MainFrameWithTable):
-    def __init__(self, master, db_suffix):
-        MainFrameWithTable.__init__(self, master, db_suffix=db_suffix)
+    def __init__(self, master, db_suffix, **kwargs):
+        MainFrameWithTable.__init__(self, master, db_suffix=db_suffix, **kwargs)
         self.set_table_place(34, 29)
 
-        self.events = DATABASE.execute('select Name, End from ' +
-                                       self.compose_table_name('EventOfDrawLots')).fetchall()
+        self.filter_manager = FilterManager()
+        self.records = None
+        self.events = DBAccessor.execute('select Name, End from ' +
+                                         self.compose_table_name('EventOfDrawLots')).fetchall()
 
         self.__init_add_record_frame()
         self.__init_filter_frame()
 
-        self.records_filter = Utilities.RecordsFilter('select * from ' +
-                                                      self.compose_table_name('RecordOfDrawLots'))
-
         # 呈現資料的表格
         self.table.tkraise()  # 避免被其他元件遮到
-        self.updating_table()
+        self.update_all_records()
 
     # noinspection PyAttributeOutsideInit
     def __init_add_record_frame(self):
@@ -46,25 +50,30 @@ class RecordOfDrawLots(MainFrameWithTable):
     def __init_filter_frame(self):
         basic_x = 20
         Label(self, text='E:', font=(MS_JH, 12)).place(x=basic_x, y=3)
-        self.event_filter = ttk.Combobox(self, state='readonly', width=14, justify=CENTER)
-        self.event_filter['values'] = \
-            insert_with_empty_str([event[0] for event in reversed(self.events)])
+        self.event_filter = FilterCombobox(self, state='readonly', width=14, justify=CENTER)
+        self.event_filter.set_contexts([event[0] for event in reversed(self.events)])
         self.event_filter.place(x=basic_x + 18, y=3)
-        self.event_filter.bind('<<ComboboxSelected>>', self.updating_table)
+        self.event_filter.bind('<<ComboboxSelected>>',
+                               lambda x: self.filter_manager.set_specific_condition(1, self.event_filter.get()))
+        self.event_filter.bind('<<ComboboxSelected>>', self.updating_table, '+')
 
         basic_x += 146
         Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=3)
-        self.cost = ttk.Combobox(self, state='readonly', width=6, justify=CENTER)
-        self.cost['values'] = insert_with_empty_str(DRAW_LOTS_COST)
-        self.cost.place(x=basic_x + 20, y=3)
-        self.cost.bind('<<ComboboxSelected>>', self.updating_table)
+        self.cost_filter = FilterCombobox(self, state='readonly', width=6, justify=CENTER)
+        self.cost_filter.set_contexts(DRAW_LOTS_COST)
+        self.cost_filter.place(x=basic_x + 20, y=3)
+        self.cost_filter.bind('<<ComboboxSelected>>',
+                              lambda x: self.filter_manager.set_specific_condition(5, self.cost_filter.get()))
+        self.cost_filter.bind('<<ComboboxSelected>>', self.updating_table, '+')
 
         basic_x += 91
-        Label(self, text='P:', font=(MS_JH, 12)).place(x=basic_x, y=3)
-        self.profession = ttk.Combobox(self, state='readonly', width=4, justify=CENTER)
-        self.profession['values'] = insert_with_empty_str(PROFESSIONS)
-        self.profession.place(x=basic_x + 20, y=3)
-        self.profession.bind('<<ComboboxSelected>>', self.updating_table)
+        Label(self, text='R:', font=(MS_JH, 12)).place(x=basic_x, y=3)
+        self.rank_filter = FilterCombobox(self, state='readonly', width=4, justify=CENTER)
+        self.rank_filter.set_contexts(RANKS_WHEN_DRAW_LOTS)
+        self.rank_filter.place(x=basic_x + 20, y=3)
+        self.rank_filter.bind('<<ComboboxSelected>>', lambda x: self.filter_manager.set_specific_condition(
+            3, self.rank_filter.get(), match_requested_rank))
+        self.rank_filter.bind('<<ComboboxSelected>>', self.updating_table, '+')
 
         basic_x += 84
         Label(self, text='Total:', font=(MS_JH, 12)).place(x=basic_x, y=2)
@@ -97,14 +106,19 @@ class RecordOfDrawLots(MainFrameWithTable):
         button.place(x=658, y=-1)
         button["command"] = self.clearing_filter
 
+    def updating_by_specific_filter(self, the_filter, index, ):
+        self.filter_manager.set_specific_condition(index, the_filter.get())
+        self.updating_table()
+
     def update_all_records(self):
-        self.records_filter.update_raw_records()
+        self.records = DBAccessor.execute('select * from ' + self.compose_table_name('RecordOfDrawLots')).fetchall()
         self.updating_table()
 
     def clearing_filter(self):
         self.event_filter.set('')
-        self.cost.set('')
-        self.profession.set('')
+        self.cost_filter.set('')
+        self.rank_filter.set('')
+        self.filter_manager.clean_specific_condition()
         self.updating_table()
 
     def adding_record(self):
@@ -115,7 +129,7 @@ class RecordOfDrawLots(MainFrameWithTable):
     # 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
     def get_suitable_event_names(self):
         names = []
-        available_time = datetime.now() - timedelta(days=3)
+        available_time = datetime.now() - timedelta(days=EVENT_DURATION_TOLERANCE)
 
         for each_event in self.events:
             if not self.is_show_old_events.get() and convert_str_to_datetime(each_event[1]) < available_time:
@@ -131,8 +145,7 @@ class RecordOfDrawLots(MainFrameWithTable):
         for column in DB_TABLE:
             self.table_model.addColumn(column)
 
-        self.__update_filters()
-        results = self.records_filter.filtered_records
+        results = self.filter_manager.filter(self.records)
         if len(results) == 0:
             self.table_model.addRow(Times=0, Event='無任何記錄')
         else:
@@ -148,29 +161,15 @@ class RecordOfDrawLots(MainFrameWithTable):
         self.redisplay_table()
 
         # 連動更新統計資料
-        self.__update_statistic()
+        self.__update_statistic(results)
 
-    def __update_filters(self):
-        self.records_filter.clear_filters()
-
-        # 依序對活動、花費與職業進行篩選(if需要)
-        event = self.event_filter.get()
-        if event != '':
-            self.records_filter.add_filter(1, event)
-        cost = self.cost.get()
-        if cost != '':
-            self.records_filter.add_filter(5, cost)
-        profession = self.profession.get()
-        if profession != '':
-            self.records_filter.add_filter(2, profession)
-
-    def __update_statistic(self):
+    def __update_statistic(self, results):
         # doing statistic
         total = 0
         ssr = 0
         sr = 0
         r = 0
-        for record in self.records_filter.filtered_records:
+        for record in results:
             total += 1
             rank = record[3]
             if rank == 5:
@@ -210,11 +209,10 @@ class RecordOfDrawLots(MainFrameWithTable):
 
         popup = UpdatingRecordWindow(self.db_suffix, self.get_suitable_event_names(), record)
         self.wait_window(popup)
-        # 暫時找不到方法修改已撈出的資料(因為tuple)，故接受重新撈出的方法
-        self.records_filter.update_raw_records()
-        self.updating_table()
+        # 已確認 tuple 理念上不希望會更動，故無易懂方法更新回去，而接受重新撈出
+        self.update_all_records()
 
     def get_record_by_times(self, times):
-        for each_record in self.records_filter.filtered_records:
+        for each_record in self.records:
             if each_record[0] == times:
                 return each_record

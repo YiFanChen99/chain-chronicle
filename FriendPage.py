@@ -5,6 +5,7 @@ from MainFrame import *
 from datetime import timedelta
 from ModelUtility.CommonString import *
 from Window.FriendWindow import UpdateFriendWindow, UpdateFriendRecordWindow
+from ModelUtility.Utility import bind_check_box_and_label
 
 UPDATED_BY_RECORD_COLUMN = ['UsedCharacters', 'Rank', 'RaisedIn3Weeks', 'RaisedIn2Months',
                             'LastProfession', 'LastCharacter']
