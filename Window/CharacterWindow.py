@@ -76,7 +76,7 @@ class CharacterSelectionWindow(BasicWindow):
             self.character_on_selected.set(self.character_selector.get())
             self.destroy()
         else:
-            tkMessageBox.showwarning("Character haven't selected", '\"Character\" 未選\n')
+            tkMessageBox.showwarning("Character haven't selected", '\"Character\" 未選\n', parent=self.window)
 
     def adding_new_character(self):
         popup = CharacterInfoWindow()
@@ -257,7 +257,7 @@ class CharacterInfoWindow(BasicWindow):
             self.atk_grown.set(self.calculate_grown(self.max_atk.get(), self.max_atk_after_break.get()))
             self.hp_grown.set(self.calculate_grown(self.max_hp.get(), self.max_hp_after_break.get()))
         else:
-            tkMessageBox.showerror('錯誤', '部分 Atk/HP 欄位未填')
+            tkMessageBox.showerror('錯誤', '部分 Atk/HP 欄位未填', parent=self.window)
 
     @staticmethod
     def calculate_grown(max_value, max_after_break):

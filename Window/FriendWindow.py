@@ -75,7 +75,7 @@ class UpdateFriendWindow(BasicWindow):
     def submitting(self, *args):
         # 進行檢查，不允許 UsedNames 為空
         if self.used_names.get() == '':
-            tkMessageBox.showwarning("Can not submit", '不允許 UsedNames 為空')
+            tkMessageBox.showwarning("Can not submit", '不允許 UsedNames 為空', parent=self.window)
             return
 
         # 更新回原記錄

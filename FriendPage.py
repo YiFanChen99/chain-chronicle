@@ -125,7 +125,7 @@ class FriendInfo(MainFrameWithTable):
                                   ' where UsedNames==\'\'').fetchone()
 
         if new_id is None:
-            tkMessageBox.showwarning("Can not add any friend", '已達好友上限')
+            tkMessageBox.showwarning("Can not add any friend", '已達好友上限', parent=self)
             return
 
         popup = UpdateFriendWindow(self.db_suffix, friend_id=new_id[0])
@@ -148,7 +148,7 @@ class FriendInfo(MainFrameWithTable):
     def do_dragging_along_right(self, row_number):
         # 確認是否刪除
         names = self.table_model.getCellRecord(row_number, 1)
-        if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete friend 「' + names + '」？'):
+        if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete friend 「' + names + '」？', parent=self):
             friend_id = int(self.table_model.getCellRecord(row_number, 0))
             # 將該 ID 的資料全數清空，並將其對應的 Records 刪除
             DATABASE.execute('update ' + self.compose_table_name('Friend') +
@@ -190,7 +190,7 @@ class FriendRecord(MainFrameWithTable):
         # 數量計算並要求確認，確認時才真正送出
         updated_record_number = len([data for data in self.friend_records if data[0] == RECORDED])
         if tkMessageBox.askyesno('Recording these records?', '總計 {0} 筆記錄，\n是否確認送出？'.format(
-                str(updated_record_number))):
+                str(updated_record_number)), parent=self):
             # 將已經登記的 record 更新到 DB 內
             for data in self.friend_records:
                 if data[0] == RECORDED:
@@ -204,7 +204,7 @@ class FriendRecord(MainFrameWithTable):
             return
 
         # 確認是否更新 FriendTable 中的資訊（RaisedIn3Weeks, LastCharacter等）
-        if tkMessageBox.askyesno('Updating Friend by records?', '記錄完成，\n是否要更新 Friend Info？'):
+        if tkMessageBox.askyesno('Updating Friend by records?', '記錄完成，\n是否要更新 Friend Info？', parent=self):
             update_friend_info_table(self.db_suffix)
 
         self.master.update_main_frame(FriendInfo(self.master, self.db_suffix))

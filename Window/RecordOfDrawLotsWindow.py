@@ -111,7 +111,7 @@ class RecordWindow(BasicWindow):
 
         is_legal = (error_message == '')
         if not is_legal:
-            tkMessageBox.showwarning("Can not submit this record", error_message)
+            tkMessageBox.showwarning("Can not submit this record", error_message, parent=self.window)
 
         return is_legal
 
