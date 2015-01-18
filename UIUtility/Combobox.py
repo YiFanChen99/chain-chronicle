@@ -5,15 +5,22 @@ from ttk import Combobox
 from ModelUtility.CommonString import CONDITIONLESS
 
 
-class FilterCombobox(Combobox):
+class ComboboxWithEmptyOptions(Combobox):
     def __init__(self, master, **kwargs):
         Combobox.__init__(self, master, **kwargs)
 
-    def set_contexts(self, contexts):
-        result = ['']
-        result.extend(contexts)
-        self['values'] = result
+    # 預設有一個為空的選項
+    def __setitem__(self, key, value):
+        if key == 'values':
+            result = ['']
+            result.extend(value)
+            Combobox.__setitem__(self, key, result)
+
+
+class FilterCombobox(ComboboxWithEmptyOptions):
+    def __init__(self, master, **kwargs):
+        ComboboxWithEmptyOptions.__init__(self, master, **kwargs)
 
     def get(self):
-        selection = Combobox.get(self)
+        selection = ComboboxWithEmptyOptions.get(self)
         return CONDITIONLESS if selection == '' else selection

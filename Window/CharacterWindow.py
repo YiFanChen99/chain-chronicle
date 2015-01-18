@@ -212,10 +212,11 @@ class CharacterInfoWindow(BasicWindow):
         Entry(self.window, width=67, textvariable=self.passive2).place(x=68, y=current_y)
         current_y += 32
         Label(self.window, width=6, text='絆能力').place(x=12, y=current_y - 1)
-        self.belonged = StringVar(value='')
-        Entry(self.window, width=6, textvariable=self.belonged).place(x=65, y=current_y)
+        self.belonged = ttk.Combobox(self.window, state='readonly', width=6, justify=CENTER)
+        self.belonged['values'] = BELONGEDS
+        self.belonged.place(x=65, y=current_y - 2)
         self.attachment = StringVar(value='')
-        Entry(self.window, width=58, textvariable=self.attachment).place(x=130, y=current_y)
+        Entry(self.window, width=56, textvariable=self.attachment).place(x=144, y=current_y)
 
         # 最後一個 Row
         current_y += 38

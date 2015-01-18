@@ -2,9 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-from Window.CharacterWindow import *
-from ModelUtility.DBAccessor import *
-from ModelUtility.Filter import *
+from UIUtility.Combobox import *
 from MainFrameNew.CharacterFrame import *
 
 
@@ -14,13 +12,17 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
+        aa = FilterCombobox(self)
+        aa['values'] = [1, 3, 5]
+        aa.place(x=10, y=5)
+
+
 
 if __name__ == "__main__":
     root = Tk()
     init_size = str(800) + 'x' + str(500)
     root.geometry(init_size + '+800+350')
-
-    app = Character(root)
+    app = Main(root)
     app.mainloop()
 
 # popup = CharacterInfoWindow(1039)
