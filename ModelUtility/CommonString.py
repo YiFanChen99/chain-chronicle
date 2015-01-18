@@ -21,10 +21,10 @@ MS_JH = 'Microsoft JhengHei'  # 微軟正黑體
 IMAGE_FOLDER = 'images/'
 
 # Tables
-CHARACTER_DB_TABLE = ['FullName', 'Nickname', 'Profession', 'Rank',
+CHARACTER_DB_TABLE = ['ID', 'FullName', 'Nickname', 'Profession', 'Rank',
                       'Active', 'ActiveCost', 'Passive1', 'Passive2', 'Attachment', 'WeaponType',
                       'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown',
-                      'HPGrown', 'AtkSpeed', 'CriticalRate', 'Note']
+                      'HPGrown', 'AtkSpeed', 'CriticalRate', 'Note', 'Belonged']
 FRIEND_MODIFIED_COLUMN = ['UsedNames', 'Excellence', 'Defect', 'AddedDate']
 FRIEND_DISPLAYED_COLUMN = ['ID', 'UsedNames', 'Excellence', 'Defect', 'UsedCharacters', 'Rank',
                            'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate', 'LastProfession']

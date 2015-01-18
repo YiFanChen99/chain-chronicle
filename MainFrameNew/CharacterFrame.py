@@ -8,6 +8,8 @@ from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
 from UIUtility.Selector import ProfessionSelector, RankSelector
 
+DISPLAYED_COLUMNS = [CHARACTER_DB_TABLE[0]] + CHARACTER_DB_TABLE[2:11] + CHARACTER_DB_TABLE[13:15] + CHARACTER_DB_TABLE[19:21]
+
 
 class Character(MainFrameWithTable):
     def __init__(self, master, **kwargs):
@@ -56,40 +58,46 @@ class Character(MainFrameWithTable):
     def updating_table(self, event=None):
         self.table_model = TableModel()
 
-        # FullName 將不顯示在表格中
-        for column in CHARACTER_DB_TABLE:
-            if column != 'FullName':
-                self.table_model.addColumn(column)
+        for column in DISPLAYED_COLUMNS:
+            self.table_model.addColumn(column)
 
         # 取得符合篩選條件與篩選名稱的角色
         results = self.filter_manager.filter(self.records, convert_to_str(self.request.get()))
 
         if len(results) == 0:
             self.table_model.addRow(Nickname='無任何記錄')
-        for row in results:
-            data = iter(list(row[1:19]))
-            self.table_model.addRow(Nickname=convert_to_str(next(data)),
+        for record in results:
+            data = iter(self.__get_displated_columns(record))
+            self.table_model.addRow(ID=next(data), Nickname=convert_to_str(next(data)),
                                     Profession=convert_to_str(next(data)), Rank=next(data),
                                     Active=convert_to_str(next(data)), ActiveCost=next(data),
                                     Passive1=convert_to_str(next(data)), Passive2=convert_to_str(next(data)),
                                     Attachment=convert_to_str(next(data)), WeaponType=convert_to_str(next(data)),
-                                    ExpGrown=convert_to_str(next(data)), AttendanceCost=next(data),
-                                    MaxAtk=next(data), MaxHP=next(data), AtkGrown=next(data),
-                                    HPGrown=next(data), AtkSpeed=next(data),
-                                    CriticalRate=next(data), Note=convert_to_str(next(data)))
+                                    MaxAtk=next(data), MaxHP=next(data), Note=convert_to_str(next(data)),
+                                    Belonged=convert_to_str(next(data)))
 
         self.table_model.setSortOrder(columnName='Rank', reverse=1)
         self.table_model.setSortOrder(columnName='Profession')
 
         self.redisplay_table()
+        self.table_view.hide_column('ID')
+
+    @staticmethod
+    def __get_displated_columns(record):
+        record = list(record)
+        result = []
+        for i in range(len(CHARACTER_DB_TABLE)):
+            if CHARACTER_DB_TABLE[i] in DISPLAYED_COLUMNS:
+                result.append(record[i])
+        return result
 
     def __init_filter_manager(self):
-        self.filter_manager.set_comparison_rule(0)
-        self.filter_manager.set_comparison_rule(1)
-        self.filter_manager.set_comparison_rule(4)
-        self.filter_manager.set_comparison_rule(6)
-        self.filter_manager.set_comparison_rule(7)
-        self.filter_manager.set_comparison_rule(8)
+        self.filter_manager.set_comparison_rule(1)  # FullName
+        self.filter_manager.set_comparison_rule(2)  # Nickname
+        self.filter_manager.set_comparison_rule(5)  # Active
+        self.filter_manager.set_comparison_rule(7)  # Passive1
+        self.filter_manager.set_comparison_rule(8)  # Passive2
+        self.filter_manager.set_comparison_rule(9)  # Attachment
 
     def updating_profession(self, request):
         self.filter_manager.set_specific_condition(2, request)
@@ -114,8 +122,8 @@ class Character(MainFrameWithTable):
 
     def do_double_clicking(self, event):
         row = self.table_view.get_row_clicked(event)
-        character = self.table_model.getCellRecord(row, 0)
+        character_id = self.table_model.getCellRecord(row, 0)
 
-        popup = CharacterInfoWindow(character)
+        popup = CharacterInfoWindow(character_id)
         self.wait_window(popup)
         self.updating_table()

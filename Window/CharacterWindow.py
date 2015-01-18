@@ -89,11 +89,15 @@ class CharacterSelectionWindow(BasicWindow):
 
 
 class CharacterInfoWindow(BasicWindow):
-    def __init__(self, character=None):
+    def __init__(self, character_id=None):
         BasicWindow.__init__(self, width=558, height=285)
-        self.window.title('Character Info')
         self.window.geometry('+840+300')
 
+        self.__init_widget()
+        self.__init_character_info(character_id)
+        self.window.title('Character ID: {0}'.format(self.character_id))
+
+    def __init_widget(self):
         label_space = 22  # Label 與 輸入元件的距離
 
         # 第一個 Row
@@ -208,15 +212,15 @@ class CharacterInfoWindow(BasicWindow):
         Entry(self.window, width=67, textvariable=self.passive2).place(x=68, y=current_y)
         current_y += 32
         Label(self.window, width=6, text='絆能力').place(x=12, y=current_y - 1)
+        self.belonged = StringVar(value='')
+        Entry(self.window, width=6, textvariable=self.belonged).place(x=65, y=current_y - 1)
         self.attachment = StringVar(value='')
-        Entry(self.window, width=67, textvariable=self.attachment).place(x=68, y=current_y)
+        Entry(self.window, width=58, textvariable=self.attachment).place(x=132, y=current_y)
 
         # 最後一個 Row
         current_y += 38
         Button(self.window, text="Submit", command=self.submitting, width=33, borderwidth=3).place(x=23, y=current_y)
         Button(self.window, text="Cancel", command=self.destroy, width=33, borderwidth=3).place(x=289, y=current_y)
-
-        self.__init_character(character)
 
     # noinspection PyUnusedLocal
     # 根據選擇職業，預設填入對應資訊
@@ -265,11 +269,10 @@ class CharacterInfoWindow(BasicWindow):
 
     def submitting(self):
         # 將可能存在資料庫的資料先刪除，接續之後的插入就是更新動作了
-        full_name = self.full_name.get()
-        DBAccessor.execute('delete from Character where FullName=' + convert_datum_to_command(full_name))
+        DBAccessor.execute('delete from Character where ID={0}'.format(self.character_id))
 
-        DBAccessor.execute('insert into Character(' + ','.join(CHARACTER_DB_TABLE) + ')' +
-                           convert_data_to_insert_command(full_name, self.nickname.get(),
+        DBAccessor.execute('insert into Character({0})'.format(','.join(CHARACTER_DB_TABLE)) +
+                           convert_data_to_insert_command(self.character_id, self.full_name.get(), self.nickname.get(),
                                                           self.profession.get(), self.rank.get(),
                                                           self.active.get(), self.active_cost.get(),
                                                           self.passive1.get(), self.passive2.get(),
@@ -277,20 +280,16 @@ class CharacterInfoWindow(BasicWindow):
                                                           self.exp_grown.get(), self.attendance_cost.get(),
                                                           self.max_atk.get(), self.max_hp.get(),
                                                           self.atk_grown.get(), self.hp_grown.get(),
-                                                          self.atk_speed.get(),
-                                                          self.critical_rate.get(), self.note.get()))
+                                                          self.atk_speed.get(), self.critical_rate.get(),
+                                                          self.note.get(), self.belonged.get()))
         DBAccessor.commit()
         self.destroy()
 
-    @staticmethod
-    def select_character(character):
-        condition = ' where Nickname=' + convert_datum_to_command(character)
-        return DBAccessor.execute('select * from Character' + condition).fetchone()
-
     # 當有特定的 character 時，讀取其資料並更新各元件
-    def __init_character(self, character):
-        if character is not None:
-            data = iter(self.select_character(character))
+    def __init_character_info(self, character_id):
+        if character_id is not None:
+            data = iter(self.select_character(character_id))
+            self.character_id = next(data)
             self.full_name.set(convert_to_str(next(data)))
             self.nickname.set(convert_to_str(next(data)))
             self.profession.set(convert_to_str(next(data)))
@@ -310,3 +309,14 @@ class CharacterInfoWindow(BasicWindow):
             self.atk_speed.set(next(data))
             self.critical_rate.set(next(data))
             self.note.set(convert_to_str(next(data)))
+            self.belonged.set(convert_to_str(next(data)))
+        else:
+            self.__init_character_id()
+
+    @staticmethod
+    def select_character(character_id):
+        return DBAccessor.execute('select * from Character where ID={0}'.format(character_id)).fetchone()
+
+    def __init_character_id(self):
+        min_id = DBAccessor.execute('select min(ID) from Character').fetchone()[0]
+        self.character_id = 900 if min_id > 999 else min_id - 1

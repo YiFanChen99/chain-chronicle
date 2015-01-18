@@ -1,7 +1,7 @@
 
 讀取CCDB，新增角色的所屬欄位，並能對此搜尋/篩選
 	MyDBInserter 實作
-	調整因應欄位調整而錯誤的地方
+	對所屬進行篩選
 
 記錄每週帳號相關資訊，含等級與道具（圖表）
 
@@ -14,7 +14,6 @@ ap效益maybe? 打幾場升級，關卡註記
 
 次要（有按順序）：
 「新增酒廠」的功能。
-RecordOfDrawLotsPage 內的 Windows 的職業與等級選擇用 Canvas。
 CharacterPage 內的 CharacterInfoWindow 的職業與等級選擇用 Canvas。
 
 次次要（無按順序）：

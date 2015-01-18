@@ -61,8 +61,8 @@ class MainFrameWithTable(MainFrame):
 
     def adjust_size(self, width, height):
         MainFrame.adjust_size(self, width, height)
-        self.table_view['width'] = width - 93 + self.table_x
-        self.table_view['height'] = height - 104 + self.table_y
+        self.table_view['width'] = width - self.table_x - 25
+        self.table_view['height'] = height - self.table_y - 45
 
 
 class TableView(TableCanvas):
@@ -83,7 +83,7 @@ class TableView(TableCanvas):
         if self.startrow == self.endrow and self.startcol < self.endcol:
             self.handle_drag_along_right(self.endrow)
 
-    # For overwriting
+    # For overriding
     def handle_drag_along_right(self, row_number):
         pass
 

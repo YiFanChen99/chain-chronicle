@@ -17,7 +17,6 @@ class Main(MainFrameWithTable):
         self.set_table_place(34, 38)
 
         self.data_owner = CCGameDBTWDataOwner()
-        self.characters = DBAccessor.execute('select ID, FullName from Character').fetchall()
         self.__init_widgets()
 
     def __init_widgets(self):
@@ -43,7 +42,7 @@ class Main(MainFrameWithTable):
     # noinspection PyUnusedLocal
     def update(self, event=None):
         updater = MyDBUpdater(self.data_owner)
-        # updater.update_specific_character_info('Belonged')
+        # updater.update_belonged_info(overwrite=True)
 
     # noinspection PyUnusedLocal
     def updating_version(self, event=None):
