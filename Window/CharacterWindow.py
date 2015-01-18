@@ -213,9 +213,9 @@ class CharacterInfoWindow(BasicWindow):
         current_y += 32
         Label(self.window, width=6, text='絆能力').place(x=12, y=current_y - 1)
         self.belonged = StringVar(value='')
-        Entry(self.window, width=6, textvariable=self.belonged).place(x=65, y=current_y - 1)
+        Entry(self.window, width=6, textvariable=self.belonged).place(x=65, y=current_y)
         self.attachment = StringVar(value='')
-        Entry(self.window, width=58, textvariable=self.attachment).place(x=132, y=current_y)
+        Entry(self.window, width=58, textvariable=self.attachment).place(x=130, y=current_y)
 
         # 最後一個 Row
         current_y += 38

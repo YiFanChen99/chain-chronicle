@@ -26,26 +26,13 @@ class CCGameDBTWDataOwner:
         for each_character in self.data:
             if int(each_character[0]) == the_id:
                 return CharacterInfo(each_character)
+        raise KeyError('Character with ID {0} does not exist in CGDT.'.format(the_id))
 
     def find_character_by_full_name(self, full_name):
         for each_character in self.data:
             if (each_character[1] + each_character[2]) == full_name:
                 return CharacterInfo(each_character)
-
-    def get_specific_character_info(self, column_name, the_id=None, full_name=None):
-        if the_id is None and full_name is None:
-            raise Exception('Both id and full_name is None.')
-
-        index = COLUMNS.index(column_name)
-
-        if the_id is None:
-            for each_character in self.data:
-                if (each_character[1] + each_character[2]) == full_name:
-                    return each_character[index]
-        else:
-            for each_character in self.data:
-                if int(each_character[0]) == the_id:
-                    return each_character[index]
+        raise KeyError('Character with FullName {0} does not exist in CGDT.'.format(full_name.encode('utf-8')))
 
 
 class CharacterInfo:
@@ -87,7 +74,7 @@ class CharacterInfo:
         self.exp_grown = next(properties)
         dropped = next(properties)  # Unknown2
         dropped = next(properties)  # Unknown3
-        self.belonged = self.convert_belonged(next(properties))
+        self.__init_belonged(next(properties))
         self.attachment = next(properties)
         dropped = next(properties)  # AttachmentName
         self.attached_cost = int(next(properties))
@@ -103,16 +90,18 @@ class CharacterInfo:
     def convert_grown(origin_max, broken_max):
         return (broken_max - origin_max) / 4
 
-    @staticmethod
-    def convert_belonged(origin):
-        if origin == u'海風之港':
-            return u'海風'
-        elif origin == u'賢者之塔':
-            return u'賢塔'
-        elif origin == u'迷宮山脈':
-            return u'山脈'
+    # 除了將其命名轉成我的格式以外，也檢查是否有我預期外的名稱出現
+    def __init_belonged(self, name):
+        replaced_name = u'海風' if name == u'海風之港' else name
+        replaced_name = u'賢塔' if replaced_name == u'賢者之塔' else replaced_name
+        replaced_name = u'山脈' if replaced_name == u'迷宮山脈' else replaced_name
+        replaced_name = u'獸之里' if replaced_name == u'獸里' else replaced_name
+
+        if replaced_name in BELONGEDS:
+            self.belonged = replaced_name
         else:
-            return origin
+            raise ValueError('Invalid Belonged name {0} for {1}.'.format(
+                name.encode('utf-8'), self.full_name.encode('utf-8')))
 
     def __str__(self):
         return 'ID={0}, FullName={1}, Nickname={2}'.format(
@@ -130,28 +119,30 @@ class MyDBUpdater:
         self.data_owner = CCGameDBTWDataOwner() if data_owner is None else data_owner
 
     def update_belonged_info(self, overwrite=False):
-        def get_belonged_info(char_id, data_owner=self.data_owner):
-            character_info = data_owner.find_character_by_id(char_id)
-            return None if character_info is None else character_info.belonged
-        self.__update_specific_character_info('Belonged', overwrite, get_belonged_info)
+        def get_belonged_info(char_id, find_method=self.data_owner.find_character_by_id):
+            return find_method(char_id).belonged
+        self.__update_specific_info('Belonged', overwrite, get_belonged_info)
 
     # 針對已存在我資料庫中的角色，根據特定欄位的資料，以 CGDT 的資料更新
-    def __update_specific_character_info(self, column_name, overwrite, get_info_method):
-        characters = DBAccessor.execute('select ID, {0} from Character'.format(column_name)).fetchall()
+    @staticmethod
+    def __update_specific_info(column_name, overwrite, get_info_method):
+        # 若 ID>=6000，代表是國服的角色，此處不處理
+        characters = DBAccessor.execute('select ID, {0} from Character where ID<6000'.format(column_name)).fetchall()
         for character in characters:
-            the_id = character[0]
-            # 若 id>=6000，代表是國服的角色。
-            # 是否要強制覆蓋？或是原本無該資料則需更新。
-            if (the_id < 6000) and (overwrite or character[1] is None):
-                # 若角色不存在 CGDT 中，記錄後就略過
-                specific_info = get_info_method(the_id)
-                if specific_info is None:
-                    print 'Character with ID {0} does not exist in CGDT.'.format(the_id)
-                    continue
-
-                DBAccessor.execute('update Character{0} where ID={1}'.format(
-                    convert_data_to_update_command([column_name], [specific_info]), the_id))
+            MyDBUpdater.__update_character_specific_info(character, column_name, overwrite, get_info_method)
         DBAccessor.commit()
+
+    @staticmethod
+    def __update_character_specific_info(character, column_name, overwrite, get_info_method):
+        # 是否要直接覆蓋？或是原本無該資料則需更新。
+        if overwrite or character[1] is None:
+            try:
+                specific_info = get_info_method(character[0])
+                DBAccessor.execute('update Character{0} where ID={1}'.format(
+                    convert_data_to_update_command([column_name], [specific_info]), character[0]))
+            # 若資料取得發生問題，則記錄後就略過
+            except StandardError as e:
+                print e
 
 
 # 取出該 DB 檔案中的資訊，並作初步的欄位比對檢查
