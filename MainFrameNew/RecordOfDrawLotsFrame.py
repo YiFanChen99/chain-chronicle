@@ -14,7 +14,7 @@ DB_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
 EVENT_DURATION_TOLERANCE = 2
 
 
-class RecordOfDrawLots(MainFrameWithTable):
+class RecordOfDrawLotsFrame(MainFrameWithTable):
     def __init__(self, master, db_suffix, **kwargs):
         MainFrameWithTable.__init__(self, master, db_suffix=db_suffix, **kwargs)
         self.set_table_place(34, 29)

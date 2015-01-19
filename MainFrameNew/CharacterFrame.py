@@ -6,12 +6,14 @@ from Window.CharacterWindow import CharacterInfoWindow
 from ModelUtility.Filter import FilterManager
 from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
+from UIUtility.Combobox import FilterCombobox
 from UIUtility.Selector import ProfessionSelector, RankSelector
 
-DISPLAYED_COLUMNS = [CHARACTER_DB_TABLE[0]] + CHARACTER_DB_TABLE[2:11] + CHARACTER_DB_TABLE[13:15] + CHARACTER_DB_TABLE[19:21]
+DISPLAYED_COLUMNS = [CHARACTER_DB_TABLE[0]] + CHARACTER_DB_TABLE[2:11] + \
+                    CHARACTER_DB_TABLE[13:15] + CHARACTER_DB_TABLE[19:21]
 
 
-class Character(MainFrameWithTable):
+class CharacterFrame(MainFrameWithTable):
     def __init__(self, master, **kwargs):
         MainFrameWithTable.__init__(self, master, **kwargs)
         self.set_table_place(34, 38)
@@ -33,25 +35,33 @@ class Character(MainFrameWithTable):
         filter_frame = Frame(self, width=self['width'], height=40)
         filter_frame.place(x=0, y=0)
 
-        current_x = 50
+        current_x = 45
         self.profession_selector = ProfessionSelector(filter_frame, self.updating_profession)
         self.profession_selector.place(x=current_x, y=-4)
 
-        current_x += 195
+        current_x += 199
         self.rank_selector = RankSelector(filter_frame, self.updating_rank)
         self.rank_selector.place(x=current_x, y=-4)
 
+        # 所屬篩選
+        current_x = 448
+        Label(filter_frame, text='所屬:', font=(MS_JH, 10)).place(x=current_x + 10, y=-3)
+        self.belonged = FilterCombobox(filter_frame, state='readonly', width=6, justify=CENTER)
+        self.belonged['values'] = BELONGEDS
+        self.belonged.place(x=current_x, y=16)
+        self.belonged.bind('<<ComboboxSelected>>', self.updating_belonged)
+
         # 角色部分名稱篩選
-        current_x += 220
-        Label(filter_frame, text='篩選:', font=(MS_JH, 12)).place(x=current_x, y=8)
+        current_x += 75
+        Label(filter_frame, text='篩選:', font=(MS_JH, 12)).place(x=current_x, y=7)
         self.request = StringVar()
         entry = Entry(filter_frame, width=9, textvariable=self.request, font=(MS_JH, 11))
-        entry.place(x=current_x + 42, y=10)
+        entry.place(x=current_x + 42, y=9)
         entry.bind('<Return>', self.updating_table)
 
         # 清空進行篩選的條件
         button = Button(filter_frame, text="清空條件", width=7, font=(MS_JH, 11))
-        button.place(x=640, y=3)
+        button.place(x=667, y=3)
         button["command"] = self.clearing_filters
 
     # noinspection PyUnusedLocal
@@ -100,11 +110,16 @@ class Character(MainFrameWithTable):
         self.filter_manager.set_comparison_rule(9)  # Attachment
 
     def updating_profession(self, request):
-        self.filter_manager.set_specific_condition(2, request)
+        self.filter_manager.set_specific_condition(3, request)
         self.updating_table()
 
     def updating_rank(self, request):
-        self.filter_manager.set_specific_condition(3, request, match_requested_rank)
+        self.filter_manager.set_specific_condition(4, request, match_requested_rank)
+        self.updating_table()
+
+    # noinspection PyUnusedLocal
+    def updating_belonged(self, event):
+        self.filter_manager.set_specific_condition(20, self.belonged.get())
         self.updating_table()
 
     def clearing_filters(self):

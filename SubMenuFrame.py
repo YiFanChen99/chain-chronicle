@@ -5,8 +5,8 @@ from Tkinter import *
 from Static import *
 import FrequentPage
 import Utilities
-from MainFrameNew.CharacterFrame import Character
-from MainFrameNew.RecordOfDrawLotsFrame import RecordOfDrawLots
+from MainFrameNew.CharacterFrame import CharacterFrame
+from MainFrameNew.RecordOfDrawLotsFrame import RecordOfDrawLotsFrame
 import FriendPage
 
 
@@ -51,7 +51,7 @@ class StaticGroupFrame(SubMenuFrame):
         if index == 0:
             return FrequentPage.Frequent(self.master)
         elif index == 1:
-            return Character(self.master)
+            return CharacterFrame(self.master)
         else:
             raise Exception("Wrong group selected!")
 
@@ -72,7 +72,7 @@ class AccountGroupFrame(SubMenuFrame):
              # TODO Resource
             return FrequentPage.MainFrame(self.master, self.db_suffix, width=100, height=100, background='red')
         elif frame_name == 'RecordOfDrawLots':
-            return RecordOfDrawLots(self.master, self.db_suffix)
+            return RecordOfDrawLotsFrame(self.master, self.db_suffix)
         elif frame_name == 'Friend':
             return FriendPage.FriendInfo(self.master, self.db_suffix)
         else:
