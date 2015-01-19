@@ -4,6 +4,7 @@ __author__ = 'Ricky Chen'
 from Test.CCGameDBTWTest import *
 from Test.DBAccessorTest import *
 from Test.CommonStringTest import *
+from Test.DataObjectTest import *
 
 
 if __name__ == "__main__":

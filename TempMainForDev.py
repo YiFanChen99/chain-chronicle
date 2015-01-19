@@ -2,8 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-from UIUtility.Combobox import *
-from MainFrameNew.CharacterFrame import *
+from ModelUtility.DataObject import *
 
 
 class Main(Frame):
@@ -12,10 +11,16 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        aa = FilterCombobox(self)
-        aa['values'] = [1, 3, 5]
-        aa.place(x=10, y=5)
-
+        ch = Character()
+        # print ch.records
+        ch.c_id = 5002
+        print ch
+        # ch.c_id = '80'
+        # print ch.c_id
+        # ch.c_id = None
+        # print ch.c_id
+        # ch.c_id = '901'
+        # print ch.c_id
 
 
 if __name__ == "__main__":
