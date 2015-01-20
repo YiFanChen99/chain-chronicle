@@ -4,6 +4,7 @@ __author__ = 'Ricky Chen'
 import json
 from ModelUtility.CommonString import *
 from ModelUtility.DBAccessor import *
+from ModelUtility.DataObject import Character, CGDTCharacter
 
 DEFAULT_PATH = 'data/CCGameDBTW.txt'
 # BulletSpeed 弓統基本15，法10
@@ -35,80 +36,6 @@ class CCGameDBTWDataOwner:
         raise KeyError('Character with FullName {0} does not exist in CGDT.'.format(full_name.encode('utf-8')))
 
 
-class CGDTCharacter:
-    # noinspection PyUnusedLocal
-    def __init__(self, the_list):
-        self.fields_number = -1  # 本身會自動被記入，故設 -1 以平衡
-
-        properties = iter(the_list)
-        self.c_id = int(next(properties))
-        self.full_name = next(properties) + next(properties)
-        self.nickname = next(properties)
-        self.rank = int(next(properties))
-        self.cost = int(next(properties))
-        self.profession = PROFESSIONS[int(next(properties)) - 1]
-        dropped = next(properties)  # Classification
-        self.weapon = next(properties)
-        dropped = next(properties)  # GrownSpeed
-        dropped = next(properties)  # InitAtk
-        dropped = next(properties)  # InitHP
-        self.max_atk = int(next(properties))
-        self.max_hp = int(next(properties))
-        self.atk_grown = self.convert_grown(self.max_atk, int(next(properties)))
-        self.hp_grown = self.convert_grown(self.max_hp, int(next(properties)))
-        dropped = next(properties)  # OwnedWay
-        self.active_cost = int(next(properties))
-        self.active = next(properties)
-        self.passive_1_level = int(next(properties))
-        self.passive_1 = next(properties)
-        self.passive_2_level = int(next(properties))
-        self.passive_2 = next(properties)
-        self.hit_rate = int(next(properties)) / 100.0
-        dropped = next(properties)  # Unknown1
-        dropped = next(properties)  # BulletSpeed
-        self.critical_rate = int(next(properties)) / 100.0
-        dropped = next(properties)  # Artist
-        dropped = next(properties)  # CharacterVoice
-        dropped = next(properties)  # Tag
-        dropped = next(properties)  # ActiveName
-        dropped = next(properties)  # Passive1Name
-        dropped = next(properties)  # Passive2Name
-        self.exp_grown = next(properties)
-        dropped = next(properties)  # Unknown2
-        dropped = next(properties)  # Unknown3
-        self.__init_belonged(next(properties))
-        self.attachment = next(properties)
-        dropped = next(properties)  # AttachmentName
-        self.attached_cost = int(next(properties))
-
-    # Make fields read-only
-    def __setattr__(self, attr, value):
-        if hasattr(self, attr):
-            raise Exception("Attempting to alter read-only value")
-
-        self.__dict__[attr] = value
-        self.__dict__['fields_number'] += 1
-
-    @staticmethod
-    def convert_grown(origin_max, broken_max):
-        return (broken_max - origin_max) / 4
-
-    # 除了將其命名轉成我的格式以外，也檢查不可有我預期外的名稱出現
-    def __init_belonged(self, name):
-        replaced_name = name.replace(u'海風之港', u'海風').replace(u'賢者之塔', u'賢塔').\
-            replace(u'迷宮山脈', u'山脈').replace(u'獸里', u'獸之里')
-
-        if replaced_name in BELONGEDS:
-            self.belonged = replaced_name
-        else:
-            raise ValueError('Invalid Belonged name {0} for {1}.'.format(
-                name.encode('utf-8'), self.full_name.encode('utf-8')))
-
-    def __str__(self):
-        return 'ID={0}, FullName={1}, Nickname={2}'.format(
-            self.c_id, self.full_name.encode('utf-8'), self.nickname.encode('utf-8'))
-
-
 # TODO
 class MyDBInserter:
     def __init__(self, data_owner=None):
@@ -124,11 +51,12 @@ class MyDBUpdater:
         characters = DBAccessor.execute('select FullName from Character where ID<1000').fetchall()
         for character in characters:
             try:
-                matched_c_id = self.data_owner.find_character_by_full_name(character[0]).c_id
+                cgdt_character = self.data_owner.find_character_by_full_name(character[0])
                 DBAccessor.execute('update Character{0} where FullName={1}'.format(
-                    convert_data_to_update_command(['ID'], [matched_c_id]), convert_datum_to_command(character[0])))
-                # TODO 呼叫 object data 進行全部資料的更新
-                print 'Character {0} has been updated.'.format(character[0].encode('utf-8'))
+                    convert_data_to_update_command(['ID'], [cgdt_character.c_id]),
+                    convert_datum_to_command(character[0])))
+                data_object = Character(cgdt_character=cgdt_character)
+                data_object.update_to_db_without_commit()
             # 若資料取得發生問題，則記錄後就略過
             except StandardError as e:
                 print e

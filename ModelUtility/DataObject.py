@@ -2,7 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from DBAccessor import *
-from ModelUtility.CCGameDBTW import CGDTCharacter
+from CommonString import *
 
 
 class Character(object):
@@ -122,6 +122,14 @@ class Character(object):
         self.belonged = cgdt_character.belonged
         self.info_list.append(self.belonged)
 
+    def update_to_db(self):
+        self.update_to_db_without_commit()
+        DBAccessor.commit()
+
+    def update_to_db_without_commit(self):
+        DBAccessor.execute('update Character{0} where ID={1}'.format(
+            convert_data_to_update_command(CHARACTER_DB_TABLE, self.info_list), self._c_id))
+
     def __str__(self):
         return 'ID={0}, FullName={1}, Nickname={2}'.format(
             self._c_id, self.full_name.encode('utf-8'), self.nickname.encode('utf-8'))
@@ -129,3 +137,77 @@ class Character(object):
     @staticmethod
     def get_character_info(character_id):
         return DBAccessor.execute('select * from Character where ID={0}'.format(character_id)).fetchone()
+
+
+class CGDTCharacter:
+    # noinspection PyUnusedLocal
+    def __init__(self, the_list):
+        self.fields_number = -1  # 本身會自動被記入，故設 -1 以平衡
+
+        properties = iter(the_list)
+        self.c_id = int(next(properties))
+        self.full_name = next(properties) + next(properties)
+        self.nickname = next(properties)
+        self.rank = int(next(properties))
+        self.cost = int(next(properties))
+        self.profession = PROFESSIONS[int(next(properties)) - 1]
+        dropped = next(properties)  # Classification
+        self.weapon = next(properties)
+        dropped = next(properties)  # GrownSpeed
+        dropped = next(properties)  # InitAtk
+        dropped = next(properties)  # InitHP
+        self.max_atk = int(next(properties))
+        self.max_hp = int(next(properties))
+        self.atk_grown = self.convert_grown(self.max_atk, int(next(properties)))
+        self.hp_grown = self.convert_grown(self.max_hp, int(next(properties)))
+        dropped = next(properties)  # OwnedWay
+        self.active_cost = int(next(properties))
+        self.active = next(properties)
+        self.passive_1_level = int(next(properties))
+        self.passive_1 = next(properties)
+        self.passive_2_level = int(next(properties))
+        self.passive_2 = next(properties)
+        self.hit_rate = int(next(properties)) / 100.0
+        dropped = next(properties)  # Unknown1
+        dropped = next(properties)  # BulletSpeed
+        self.critical_rate = int(next(properties)) / 100.0
+        dropped = next(properties)  # Artist
+        dropped = next(properties)  # CharacterVoice
+        dropped = next(properties)  # Tag
+        dropped = next(properties)  # ActiveName
+        dropped = next(properties)  # Passive1Name
+        dropped = next(properties)  # Passive2Name
+        self.exp_grown = next(properties)
+        dropped = next(properties)  # Unknown2
+        dropped = next(properties)  # Unknown3
+        self.__init_belonged(next(properties))
+        self.attachment = next(properties)
+        dropped = next(properties)  # AttachmentName
+        self.attached_cost = int(next(properties))
+
+    # Make fields read-only
+    def __setattr__(self, attr, value):
+        if hasattr(self, attr):
+            raise Exception("Attempting to alter read-only value")
+
+        self.__dict__[attr] = value
+        self.__dict__['fields_number'] += 1
+
+    @staticmethod
+    def convert_grown(origin_max, broken_max):
+        return (broken_max - origin_max) / 4
+
+    # 除了將其命名轉成我的格式以外，也檢查不可有我預期外的名稱出現
+    def __init_belonged(self, name):
+        replaced_name = name.replace(u'海風之港', u'海風').replace(u'賢者之塔', u'賢塔').\
+            replace(u'迷宮山脈', u'山脈').replace(u'獸里', u'獸之里')
+
+        if replaced_name in BELONGEDS:
+            self.belonged = replaced_name
+        else:
+            raise ValueError('Invalid Belonged name {0} for {1}.'.format(
+                name.encode('utf-8'), self.full_name.encode('utf-8')))
+
+    def __str__(self):
+        return 'ID={0}, FullName={1}, Nickname={2}'.format(
+            self.c_id, self.full_name.encode('utf-8'), self.nickname.encode('utf-8'))

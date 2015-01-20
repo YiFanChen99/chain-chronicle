@@ -11,16 +11,9 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        ch = Character()
-        # print ch.records
-        ch.c_id = 5002
-        print ch
-        # ch.c_id = '80'
-        # print ch.c_id
-        # ch.c_id = None
-        # print ch.c_id
-        # ch.c_id = '901'
-        # print ch.c_id
+        a = u'海風之港'
+        a = a.replace(u'海風之港', u'海風')
+        print a
 
 
 if __name__ == "__main__":

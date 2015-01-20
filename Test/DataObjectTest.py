@@ -24,3 +24,10 @@ class DataObjectTest(unittest.TestCase):
         character = Character(cgdt_character=cgdt_character)
         assert len(character.info_list) == expected_length,\
             'Info list lens {0}, but expected {1}.'.format(len(character.info_list), expected_length)
+
+    # 檢查 CGDTCharacter 能使用的資料欄位個數符合設計
+    def test_fields_number_of_cgdt_character(self):
+        expected = 23
+        actual = CCGameDBTWDataOwner().find_character_by_id(5002).fields_number
+        assert actual == expected, 'Fields number of CGDTCharacter expected {0}, but actual {1}'.format(
+            expected, actual)
