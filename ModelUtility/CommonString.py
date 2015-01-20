@@ -18,6 +18,7 @@ UNRECORDED = '未登記'
 
 # UI
 MS_JH = 'Microsoft JhengHei'  # 微軟正黑體
+SCP = 'Source Code Pro'  # Monokai 所用字型
 
 # Path
 IMAGE_FOLDER = 'images/'

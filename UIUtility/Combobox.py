@@ -17,7 +17,7 @@ class ComboboxWithEmptyOptions(Combobox):
             Combobox.__setitem__(self, key, result)
 
 
-class FilterCombobox(ComboboxWithEmptyOptions):
+class FilteredCombobox(ComboboxWithEmptyOptions):
     def __init__(self, master, **kwargs):
         ComboboxWithEmptyOptions.__init__(self, master, **kwargs)
 

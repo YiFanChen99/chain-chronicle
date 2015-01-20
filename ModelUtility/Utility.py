@@ -10,4 +10,4 @@ def bind_check_box_and_label(check_box, label):
     # noinspection PyUnusedLocal
     def switching(*args):
         check_box.toggle()
-    label.bind('<Button>', switching, add="+")
+    label.bind('<Button-1>', switching, add='+')

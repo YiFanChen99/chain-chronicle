@@ -1,0 +1,3 @@
+[Advanced Daily]
+total = 151
+dropped = 172

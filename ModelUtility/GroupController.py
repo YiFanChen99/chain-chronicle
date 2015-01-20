@@ -17,7 +17,7 @@ class BaseGroupController():
         def selecting_button(event, obj=self, the_index=self.counter):
             obj.selecting_button(the_index)
 
-        button.bind("<Button>", selecting_button, add="+")
+        button.bind("<Button-1>", selecting_button, add='+')
 
         self.buttons.append(button)
         self.counter += 1

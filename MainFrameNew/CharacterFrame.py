@@ -6,7 +6,7 @@ from Window.CharacterWindow import CharacterInfoWindow
 from ModelUtility.Filter import FilterManager
 from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
-from UIUtility.Combobox import FilterCombobox
+from UIUtility.Combobox import FilteredCombobox
 from UIUtility.Selector import ProfessionSelector, RankSelector
 
 DISPLAYED_COLUMNS = [CHARACTER_DB_TABLE[0]] + CHARACTER_DB_TABLE[2:11] + \
@@ -46,7 +46,7 @@ class CharacterFrame(MainFrameWithTable):
         # 所屬篩選
         current_x = 448
         Label(filter_frame, text='所屬:', font=(MS_JH, 10)).place(x=current_x + 10, y=-3)
-        self.belonged = FilterCombobox(filter_frame, state='readonly', width=6, justify=CENTER)
+        self.belonged = FilteredCombobox(filter_frame, state='readonly', width=6, justify=CENTER)
         self.belonged['values'] = BELONGEDS
         self.belonged.place(x=current_x, y=16)
         self.belonged.bind('<<ComboboxSelected>>', self.updating_belonged)

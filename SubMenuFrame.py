@@ -5,6 +5,7 @@ from Tkinter import *
 from Static import *
 import FrequentPage
 import Utilities
+from MainFrameNew.RecordFrame import RecordFrame
 from MainFrameNew.CharacterFrame import CharacterFrame
 from MainFrameNew.RecordOfDrawLotsFrame import RecordOfDrawLotsFrame
 import FriendPage
@@ -42,7 +43,7 @@ class SubMenuFrame(Frame):
 
 
 class StaticGroupFrame(SubMenuFrame):
-    Frames = ['Frequent', 'CharacterTable']
+    Frames = ['Frequent', 'CharacterTable', 'RecordFrame']
 
     def __init__(self, master, height, **kwargs):
         SubMenuFrame.__init__(self, master, height=height, **kwargs)
@@ -52,6 +53,8 @@ class StaticGroupFrame(SubMenuFrame):
             return FrequentPage.Frequent(self.master)
         elif index == 1:
             return CharacterFrame(self.master)
+        elif index == 2:
+            return RecordFrame(self.master)
         else:
             raise Exception("Wrong group selected!")
 
