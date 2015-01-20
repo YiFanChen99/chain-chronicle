@@ -42,6 +42,7 @@ class Main(MainFrameWithTable):
     # noinspection PyUnusedLocal
     def update(self, event=None):
         updater = MyDBUpdater(self.data_owner)
+        updater.update_new_character()
         # updater.update_belonged_info(overwrite=True)
 
     # noinspection PyUnusedLocal

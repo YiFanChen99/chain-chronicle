@@ -26,3 +26,10 @@ class CCGameDBTWTest(unittest.TestCase):
                 the_id, name.encode('utf-8'))
             assert cgdt_info.full_name == name, 'Character ID={0} has FullName {1} and {2}.'.format(
                 the_id, name.encode('utf-8'), cgdt_info.full_name.encode('utf-8'))
+
+    # 檢查 CGDTCharacter 能使用的資料欄位個數符合設計
+    def test_fields_number_of_cgdt_character(self):
+        expected = 23
+        actual = CCGameDBTWDataOwner().find_character_by_id(5002).fields_number
+        assert actual == expected, 'Fields number of CGDTCharacter expected {0}, but actual {1}'.format(
+            expected, actual)

@@ -25,21 +25,23 @@ class CCGameDBTWDataOwner:
     def find_character_by_id(self, the_id):
         for each_character in self.data:
             if int(each_character[0]) == the_id:
-                return CharacterInfo(each_character)
+                return CGDTCharacter(each_character)
         raise KeyError('Character with ID {0} does not exist in CGDT.'.format(the_id))
 
     def find_character_by_full_name(self, full_name):
         for each_character in self.data:
             if (each_character[1] + each_character[2]) == full_name:
-                return CharacterInfo(each_character)
+                return CGDTCharacter(each_character)
         raise KeyError('Character with FullName {0} does not exist in CGDT.'.format(full_name.encode('utf-8')))
 
 
-class CharacterInfo:
+class CGDTCharacter:
     # noinspection PyUnusedLocal
     def __init__(self, the_list):
+        self.fields_number = -1  # 本身會自動被記入，故設 -1 以平衡
+
         properties = iter(the_list)
-        self.id = int(next(properties))
+        self.c_id = int(next(properties))
         self.full_name = next(properties) + next(properties)
         self.nickname = next(properties)
         self.rank = int(next(properties))
@@ -85,17 +87,16 @@ class CharacterInfo:
             raise Exception("Attempting to alter read-only value")
 
         self.__dict__[attr] = value
+        self.__dict__['fields_number'] += 1
 
     @staticmethod
     def convert_grown(origin_max, broken_max):
         return (broken_max - origin_max) / 4
 
-    # 除了將其命名轉成我的格式以外，也檢查是否有我預期外的名稱出現
+    # 除了將其命名轉成我的格式以外，也檢查不可有我預期外的名稱出現
     def __init_belonged(self, name):
-        replaced_name = u'海風' if name == u'海風之港' else name
-        replaced_name = u'賢塔' if replaced_name == u'賢者之塔' else replaced_name
-        replaced_name = u'山脈' if replaced_name == u'迷宮山脈' else replaced_name
-        replaced_name = u'獸之里' if replaced_name == u'獸里' else replaced_name
+        replaced_name = name.replace(u'海風之港', u'海風').replace(u'賢者之塔', u'賢塔').\
+            replace(u'迷宮山脈', u'山脈').replace(u'獸里', u'獸之里')
 
         if replaced_name in BELONGEDS:
             self.belonged = replaced_name
@@ -105,7 +106,7 @@ class CharacterInfo:
 
     def __str__(self):
         return 'ID={0}, FullName={1}, Nickname={2}'.format(
-            self.id, self.full_name.encode('utf-8'), self.nickname.encode('utf-8'))
+            self.c_id, self.full_name.encode('utf-8'), self.nickname.encode('utf-8'))
 
 
 # TODO
@@ -118,12 +119,27 @@ class MyDBUpdater:
     def __init__(self, data_owner=None):
         self.data_owner = CCGameDBTWDataOwner() if data_owner is None else data_owner
 
+    def update_new_character(self):
+        # 新增的角色其 ID 會 <1000
+        characters = DBAccessor.execute('select FullName from Character where ID<1000').fetchall()
+        for character in characters:
+            try:
+                matched_c_id = self.data_owner.find_character_by_full_name(character[0]).c_id
+                DBAccessor.execute('update Character{0} where FullName={1}'.format(
+                    convert_data_to_update_command(['ID'], [matched_c_id]), convert_datum_to_command(character[0])))
+                # TODO 呼叫 object data 進行全部資料的更新
+                print 'Character {0} has been updated.'.format(character[0].encode('utf-8'))
+            # 若資料取得發生問題，則記錄後就略過
+            except StandardError as e:
+                print e
+        DBAccessor.commit()
+
     def update_belonged_info(self, overwrite=False):
         def get_belonged_info(char_id, find_method=self.data_owner.find_character_by_id):
             return find_method(char_id).belonged
         self.__update_specific_info('Belonged', overwrite, get_belonged_info)
 
-    # 針對已存在我資料庫中的角色，根據特定欄位的資料，以 CGDT 的資料更新
+    # 針對已存在我資料庫中的角色，根據特定規則，以 CGDT 的資料更新
     @staticmethod
     def __update_specific_info(column_name, overwrite, get_info_method):
         # 若 ID>=6000，代表是國服的角色，此處不處理
