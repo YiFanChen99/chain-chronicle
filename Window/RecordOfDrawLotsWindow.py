@@ -11,9 +11,9 @@ from UIUtility.Selector import ProfessionSelector, RankSelector
 
 
 class RecordWindow(BasicWindow):
-    def __init__(self, db_suffix, event_names):
-        BasicWindow.__init__(self, width=518, height=156)
-        self.window.geometry('+840+300')
+    def __init__(self, master, db_suffix, event_names, width=518, height=156, **kwargs):
+        BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
+        self.geometry('+840+300')
 
         self.__init_widgets(event_names)
 
@@ -26,43 +26,43 @@ class RecordWindow(BasicWindow):
     def __init_widgets(self, event_names):
         # 筆數
         current_y = 23
-        Label(self.window, text=DRAW_LOTS_DB_TABLE[0], width=6, font=("", 12)).place(x=3, y=current_y)
+        Label(self, text=DRAW_LOTS_DB_TABLE[0], width=6, font=("", 12)).place(x=3, y=current_y)
         self.times = Variable()  # 下一次的筆數
-        Label(self.window, textvariable=self.times, width=6, font=("", 12)).place(x=3, y=current_y + 27)
+        Label(self, textvariable=self.times, width=6, font=("", 12)).place(x=3, y=current_y + 27)
 
         # 酒廠
-        Label(self.window, text=DRAW_LOTS_DB_TABLE[1], width=14, font=("", 12)).place(x=56, y=current_y)
-        self.event_selector = ttk.Combobox(self.window, state='readonly', width=14, justify=CENTER)
+        Label(self, text=DRAW_LOTS_DB_TABLE[1], width=14, font=("", 12)).place(x=56, y=current_y)
+        self.event_selector = ttk.Combobox(self, state='readonly', width=14, justify=CENTER)
         self.event_selector['values'] = event_names
         self.event_selector.place(x=63, y=current_y + 27)
 
         # 選擇職業、等級
-        self.profession_selector = ProfessionSelector(self.window, self.updating_request_profession)
+        self.profession_selector = ProfessionSelector(self, self.updating_request_profession)
         self.profession_selector.place(x=197, y=7)
-        self.rank_selector = RankSelector(self.window, self.updating_request_rank)
+        self.rank_selector = RankSelector(self, self.updating_request_rank)
         self.rank_selector.place(x=197, y=55)
 
         # 角色
         current_x = 396
-        Label(self.window, text=DRAW_LOTS_DB_TABLE[4], width=11, font=("", 12)).place(x=current_x, y=4)
-        self.character_selector = ttk.Combobox(self.window, state='readonly', width=10, justify=CENTER)
+        Label(self, text=DRAW_LOTS_DB_TABLE[4], width=11, font=("", 12)).place(x=current_x, y=4)
+        self.character_selector = ttk.Combobox(self, state='readonly', width=10, justify=CENTER)
         self.character_selector.place(x=current_x + 9, y=23)
 
         # 花費
-        Label(self.window, text=DRAW_LOTS_DB_TABLE[5], width=9, font=("", 12)).place(x=current_x + 6, y=53)
-        self.cost_selector = ttk.Combobox(self.window, state='readonly', width=8, justify=CENTER)
+        Label(self, text=DRAW_LOTS_DB_TABLE[5], width=9, font=("", 12)).place(x=current_x + 6, y=53)
+        self.cost_selector = ttk.Combobox(self, state='readonly', width=8, justify=CENTER)
         self.cost_selector['values'] = DRAW_LOTS_COST
         self.cost_selector.place(x=current_x + 14, y=72)
 
         # 送交、新增角色、取消並關閉的按鈕
         current_y = 116
-        button = Button(self.window, text="送出此記錄", width=37, borderwidth=3)
+        button = Button(self, text="送出此記錄", width=37, borderwidth=3)
         button.place(x=19, y=current_y)
         button["command"] = self.submitting
-        button = Button(self.window, text="新增角色", width=11, borderwidth=3)
+        button = Button(self, text="新增角色", width=11, borderwidth=3)
         button.place(x=307, y=current_y)
         button["command"] = self.adding_new_character
-        button = Button(self.window, text="關閉視窗", width=11, borderwidth=3)
+        button = Button(self, text="關閉視窗", width=11, borderwidth=3)
         button.place(x=410, y=current_y)
         button["command"] = self.destroy
 
@@ -111,7 +111,7 @@ class RecordWindow(BasicWindow):
 
         is_legal = (error_message == '')
         if not is_legal:
-            tkMessageBox.showwarning("Can not submit this record", error_message, parent=self.window)
+            tkMessageBox.showwarning("Can not submit this record", error_message, parent=self)
 
         return is_legal
 
@@ -128,9 +128,9 @@ class RecordWindow(BasicWindow):
 
 
 class AddRecordWindow(RecordWindow):
-    def __init__(self, db_suffix, event_names, callback):
-        RecordWindow.__init__(self, db_suffix, event_names)
-        self.window.title('Add new record')
+    def __init__(self, master, db_suffix, event_names, callback, **kwargs):
+        RecordWindow.__init__(self, master, db_suffix, event_names, **kwargs)
+        self.title('Add new record')
 
         self.callback = callback
 
@@ -162,9 +162,9 @@ class AddRecordWindow(RecordWindow):
 
 
 class UpdatingRecordWindow(RecordWindow):
-    def __init__(self, db_suffix, event_names, record):
-        RecordWindow.__init__(self, db_suffix, event_names)
-        self.window.title('Update record')
+    def __init__(self, master, db_suffix, event_names, record, **kwargs):
+        RecordWindow.__init__(self, master, db_suffix, event_names, **kwargs)
+        self.title('Update record')
 
         self.__init_context(record)
 

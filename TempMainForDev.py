@@ -3,6 +3,8 @@ __author__ = 'Ricky Chen'
 
 from Tkinter import *
 from ModelUtility.DataObject import *
+from Window.CharacterWindow import CharacterInfoWindow
+from Window.BasicWindow import *
 
 
 class Main(Frame):
@@ -11,9 +13,22 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        a = u'海風之港'
-        a = a.replace(u'海風之港', u'海風')
-        print a
+        popup = BasicWindow(self, width=300, height=600)
+
+        helpText=Label(popup,text="Help")
+        helpText.place(x=10, y=10)
+        print 'aa'
+        root.wait_window(popup)
+        print 'bb'
+        print 'cc'
+        # popup.mainloop()
+        # popup = BasicWindow1(self, width=30 , height=60)
+        # popup.transient(self)
+        # popup.focus()
+        #
+        # root.wait_window(popup)
+        # popup = BasicWindow1(self, width=30 , height=60)
+        # root.wait_window(popup)
 
 
 if __name__ == "__main__":

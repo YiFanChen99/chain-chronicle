@@ -130,7 +130,7 @@ class CharacterFrame(MainFrameWithTable):
         self.updating_table()
 
     def adding_character(self):
-        popup = CharacterInfoWindow()
+        popup = CharacterInfoWindow(self)
         self.wait_window(popup)
         self.records = DBAccessor.execute('select * from Character').fetchall()
         self.updating_table()
@@ -139,6 +139,6 @@ class CharacterFrame(MainFrameWithTable):
         row = self.table_view.get_row_clicked(event)
         character_id = self.table_model.getCellRecord(row, 0)
 
-        popup = CharacterInfoWindow(character_id)
+        popup = CharacterInfoWindow(self, character_id)
         self.wait_window(popup)
         self.updating_table()

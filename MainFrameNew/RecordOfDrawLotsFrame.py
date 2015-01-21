@@ -123,7 +123,7 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
 
     def adding_record(self):
         # 該 Window 預設送出後不關閉，故需要提供更新的 callback method
-        popup = AddRecordWindow(self.db_suffix, self.get_suitable_event_names(), self.update_all_records)
+        popup = AddRecordWindow(self, self.db_suffix, self.get_suitable_event_names(), self.update_all_records)
         self.wait_window(popup)
 
     # 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
@@ -207,7 +207,7 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
         row = self.table_view.get_row_clicked(event)
         record = self.get_record_by_times(int(self.table_model.getCellRecord(row, 0)))
 
-        popup = UpdatingRecordWindow(self.db_suffix, self.get_suitable_event_names(), record)
+        popup = UpdatingRecordWindow(self, self.db_suffix, self.get_suitable_event_names(), record)
         self.wait_window(popup)
         # 已確認 tuple 理念上不希望會更動，故無易懂方法更新回去，而接受重新撈出
         self.update_all_records()

@@ -128,7 +128,7 @@ class FriendInfo(MainFrameWithTable):
             tkMessageBox.showwarning("Can not add any friend", '已達好友上限', parent=self)
             return
 
-        popup = UpdateFriendWindow(self.db_suffix, friend_id=new_id[0])
+        popup = UpdateFriendWindow(self, self.db_suffix, friend_id=new_id[0])
         self.wait_window(popup)
         self.updating_page()
 
@@ -141,7 +141,7 @@ class FriendInfo(MainFrameWithTable):
     def do_double_clicking(self, event):
         row = self.table_view.get_row_clicked(event)
         friend_id = int(self.table_model.getCellRecord(row, 0))
-        popup = UpdateFriendWindow(self.db_suffix, friend_info=self.get_info_by_id(friend_id))
+        popup = UpdateFriendWindow(self, self.db_suffix, friend_info=self.get_info_by_id(friend_id))
         self.wait_window(popup)
         self.updating_table()
 
@@ -294,10 +294,10 @@ class FriendRecord(MainFrameWithTable):
 
         column = self.table_view.get_col_clicked(event)
         if column <= 2:
-            popup = UpdateFriendWindow(self.db_suffix, friend_id=friend_id)
+            popup = UpdateFriendWindow(self, self.db_suffix, friend_id=friend_id)
             self.wait_window(popup)
         else:
-            popup = UpdateFriendRecordWindow(self.get_record_by_friend_id(friend_id))
+            popup = UpdateFriendRecordWindow(self, self.get_record_by_friend_id(friend_id))
             self.wait_window(popup)
             self.updating_table()
 
