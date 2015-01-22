@@ -128,11 +128,11 @@ class UpdateFriendRecordWindow(BasicWindow):
         entry.place(x=9, y=current_y + label_space)
 
         # noinspection PyUnusedLocal
-        def selecting_character(obj=self, character_on_selected=self.character_var, *args):
+        def selecting_character(event, obj=self, character_on_selected=self.character_var):
             popup = CharacterSelectionWindow(obj, character_on_selected)
             popup.geometry('+732+270')
-            self.wait_window(popup)
-            self.character_level_entry.focus_set()
+            obj.wait_window(popup)
+            obj.character_level_entry.focus_set()
 
         label.bind('<ButtonRelease-1>', selecting_character)
         entry.bind('<ButtonRelease-1>', selecting_character)

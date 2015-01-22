@@ -119,16 +119,16 @@ class FriendInfo(MainFrameWithTable):
         self.table_view.resizeColumn(3, 145)
         self.table_view.resizeColumn(4, 155)
 
-    # 取得未使用的 ID，並將新資訊更新到該記錄上
+    # 取得未使用的 ID，並將新好友指定到該 ID
     def adding_new_friend(self):
-        new_id = DATABASE.execute('select ID from ' + self.compose_table_name('Friend') +
+        unused_record = DATABASE.execute('select ID from ' + self.compose_table_name('Friend') +
                                   ' where UsedNames==\'\'').fetchone()
 
-        if new_id is None:
+        if unused_record is None:
             tkMessageBox.showwarning("Can not add any friend", '已達好友上限', parent=self)
             return
 
-        popup = UpdateFriendWindow(self, self.db_suffix, friend_id=new_id[0])
+        popup = UpdateFriendWindow(self, self.db_suffix, friend_id=unused_record[0])
         self.wait_window(popup)
         self.updating_page()
 
@@ -203,9 +203,8 @@ class FriendRecord(MainFrameWithTable):
         else:
             return
 
-        # 確認是否更新 FriendTable 中的資訊（RaisedIn3Weeks, LastCharacter等）
-        if tkMessageBox.askyesno('Updating Friend by records?', '記錄完成，\n是否要更新 Friend Info？', parent=self):
-            update_friend_info_table(self.db_suffix)
+        # 更新 FriendTable 中的資訊（RaisedIn3Weeks, LastCharacter 等）
+        update_friend_info_table(self.db_suffix)
 
         self.master.update_main_frame(FriendInfo(self.master, self.db_suffix))
 
