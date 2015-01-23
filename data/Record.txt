@@ -1,3 +1,4 @@
 [Advanced Daily]
-total = 151
-dropped = 172
+total = 157
+dropped = 180
+

@@ -2,7 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-from Window.CharacterWindow import *
+from UIUtility.CharacterSelector import *
 
 
 class Main(Frame):
@@ -11,11 +11,11 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        ss = StringVar()
-        popup = CharacterSelectionWindow(self, ss.set, DBAccessor.select_character_by_specific_column('ID', 5002))
-        popup.geometry('+732+270')
-        self.wait_window(popup)
-        print ss.get()
+        self.selector = CharacterSelector(self, None)
+        self.selector.place(x=10, y=10)
+
+    def the_print(self, obj):
+        print obj
         # popup.mainloop()
         # popup = BasicWindow1(self, width=30 , height=60)
         # popup.transient(self)
