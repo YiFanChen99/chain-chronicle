@@ -132,5 +132,7 @@ class RankSelector(BaseSelector):
         self.radio_group.clean_current_selection()
 
     def select(self, key):
+        if isinstance(key, int):
+            key = BOTH_2_AND_1 if key < 3 else str(key)
         index = self.OPTIONS.index(key)
         self.radio_group.selecting_button(index - 1)

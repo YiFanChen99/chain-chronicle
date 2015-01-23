@@ -129,7 +129,7 @@ class UpdateFriendRecordWindow(BasicWindow):
 
         # noinspection PyUnusedLocal
         def selecting_character(event, obj=self, character_on_selected=self.character_var):
-            popup = CharacterSelectionWindow(obj, character_on_selected)
+            popup = CharacterSelectionWindow(obj, self.character_var.set, character_on_selected)
             popup.geometry('+732+270')
             obj.wait_window(popup)
             obj.character_level_entry.focus_set()

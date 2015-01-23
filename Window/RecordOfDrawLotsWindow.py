@@ -67,7 +67,7 @@ class RecordWindow(BasicWindow):
         button["command"] = self.destroy
 
     def adding_new_character(self):
-        popup = CharacterInfoWindow()
+        popup = CharacterInfoWindow(self)
         self.wait_window(popup)
         self.update_characters()
         self.updating_character_selector()

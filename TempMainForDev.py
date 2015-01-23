@@ -2,9 +2,7 @@
 __author__ = 'Ricky Chen'
 
 from Tkinter import *
-from ModelUtility.DataObject import *
-from Window.CharacterWindow import CharacterInfoWindow
-from Window.BasicWindow import *
+from Window.CharacterWindow import *
 
 
 class Main(Frame):
@@ -13,14 +11,11 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        popup = BasicWindow(self, width=300, height=600)
-
-        helpText=Label(popup,text="Help")
-        helpText.place(x=10, y=10)
-        print 'aa'
-        root.wait_window(popup)
-        print 'bb'
-        print 'cc'
+        ss = StringVar()
+        popup = CharacterSelectionWindow(self, ss.set, DBAccessor.select_character_by_specific_column('ID', 5002))
+        popup.geometry('+732+270')
+        self.wait_window(popup)
+        print ss.get()
         # popup.mainloop()
         # popup = BasicWindow1(self, width=30 , height=60)
         # popup.transient(self)

@@ -9,22 +9,25 @@ from ModelUtility.Filter import FilterManager
 
 
 class CharacterSelectionWindow(BasicWindow):
-    def __init__(self, master, character_on_selected, width=316, height=145, **kwargs):
+    def __init__(self, master, callback, character_selected, width=316, height=146, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Character selection')
-
-        self.character_on_selected = character_on_selected
 
         self.records = None
         self.update_records()
         self.filter_manager = FilterManager()
         self.filter_manager.set_comparison_rule(0)
+        self.filter_manager.set_comparison_rule(1)
 
-        self.__init_widgets()
+        self._init_widgets()
+        self._init_character_selected(character_selected)
+        self.callback = callback
 
-    def __init_widgets(self):
-        ProfessionSelector(self, self.updating_request_profession).place(x=3, y=3)
-        RankSelector(self, self.updating_request_rank).place(x=3, y=49)
+    def _init_widgets(self):
+        self.profession_selector = ProfessionSelector(self, self.updating_request_profession)
+        self.profession_selector.place(x=3, y=3)
+        self.rank_selector = RankSelector(self, self.updating_request_rank)
+        self.rank_selector.place(x=3, y=49)
 
         Label(self, text='篩選', width=5, font=("", 11)).place(x=208, y=3)
         self.name_request = StringVar(value='')
@@ -36,7 +39,7 @@ class CharacterSelectionWindow(BasicWindow):
         self.character_selector = ttk.Combobox(self, state='readonly', width=10, justify=CENTER)
         self.character_selector.place(x=209, y=68)
 
-        y_position = 104
+        y_position = 105
         # 送交的按鈕
         button = Button(self, text="選擇此角色", width=11, borderwidth=3)
         button.place(x=15, y=y_position)
@@ -52,12 +55,21 @@ class CharacterSelectionWindow(BasicWindow):
         button.place(x=217, y=y_position)
         button["command"] = self.destroy
 
+    def _init_character_selected(self, character_selected):
+        if isinstance(character_selected, Character):
+            self.profession_selector.select(character_selected.profession)
+            self.rank_selector.select(character_selected.rank)
+            self.updating_character_selector()
+            self.character_selector.set(character_selected.nickname)
+        else:
+            raise TypeError('In CharacterSelectionWindow, arg: \"character_selected\"')
+
     def updating_request_profession(self, profession):
-        self.filter_manager.set_specific_condition(1, profession)
+        self.filter_manager.set_specific_condition(2, profession)
         self.updating_character_selector()
 
     def updating_request_rank(self, rank):
-        self.filter_manager.set_specific_condition(2, rank, match_requested_rank)
+        self.filter_manager.set_specific_condition(3, rank, match_requested_rank)
         self.updating_character_selector()
 
     # 清除原本的選擇，並更新可選擇的角色
@@ -70,10 +82,10 @@ class CharacterSelectionWindow(BasicWindow):
         self.character_selector['values'] = character_matched
         self.character_selector.focus_set()
 
-    # 有選擇的情況下才儲存並回傳，否則彈出錯誤視窗
+    # 有選擇的情況下才回傳，否則彈出錯誤視窗
     def submitting(self):
         if self.character_selector.get() != '':
-            self.character_on_selected.set(self.character_selector.get())
+            self.callback(DBAccessor.select_character_by_specific_column('Nickname', self.character_selector.get()))
             self.destroy()
         else:
             tkMessageBox.showwarning("Character haven't selected", '\"Character\" 未選\n', parent=self)
@@ -85,7 +97,7 @@ class CharacterSelectionWindow(BasicWindow):
         self.updating_character_selector()
 
     def update_records(self):
-        self.records = DBAccessor.execute('select Nickname, Profession, Rank from Character').fetchall()
+        self.records = DBAccessor.execute('select Nickname, FullName, Profession, Rank from Character').fetchall()
 
 
 class CharacterInfoWindow(BasicWindow):

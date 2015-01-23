@@ -3,6 +3,7 @@ __author__ = 'Ricky Chen'
 
 import sqlite3
 from datetime import datetime
+from ModelUtility.DataObject import Character
 
 
 class DBAccessor():
@@ -19,6 +20,13 @@ class DBAccessor():
     def commit():
         return DBAccessor.DATABASE.commit()
 
+    @staticmethod
+    def select_character_by_specific_column(column_name, key):
+        matched_character = DBAccessor.execute('select * from Character where {0}={1}'.format(
+            column_name, convert_datum_to_command(key))).fetchone()
+        if matched_character is None:
+            raise ValueError('Character with {0} {1} does not existed.'.format(column_name, key))
+        return Character(matched_character)
 
 # 組成「"values(x1,x2,...,xn)"」的字串回傳
 def convert_data_to_insert_command(*arguments):
