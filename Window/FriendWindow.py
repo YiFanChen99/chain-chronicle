@@ -1,30 +1,32 @@
 # -*- coding: utf-8 -*-
 from BasicWindow import *
+from UIUtility.CharacterSelector import CharacterSelectorCanvas
 from ModelUtility.DBAccessor import *
 from ModelUtility.CommonString import *
 
 
-class UpdateFriendWindow(BasicWindow):
-    def __init__(self, master, db_suffix, friend_info=None, friend_id=None, width=306, height=272, **kwargs):
+class FriendInfoUpdaterWindow(BasicWindow):
+    def __init__(self, master, db_suffix, friend_info=None, friend_id=None, width=312, height=272, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Friend Info')
-        self.geometry('+720+260')
+        self.geometry('+750+260')
         self.db_suffix = db_suffix
 
-        self.friend_info = []
-        self.init_friend_info(friend_info, friend_id)
+        self._init_friend_info(friend_info, friend_id)
 
-        self.__init_widget()
+        self._init_widget()
 
-    def init_friend_info(self, friend_info, friend_id):
-        if friend_info is None:
+    def _init_friend_info(self, friend_info, friend_id):
+        if friend_info is not None:
+            self.friend_info = friend_info
+        elif friend_id is not None:
             self.friend_info = list(DBAccessor.execute('select ' + ','.join(FRIEND_DISPLAYED_COLUMN) + ' from ' +
                                                        self.get_db_table_name() + ' where ID=' +
                                                        str(friend_id)).fetchone())
         else:
-            self.friend_info = friend_info
+            raise LookupError('Both friend_info and friend_id are None.')
 
-    def __init_widget(self):
+    def _init_widget(self):
         label_space = 24  # Label 與 輸入元件的距離
 
         current_y = 8
@@ -33,21 +35,19 @@ class UpdateFriendWindow(BasicWindow):
         Entry(self, width=16, textvariable=self.used_names, font=(MS_JH, 12), justify=LEFT)\
             .place(x=30, y=current_y + label_space)
 
-        Label(self, width=11, text='AddedDate', font=(MS_JH, 10), justify=CENTER)\
-            .place(x=197, y=current_y + 1)
+        Label(self, width=11, text='AddedDate', font=(MS_JH, 10)).place(x=197, y=current_y + 1)
         self.added_date = StringVar(value=self.init_added_date())
         Entry(self, width=11, textvariable=self.added_date, font=(MS_JH, 10), justify=CENTER)\
             .place(x=196, y=current_y + label_space + 1)
 
         current_y += 55
-        Label(self, width=25, text='Excellence', font=(MS_JH, 12), justify=CENTER)\
-            .place(x=29, y=current_y)
+        Label(self, width=25, text='Excellence', font=(MS_JH, 12)).place(x=29, y=current_y)
         self.excellence = StringVar(value=self.friend_info[2])
         excellence_entry = Entry(self, width=28, textvariable=self.excellence, font=(MS_JH, 12), justify=CENTER)
         excellence_entry.place(x=27, y=current_y + label_space)
 
         current_y += 55
-        Label(self, width=25, text='Defect', font=(MS_JH, 12), justify=CENTER).place(x=29, y=current_y)
+        Label(self, width=25, text='Defect', font=(MS_JH, 12)).place(x=29, y=current_y)
         self.defect = StringVar(value=self.friend_info[3])
         defect_entry = Entry(self, width=28, textvariable=self.defect, font=(MS_JH, 12), justify=CENTER)
         defect_entry.place(x=27, y=current_y + label_space)
@@ -61,12 +61,12 @@ class UpdateFriendWindow(BasicWindow):
         # 送出的按鈕
         current_y += 66
         Button(self, text="Submit", command=self.submitting, width=26, borderwidth=3,
-               font=("", 12)).place(x=29, y=current_y)
+               font=("", 12)).place(x=31, y=current_y)
 
         # 取消的按鈕
         current_y += 39
         Button(self, text="Cancel", command=self.destroy, width=26, borderwidth=3,
-               font=("", 12)).place(x=29, y=current_y)
+               font=("", 12)).place(x=31, y=current_y)
 
     # noinspection PyUnusedLocal
     def submitting(self, *args):
@@ -98,80 +98,54 @@ class UpdateFriendWindow(BasicWindow):
         return 'Friend' + self.db_suffix
 
 
-class UpdateFriendRecordWindow(BasicWindow):
-    def __init__(self, master, the_record, width=284, height=183, **kwargs):
+class FriendRecordUpdaterWindow(BasicWindow):
+    def __init__(self, master, record, width=309, height=198, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Friend Record')
         self.geometry('+740+230')
-        self.record = the_record
 
-        self.__init_widget()
+        self._init_widget()
+        self._init_record(record)
 
-        self.__init_record()
+    def _init_widget(self):
+        Label(self, width=12, text='UsedNames :', font=(SCP, 12)).place(x=15, y=8)
+        self.used_names = StringVar()
+        Label(self, width=24, textvariable=self.used_names, font=(MS_JH, 12), anchor=W).place(x=40, y=32)
 
-    def __init_widget(self):
-        label_space = 24  # Label 與 輸入元件的距離
+        self.character_selector = CharacterSelectorCanvas(self)
+        self.character_selector.place(x=8, y=68)
+        self.character_selector.bind('<Return>', lambda x: character_level_entry.focus_set())
 
-        current_y = 8
-        Label(self, width=12, text='UsedNames :', font=(MS_JH, 12)).place(x=5, y=current_y)
-        Label(self, width=20, text=self.record[2], font=(MS_JH, 12),
-              justify=LEFT).place(x=22, y=current_y + label_space)
-
-        current_y = 70
-        label = Label(self, width=10, text='Character', font=("", 12))
-        label.place(x=6, y=current_y)
-        self.character_var = StringVar()
-        entry = self.create_entry(width=11, textvariable=self.character_var, state='readonly')
-        entry.place(x=9, y=current_y + label_space)
-
-        # noinspection PyUnusedLocal
-        def selecting_character(event, obj=self, character_on_selected=self.character_var):
-            popup = CharacterSelectionWindow(obj, self.character_var.set, character_on_selected)
-            popup.geometry('+732+270')
-            obj.wait_window(popup)
-            obj.character_level_entry.focus_set()
-
-        label.bind('<ButtonRelease-1>', selecting_character)
-        entry.bind('<ButtonRelease-1>', selecting_character)
-
-        Label(self, width=13, text='CharacterLevel', font=("", 12)).place(x=95, y=current_y)
+        current_y = 71
+        Label(self, width=7, text='C.Level', font=(SCP, 12)).place(x=146, y=current_y)
         self.character_level_var = IntVar()
-        self.character_level_entry = self.create_entry(width=6, textvariable=self.character_level_var)
-        self.character_level_entry.place(x=130, y=current_y + label_space)
+        character_level_entry = Entry(self, width=6, textvariable=self.character_level_var,
+                                      font=(SCP, 12), justify=CENTER)
+        character_level_entry.place(x=153, y=current_y + 28)
+        character_level_entry.bind('<Return>', lambda x: rank_entry.focus_set())
 
-        # noinspection PyUnusedLocal
-        def move_focus_to_rank(*args):
-            self.rank_entry.focus_set()
-
-        self.character_level_entry.bind('<Return>', move_focus_to_rank)
-
-        Label(self, width=6, text='Rank', font=("", 12)).place(x=213, y=current_y)
+        Label(self, width=6, text='Rank', font=(SCP, 12)).place(x=229, y=current_y)
         self.rank_var = IntVar()
-        self.rank_entry = self.create_entry(width=6, textvariable=self.rank_var)
-        self.rank_entry.place(x=218, y=current_y + label_space)
-        self.rank_entry.bind('<Return>', self.submitting)
+        rank_entry = Entry(self, width=6, textvariable=self.rank_var, font=(SCP, 12), justify=CENTER)
+        rank_entry.place(x=232, y=current_y + 27)
+        rank_entry.bind('<Return>', lambda x: self.submitting())
 
         # 取消的按鈕
-        Button(self, text="Cancel", command=self.destroy, width=25, borderwidth=3,
-               font=("", 12)).place(x=24, y=135)
+        Button(self, text="Cancel", command=self.destroy, width=28, borderwidth=2, font=(SCP, 11)).place(x=23, y=150)
 
-    def __init_record(self):
-        record = self.record
-
+    def _init_record(self, record):
+        self.record = record
+        self.used_names.set(record[2])
         # 角色未選擇時套用前記錄，已選擇便用已選擇
-        self.character_var.set(record[8] if record[4] == '' else record[4])
-
+        self.character_selector.set(DBAccessor.select_character_by_specific_column(
+            'Nickname', record[8] if record[4] == '' else record[4]))
         # 角色等級/Rank等級未選擇時為空，已選擇便用已選擇
         self.character_level_var.set('' if record[5] is None else record[5])
         self.rank_var.set('' if record[6] is None else record[6])
 
-    def create_entry(self, **kwargs):
-        return Entry(self, font=("", 12), justify=CENTER, **kwargs)
-
-    # noinspection PyUnusedLocal
-    def submitting(self, *args):
+    def submitting(self):
         self.record[0] = RECORDED
-        self.record[4] = convert_to_str(self.character_var.get())
+        self.record[4] = self.character_selector.get().nickname
         self.record[5] = self.character_level_var.get()
         self.record[6] = self.rank_var.get()
         self.destroy()

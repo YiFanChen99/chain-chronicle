@@ -26,6 +26,7 @@ class DBAccessor():
             raise ValueError('Character with {0} {1} does not existed.'.format(column_name, key))
         return Character(matched_character)
 
+
 # 組成「"values(x1,x2,...,xn)"」的字串回傳
 def convert_data_to_insert_command(*arguments):
     command = ' values('

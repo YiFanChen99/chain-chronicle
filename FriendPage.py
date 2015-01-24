@@ -2,7 +2,7 @@
 from MainFrame import *
 from datetime import timedelta
 from ModelUtility.CommonString import *
-from Window.FriendWindow import UpdateFriendWindow, UpdateFriendRecordWindow
+from Window.FriendWindow import FriendInfoUpdaterWindow, FriendRecordUpdaterWindow
 from ModelUtility.Utility import bind_check_box_and_label
 
 UPDATED_BY_RECORD_COLUMN = ['UsedCharacters', 'Rank', 'RaisedIn3Weeks', 'RaisedIn2Months',
@@ -126,7 +126,7 @@ class FriendInfo(MainFrameWithTable):
             tkMessageBox.showwarning("Can not add any friend", '已達好友上限', parent=self)
             return
 
-        popup = UpdateFriendWindow(self, self.db_suffix, friend_id=unused_record[0])
+        popup = FriendInfoUpdaterWindow(self, self.db_suffix, friend_id=unused_record[0])
         self.wait_window(popup)
         self.updating_page()
 
@@ -139,7 +139,7 @@ class FriendInfo(MainFrameWithTable):
     def do_double_clicking(self, event):
         row = self.table_view.get_row_clicked(event)
         friend_id = int(self.table_model.getCellRecord(row, 0))
-        popup = UpdateFriendWindow(self, self.db_suffix, friend_info=self.get_info_by_id(friend_id))
+        popup = FriendInfoUpdaterWindow(self, self.db_suffix, friend_info=self.get_info_by_id(friend_id))
         self.wait_window(popup)
         self.updating_table()
 
@@ -243,7 +243,7 @@ class FriendRecord(MainFrameWithTable):
         self.date.set(datetime.now().date())  # 此次記錄的日期
 
         # 建立 Friend_Record_List
-        # 這邊取出 LastCharacter 只是為了給 UpdateFriendRecordWindow 使用，預先讀出
+        # 這邊取出 LastCharacter 只是為了給 FriendRecordUpdaterWindow 使用，預先讀出
         self.friend_records = []
         friends = DATABASE.execute('select ID, UsedNames, LastProfession, Rank, LastCharacter from ' +
                                    self.compose_table_name('Friend') + ' where UsedNames!=\'\'')
@@ -291,10 +291,10 @@ class FriendRecord(MainFrameWithTable):
 
         column = self.table_view.get_col_clicked(event)
         if column <= 2:
-            popup = UpdateFriendWindow(self, self.db_suffix, friend_id=friend_id)
+            popup = FriendInfoUpdaterWindow(self, self.db_suffix, friend_id=friend_id)
             self.wait_window(popup)
         else:
-            popup = UpdateFriendRecordWindow(self, self.get_record_by_friend_id(friend_id))
+            popup = FriendRecordUpdaterWindow(self, self.get_record_by_friend_id(friend_id))
             self.wait_window(popup)
             self.updating_table()
 

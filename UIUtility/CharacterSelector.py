@@ -21,8 +21,9 @@ class CharacterSelectorCanvas(Canvas):
         entry = Entry(self, textvariable=self.selected_nickname, width=11, font=(MS_JH, 13),
                       justify=CENTER, state='readonly')
         entry.place(x=7, y=28)
-        entry.bind('<ButtonRelease-1>', lambda x: CharacterSelectionWindow(
-            self, self._set_character_selected, self.character_selected))
+        # 將目前選擇的角色資訊帶過去，並設定 callback，並最後設定焦點為此 canvas
+        entry.bind('<ButtonRelease-1>', lambda x: (CharacterSelectionWindow(
+            self, self._set_character_selected, self.character_selected), self.focus_set()))
 
     def _set_character_selected(self, character_selected):
         self.character_selected = character_selected

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from Tkinter import *
-from Window.RecordOfDrawLotsWindow import AddRecordWindow
+from Window.FriendWindow import *
+from ModelUtility.CommonState import *
 
 
 class Main(Frame):
@@ -9,7 +10,13 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        self.selector = AddRecordWindow(self, 'CN', [1,2 ,3], self.the_print)
+        record = [UNRECORDED, 25, u'大家好',
+                                        u'戰士' , '', None, None, 3, u'強運']
+        print record
+        aa = FriendRecordUpdaterWindow(self, record)
+        self.wait_window(aa)
+        print record
+        # self.selector = FriendInfoUpdaterWindow(self, 'CN', friend_id=26)
 
     def the_print(self):
         print 30
