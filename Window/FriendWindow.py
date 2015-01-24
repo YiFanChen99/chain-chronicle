@@ -136,16 +136,17 @@ class FriendRecordUpdaterWindow(BasicWindow):
     def _init_record(self, record):
         self.record = record
         self.used_names.set(record[2])
-        # 角色未選擇時套用前記錄，已選擇便用已選擇
-        self.character_selector.set(DBAccessor.select_character_by_specific_column(
-            'Nickname', record[8] if record[4] == '' else record[4]))
+        # 角色名稱已指定時便套用，否則套用前名稱
+        character_name = record[4] if record[4] != '' else record[8]
+        self.character_selector.set(DBAccessor.select_character_by_specific_column('Nickname', character_name)
+                                    if character_name != '' else None)
         # 角色等級/Rank等級未選擇時為空，已選擇便用已選擇
         self.character_level_var.set('' if record[5] is None else record[5])
         self.rank_var.set('' if record[6] is None else record[6])
 
     def submitting(self):
         self.record[0] = RECORDED
-        self.record[4] = self.character_selector.get().nickname
+        self.record[4] = convert_to_str(self.character_selector.get().nickname)
         self.record[5] = self.character_level_var.get()
         self.record[6] = self.rank_var.get()
         self.destroy()

@@ -242,8 +242,8 @@ class FriendRecord(MainFrameWithTable):
     def __init_page(self):
         self.date.set(datetime.now().date())  # 此次記錄的日期
 
-        # 建立 Friend_Record_List
-        # 這邊取出 LastCharacter 只是為了給 FriendRecordUpdaterWindow 使用，預先讀出
+        # 建立 Friend_Record_List，欄位對應 RECORD_DISPLAYED_COLUMN + 'LastCharacter'。
+        # 而 LastCharacter 是為了給 FriendRecordUpdaterWindow 使用，預先讀出以減少 DB 負荷。
         self.friend_records = []
         friends = DATABASE.execute('select ID, UsedNames, LastProfession, Rank, LastCharacter from ' +
                                    self.compose_table_name('Friend') + ' where UsedNames!=\'\'')
