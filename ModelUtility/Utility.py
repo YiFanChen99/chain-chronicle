@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-''' 此 module 放置通用卻無明顯分類的小功能 '''
+""" 此 module 放置通用卻無明顯分類的小功能 """
 
 
 # 使點擊 label 與點擊 check box 有相同效果

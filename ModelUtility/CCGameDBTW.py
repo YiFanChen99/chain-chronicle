@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
 import json
 from ModelUtility.CommonString import *
 from ModelUtility.DBAccessor import *

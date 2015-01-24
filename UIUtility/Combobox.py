@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
 from ttk import Combobox
 from ModelUtility.CommonString import CONDITIONLESS
 
@@ -24,3 +22,12 @@ class FilteredCombobox(ComboboxWithEmptyOptions):
     def get(self):
         selection = ComboboxWithEmptyOptions.get(self)
         return CONDITIONLESS if selection == '' else selection
+
+
+class IntFilteredCombobox(FilteredCombobox):
+    def __init__(self, master, **kwargs):
+        FilteredCombobox.__init__(self, master, **kwargs)
+
+    def get(self):
+        selection = ComboboxWithEmptyOptions.get(self)
+        return CONDITIONLESS if selection == '' else int(selection)

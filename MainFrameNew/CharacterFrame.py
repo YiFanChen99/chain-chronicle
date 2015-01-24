@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
 from BaseFrame import *
 from Window.CharacterWindow import CharacterInfoWindow
 from ModelUtility.Filter import FilterManager

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
 from MainFrame import *
 
 FONT = (MS_JH, 12)
@@ -27,7 +25,7 @@ class Frequent(MainFrame):
     def __init__(self, master, **kwargs):
         MainFrame.__init__(self, master, **kwargs)
 
-        parser_of_power_converter = configparser.RawConfigParser()
+        parser_of_power_converter = configparser.ConfigParser()
         parser_of_power_converter.read(AP_FILE_NAME, "utf8")
         PowerConverter(self, 'Fuji Account', parser_of_power_converter, width=280, height=MIN_HEIGHT).place(x=5, y=0)
         PowerConverter(self, 'Yama Account', parser_of_power_converter, width=280, height=MIN_HEIGHT).place(x=289, y=0)

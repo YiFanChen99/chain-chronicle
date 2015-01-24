@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
 import unittest
 from ModelUtility.DBAccessor import DBAccessor
 from ModelUtility.CommonString import *

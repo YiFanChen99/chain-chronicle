@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
 from Tkinter import *
-from UIUtility.CharacterSelector import *
+from Window.RecordOfDrawLotsWindow import AddRecordWindow
 
 
 class Main(Frame):
@@ -11,11 +9,10 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        self.selector = CharacterSelectorCanvas(self, None)
-        self.selector.place(x=10, y=10)
+        self.selector = AddRecordWindow(self, 'CN', [1,2 ,3], self.the_print)
 
-    def the_print(self, obj):
-        print obj
+    def the_print(self):
+        print 30
         # popup.mainloop()
         # popup = BasicWindow1(self, width=30 , height=60)
         # popup.transient(self)

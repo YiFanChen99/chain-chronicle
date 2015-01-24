@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
+""" 暫訂維持 DB 的設計，不改成只存 c_id 後 join 的方式取得資料（簡單方便） """
 from BaseFrame import *
 from Window.RecordOfDrawLotsWindow import AddRecordWindow, UpdatingRecordWindow
 from ModelUtility.DBAccessor import *
 from ModelUtility.Utility import bind_check_box_and_label
-from ModelUtility.Comparator import match_requested_rank
-from UIUtility.Combobox import FilteredCombobox
+from UIUtility.Combobox import FilteredCombobox, IntFilteredCombobox
 from ModelUtility.Filter import FilterManager
 from datetime import timedelta
 
@@ -24,15 +22,15 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
         self.events = DBAccessor.execute('select Name, End from ' +
                                          self.compose_table_name('EventOfDrawLots')).fetchall()
 
-        self.__init_add_record_frame()
-        self.__init_filter_frame()
+        self._init_add_record_frame()
+        self._init_filter_frame()
 
         # 呈現資料的表格
-        self.table.tkraise()  # 避免被其他元件遮到
+        self.table.tkraise()  # 放上層，避免被其他元件遮到
         self.update_all_records()
 
     # noinspection PyAttributeOutsideInit
-    def __init_add_record_frame(self):
+    def _init_add_record_frame(self):
         # 選擇是否允許記錄舊酒廠
         self.is_show_old_events = BooleanVar()
         check_button = Checkbutton(self, variable=self.is_show_old_events)
@@ -47,15 +45,15 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
         button["command"] = self.adding_record
 
     # noinspection PyAttributeOutsideInit
-    def __init_filter_frame(self):
+    def _init_filter_frame(self):
         basic_x = 20
         Label(self, text='E:', font=(MS_JH, 12)).place(x=basic_x, y=3)
         self.event_filter = FilteredCombobox(self, width=14, justify=CENTER)
         self.event_filter['values'] = [event[0] for event in reversed(self.events)]
         self.event_filter.place(x=basic_x + 18, y=3)
         self.event_filter.bind('<<ComboboxSelected>>',
-                               lambda x: self.filter_manager.set_specific_condition(1, self.event_filter.get()))
-        self.event_filter.bind('<<ComboboxSelected>>', self.updating_table, '+')
+                               lambda x: (self.filter_manager.set_specific_condition(1, self.event_filter.get()),
+                                          self.updating_table()))
 
         basic_x += 146
         Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=3)
@@ -63,17 +61,17 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
         self.cost_filter['values'] = DRAW_LOTS_COST
         self.cost_filter.place(x=basic_x + 20, y=3)
         self.cost_filter.bind('<<ComboboxSelected>>',
-                              lambda x: self.filter_manager.set_specific_condition(5, self.cost_filter.get()))
-        self.cost_filter.bind('<<ComboboxSelected>>', self.updating_table, '+')
+                              lambda x: (self.filter_manager.set_specific_condition(5, self.cost_filter.get()),
+                                         self.updating_table()))
 
         basic_x += 91
         Label(self, text='R:', font=(MS_JH, 12)).place(x=basic_x, y=3)
-        self.rank_filter = FilteredCombobox(self, width=4, justify=CENTER)
+        self.rank_filter = IntFilteredCombobox(self, width=4, justify=CENTER)
         self.rank_filter['values'] = RANKS_WHEN_DRAW_LOTS
         self.rank_filter.place(x=basic_x + 20, y=3)
-        self.rank_filter.bind('<<ComboboxSelected>>', lambda x: self.filter_manager.set_specific_condition(
-            3, self.rank_filter.get(), match_requested_rank))
-        self.rank_filter.bind('<<ComboboxSelected>>', self.updating_table, '+')
+        self.rank_filter.bind('<<ComboboxSelected>>',
+                              lambda x: (self.filter_manager.set_specific_condition(3, self.rank_filter.get()),
+                                         self.updating_table()))
 
         basic_x += 84
         Label(self, text='Total:', font=(MS_JH, 12)).place(x=basic_x, y=2)
@@ -106,10 +104,6 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
         button.place(x=658, y=-1)
         button["command"] = self.clearing_filter
 
-    def updating_by_specific_filter(self, the_filter, index, ):
-        self.filter_manager.set_specific_condition(index, the_filter.get())
-        self.updating_table()
-
     def update_all_records(self):
         self.records = DBAccessor.execute('select * from ' + self.compose_table_name('RecordOfDrawLots')).fetchall()
         self.updating_table()
@@ -123,8 +117,8 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
 
     def adding_record(self):
         # 該 Window 預設送出後不關閉，故需要提供更新的 callback method
-        popup = AddRecordWindow(self, self.db_suffix, self.get_suitable_event_names(), self.update_all_records)
-        self.wait_window(popup)
+        # 理論上該 callback 將記錄插入 self.records 即可，但目前偷懶讓他全部更新
+        AddRecordWindow(self, self.db_suffix, self.get_suitable_event_names(), self.update_all_records)
 
     # 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
     def get_suitable_event_names(self):
@@ -160,10 +154,10 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
 
         self.redisplay_table()
 
-        # 連動更新統計資料
-        self.__update_statistic(results)
+        # 就篩選結果更新統計資料
+        self._update_statistic_by_specific_results(results)
 
-    def __update_statistic(self, results):
+    def _update_statistic_by_specific_results(self, results):
         # doing statistic
         total = 0
         ssr = 0
@@ -211,6 +205,22 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
         self.wait_window(popup)
         # 已確認 tuple 理念上不希望會更動，故無易懂方法更新回去，而接受重新撈出
         self.update_all_records()
+
+    def do_dragging_along_right(self, row_number):
+        times = self.table_model.getCellRecord(row_number, 0)
+
+        # 確認是否刪除
+        if tkMessageBox.askyesno('Deleting',
+                                 'Are you sure you want to delete the {0}th record ?'.format(times), parent=self):
+            DBAccessor.execute('delete from {0} where Times={1}'.format(
+                self.compose_table_name('RecordOfDrawLots'), times))
+            DBAccessor.commit()
+
+        # 從已撈出的資料中將之移除，並更新顯示
+        for record in self.records:
+            if record[0] == int(times):
+                self.records.remove(record)
+        self.updating_table()
 
     def get_record_by_times(self, times):
         for each_record in self.records:

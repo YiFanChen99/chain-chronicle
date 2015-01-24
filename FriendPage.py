@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
 from MainFrame import *
 from datetime import timedelta
 from ModelUtility.CommonString import *

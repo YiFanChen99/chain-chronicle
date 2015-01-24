@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
 # Conditions
 CONDITIONLESS = '**'
 PROFESSIONS = [u'戰士', u'騎士', u'弓手', u'法師', u'僧侶']

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
 from configparser3 import configparser
 import codecs
 from BaseFrame import *

@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
 from BasicWindow import *
-from CharacterWindow import CharacterSelectionWindow
 from ModelUtility.DBAccessor import *
 from ModelUtility.CommonString import *
 

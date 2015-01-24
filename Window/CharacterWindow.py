@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
 from BasicWindow import *
 from ModelUtility.DBAccessor import *
 from ModelUtility.CommonString import *

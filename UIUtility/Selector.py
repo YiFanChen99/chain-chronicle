@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
 from Tkinter import *
 from PIL import ImageTk
 from ModelUtility.GroupController import RadioGroupController

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-
 from Window.CharacterWindow import *
 from UIUtility.Selector import ProfessionSelector, RankSelector
 from UIUtility.Combobox import FilteredCombobox
@@ -12,7 +10,7 @@ from ModelUtility.Filter import FilterManager
 class CharacterSelectorCanvas(Canvas):
     BG = '#%02x%02x%02x' % (200, 200, 200)
 
-    def __init__(self, master, character_selected, width=126, height=59, **kwargs):
+    def __init__(self, master, character_selected=None, width=126, height=59, **kwargs):
         Canvas.__init__(self, master, width=width, height=height, bg=self.BG, **kwargs)
         self.pack(fill=BOTH, expand=0)
 
@@ -23,16 +21,21 @@ class CharacterSelectorCanvas(Canvas):
         entry = Entry(self, textvariable=self.selected_nickname, width=11, font=(MS_JH, 13),
                       justify=CENTER, state='readonly')
         entry.place(x=7, y=28)
-        entry.bind('<ButtonRelease-1>', self.invoking_character_selection_window)
-
-    # noinspection PyUnusedLocal
-    def invoking_character_selection_window(self, event):
-        popup = CharacterSelectionWindow(self, self._set_character_selected, self.character_selected)
-        self.wait_window(popup)
-        self.selected_nickname.set(self.character_selected.nickname)
+        entry.bind('<ButtonRelease-1>', lambda x: CharacterSelectionWindow(
+            self, self._set_character_selected, self.character_selected))
 
     def _set_character_selected(self, character_selected):
         self.character_selected = character_selected
+        self.selected_nickname.set(character_selected.nickname)
+
+    def get(self):
+        return self.character_selected
+
+    def set(self, character):
+        if isinstance(character, Character):
+            self._set_character_selected(character)
+        else:
+            raise TypeError('Argument types {0}, not Character.'.format(type(character)))
 
 
 class CharacterSelectionWindow(BasicWindow):

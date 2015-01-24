@@ -1,8 +1,7 @@
 
-RecordOfDrawLotsWindow也改成用CharacterSelector
-	
+
 相關的物件改成用 CharacterDataObject
-	CharacterSelectionWindow 已改完，但 CharacterSelectionWindow 的使用者未改。
+	CharacterSelectionWindow 已改完，但 CharacterSelectionWindow 的使用者(FriednWindow)未改。
 		使用 util CharacterSelector。
 		
 讀取CCDB，新增角色的所屬欄位，並能對此搜尋/篩選
@@ -27,9 +26,8 @@ CharacterPage 內的 CharacterInfoWindow 的職業與等級選擇用 Canvas。
 
 次次要（無按順序）：
 記錄好友現況時，若有更改好友ID，則送出後統計時會找不到而出錯，但只要再刷新後統計即可。也可以避免在該時改名。
-RecordOfDraw的資料只需要角色，而不用職業與等級，並透過join達成篩選。（但不急，目前的模式運作簡單許多。）
 優化 Character，不再先刪除後新增，應分為更新與插入。
 抽卡記錄與酒廠的DB改成以Times為Key連結。
 角色列表分台日版（Ex: 台版小兔，2.0 角色，但似乎留著也不影響）
 Character 透過實作 do_dragging_along_right，增加「刪除」功能。（較複雜，需不需要考慮其他表單使用到的情況？）
-PowerConverter 所使用的 RawConfigParser() 較底層，若改用 ConfigParser() 會更方便。
+
