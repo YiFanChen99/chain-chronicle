@@ -11,7 +11,7 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        self.selector = CharacterSelector(self, None)
+        self.selector = CharacterSelectorCanvas(self, None)
         self.selector.place(x=10, y=10)
 
     def the_print(self, obj):

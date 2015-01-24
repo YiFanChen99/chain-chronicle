@@ -1,10 +1,9 @@
 
+RecordOfDrawLotsWindow也改成用CharacterSelector
+	
 相關的物件改成用 CharacterDataObject
 	CharacterSelectionWindow 已改完，但 CharacterSelectionWindow 的使用者未改。
 		使用 util CharacterSelector。
-
-CharacterSelector，對所屬進行篩選
-	RecordOfDrawLotsWindow也改成用CharacterSelector
 		
 讀取CCDB，新增角色的所屬欄位，並能對此搜尋/篩選
 	更新新增角色（小數字IDs）: 改成跳出更新的視窗，送出後才更新

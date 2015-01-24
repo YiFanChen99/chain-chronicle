@@ -3,6 +3,7 @@ __author__ = 'Ricky Chen'
 
 from Window.CharacterWindow import *
 from UIUtility.Selector import ProfessionSelector, RankSelector
+from UIUtility.Combobox import FilteredCombobox
 from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
 from ModelUtility.Filter import FilterManager
@@ -12,8 +13,7 @@ class CharacterSelectorCanvas(Canvas):
     BG = '#%02x%02x%02x' % (200, 200, 200)
 
     def __init__(self, master, character_selected, width=126, height=59, **kwargs):
-        Canvas.__init__(self, master, width=width, height=height, **kwargs)
-        self['bg'] = self.BG
+        Canvas.__init__(self, master, width=width, height=height, bg=self.BG, **kwargs)
         self.pack(fill=BOTH, expand=0)
 
         self.character_selected = character_selected
@@ -36,7 +36,7 @@ class CharacterSelectorCanvas(Canvas):
 
 
 class CharacterSelectionWindow(BasicWindow):
-    def __init__(self, master, callback, character_selected, width=316, height=146, **kwargs):
+    def __init__(self, master, callback, character_selected, width=422, height=155, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Character selection')
         self.geometry('+780+270')
@@ -53,34 +53,47 @@ class CharacterSelectionWindow(BasicWindow):
 
     def _init_widgets(self):
         self.profession_selector = ProfessionSelector(self, self.updating_request_profession)
-        self.profession_selector.place(x=3, y=3)
+        self.profession_selector.place(x=5, y=5)
         self.rank_selector = RankSelector(self, self.updating_request_rank)
-        self.rank_selector.place(x=3, y=49)
+        self.rank_selector.place(x=5, y=53)
 
-        Label(self, text='篩選', width=5, font=("", 11)).place(x=208, y=3)
+        Label(self, text='所屬', width=5, font=("", 10)).place(x=221, y=5)
+        self.belonged_selector = FilteredCombobox(self, width=7, font=("", 11), justify=CENTER)
+        self.belonged_selector['values'] = BELONGEDS
+        self.belonged_selector.place(x=213, y=22)
+        self.belonged_selector.bind('<<ComboboxSelected>>',
+                                    lambda x: self.updating_request_belonged(self.belonged_selector.get()))
+        self.belonged_selector.bind('<Return>', lambda x: self.character_selector.focus_set())
+
+        Label(self, text='篩選', width=5, font=("", 11)).place(x=222, y=54)
         self.name_request = StringVar(value='')
-        entry = Entry(self, width=7, textvariable=self.name_request, font=("", 11))
-        entry.place(x=226, y=22)
-        entry.bind('<Return>', self.updating_character_selector)
+        entry = Entry(self, width=8, textvariable=self.name_request, font=("", 12))
+        entry.place(x=214, y=73)
+        entry.bind('<Return>', lambda x: self.updating_request_name())
+        entry.bind('<Escape>', lambda x: (self.name_request.set(''), self.updating_request_name()))
 
-        Label(self, text='Character', width=10, font=("", 12)).place(x=204, y=47)
-        self.character_selector = ttk.Combobox(self, state='readonly', width=10, justify=CENTER)
-        self.character_selector.place(x=209, y=68)
+        Label(self, text='Character', width=10, font=("", 12)).place(x=304, y=26)
+        self.character_selector = ttk.Combobox(self, state='readonly', width=10, font=("", 12), justify=CENTER)
+        self.character_selector.place(x=305, y=48)
+        self.character_selector.bind('<Return>', lambda x: self.submitting())
 
-        y_position = 105
+        # 熱鍵，直接指過來
+        self.bind('<f>', lambda x: self.character_selector.focus_set())
+
+        y_position = 115
         # 送交的按鈕
-        button = Button(self, text="選擇此角色", width=11, borderwidth=3)
-        button.place(x=15, y=y_position)
+        button = Button(self, text="選擇此角色", width=25, borderwidth=3)
+        button.place(x=17, y=y_position)
         button["command"] = self.submitting
 
         # 新增角色的按鈕
         button = Button(self, text="新增角色", width=9, borderwidth=3)
-        button.place(x=123, y=y_position)
+        button.place(x=225, y=y_position)
         button["command"] = self.adding_new_character
 
         # 取消並結束的按鈕
         button = Button(self, text="放棄選擇", width=9, borderwidth=3)
-        button.place(x=217, y=y_position)
+        button.place(x=317, y=y_position)
         button["command"] = self.destroy
 
     def _init_character_selected(self, character_selected):
@@ -89,6 +102,7 @@ class CharacterSelectionWindow(BasicWindow):
         elif isinstance(character_selected, Character):
             self.profession_selector.select(character_selected.profession)
             self.rank_selector.select(character_selected.rank)
+            self.belonged_selector.set(character_selected.belonged)
             self.updating_character_selector()
             self.character_selector.set(character_selected.nickname)
         else:
@@ -97,10 +111,20 @@ class CharacterSelectionWindow(BasicWindow):
     def updating_request_profession(self, profession):
         self.filter_manager.set_specific_condition(2, profession)
         self.updating_character_selector()
+        self.character_selector.focus_set()
 
     def updating_request_rank(self, rank):
         self.filter_manager.set_specific_condition(3, rank, match_requested_rank)
         self.updating_character_selector()
+        self.character_selector.focus_set()
+
+    def updating_request_belonged(self, belonged):
+        self.filter_manager.set_specific_condition(4, belonged)
+        self.updating_character_selector()
+
+    def updating_request_name(self):
+        self.updating_character_selector()
+        self.character_selector.focus_set()
 
     # 清除原本的選擇，並更新可選擇的角色
     # noinspection PyUnusedLocal
@@ -110,7 +134,6 @@ class CharacterSelectionWindow(BasicWindow):
         for character_infos in self.filter_manager.filter(self.records, convert_to_str(self.name_request.get())):
             character_matched.append(character_infos[0])
         self.character_selector['values'] = character_matched
-        self.character_selector.focus_set()
 
     # 有選擇的情況下才回傳，否則彈出錯誤視窗
     def submitting(self):
@@ -127,4 +150,5 @@ class CharacterSelectionWindow(BasicWindow):
         self.updating_character_selector()
 
     def update_records(self):
-        self.records = DBAccessor.execute('select Nickname, FullName, Profession, Rank from Character').fetchall()
+        self.records = DBAccessor.execute(
+            'select Nickname, FullName, Profession, Rank, Belonged from Character').fetchall()

@@ -50,7 +50,7 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
     def __init_filter_frame(self):
         basic_x = 20
         Label(self, text='E:', font=(MS_JH, 12)).place(x=basic_x, y=3)
-        self.event_filter = FilteredCombobox(self, state='readonly', width=14, justify=CENTER)
+        self.event_filter = FilteredCombobox(self, width=14, justify=CENTER)
         self.event_filter['values'] = [event[0] for event in reversed(self.events)]
         self.event_filter.place(x=basic_x + 18, y=3)
         self.event_filter.bind('<<ComboboxSelected>>',
@@ -59,7 +59,7 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
 
         basic_x += 146
         Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=3)
-        self.cost_filter = FilteredCombobox(self, state='readonly', width=6, justify=CENTER)
+        self.cost_filter = FilteredCombobox(self, width=6, justify=CENTER)
         self.cost_filter['values'] = DRAW_LOTS_COST
         self.cost_filter.place(x=basic_x + 20, y=3)
         self.cost_filter.bind('<<ComboboxSelected>>',
@@ -68,7 +68,7 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
 
         basic_x += 91
         Label(self, text='R:', font=(MS_JH, 12)).place(x=basic_x, y=3)
-        self.rank_filter = FilteredCombobox(self, state='readonly', width=4, justify=CENTER)
+        self.rank_filter = FilteredCombobox(self, width=4, justify=CENTER)
         self.rank_filter['values'] = RANKS_WHEN_DRAW_LOTS
         self.rank_filter.place(x=basic_x + 20, y=3)
         self.rank_filter.bind('<<ComboboxSelected>>', lambda x: self.filter_manager.set_specific_condition(

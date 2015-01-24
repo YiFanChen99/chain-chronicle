@@ -18,8 +18,8 @@ class ComboboxWithEmptyOptions(Combobox):
 
 
 class FilteredCombobox(ComboboxWithEmptyOptions):
-    def __init__(self, master, **kwargs):
-        ComboboxWithEmptyOptions.__init__(self, master, **kwargs)
+    def __init__(self, master, state='readonly', **kwargs):
+        ComboboxWithEmptyOptions.__init__(self, master, state=state, **kwargs)
 
     def get(self):
         selection = ComboboxWithEmptyOptions.get(self)

@@ -46,7 +46,7 @@ class CharacterFrame(MainFrameWithTable):
         # 所屬篩選
         current_x = 448
         Label(filter_frame, text='所屬:', font=(MS_JH, 10)).place(x=current_x + 10, y=-3)
-        self.belonged = FilteredCombobox(filter_frame, state='readonly', width=6, justify=CENTER)
+        self.belonged = FilteredCombobox(filter_frame, width=6, justify=CENTER)
         self.belonged['values'] = BELONGEDS
         self.belonged.place(x=current_x, y=16)
         self.belonged.bind('<<ComboboxSelected>>', self.updating_belonged)
