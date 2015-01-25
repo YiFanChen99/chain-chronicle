@@ -103,7 +103,6 @@ class CharacterSelectionWindow(BasicWindow):
         elif isinstance(character_selected, Character):
             self.profession_selector.select(character_selected.profession)
             self.rank_selector.select(character_selected.rank)
-            self.belonged_selector.set(character_selected.belonged)
             self.updating_character_selector()
             self.character_selector.set(character_selected.nickname)
         else:

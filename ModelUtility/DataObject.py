@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from DBAccessor import *
 from CommonString import *
 
 
@@ -19,8 +18,8 @@ class Character(object):
         self.info_list = list(infos)
         inputs = iter(infos)
 
-        self._c_id = next(inputs)
-        self.info_list.append(self._c_id)
+        self.c_id = next(inputs)
+        self.info_list.append(self.c_id)
         self.full_name = next(inputs)
         self.info_list.append(self.full_name)
         self.nickname = next(inputs)
@@ -65,8 +64,8 @@ class Character(object):
     def _init_info_list_by_cgdt(self, cgdt_character):
         self.info_list = []
 
-        self._c_id = cgdt_character.c_id
-        self.info_list.append(self._c_id)
+        self.c_id = cgdt_character.c_id
+        self.info_list.append(self.c_id)
         self.full_name = cgdt_character.full_name
         self.info_list.append(self.full_name)
         self.nickname = cgdt_character.nickname
@@ -108,17 +107,9 @@ class Character(object):
         self.belonged = cgdt_character.belonged
         self.info_list.append(self.belonged)
 
-    def update_to_db(self):
-        self.update_to_db_without_commit()
-        DBAccessor.commit()
-
-    def update_to_db_without_commit(self):
-        DBAccessor.execute('update Character{0} where ID={1}'.format(
-            convert_data_to_update_command(CHARACTER_DB_TABLE, self.info_list), self._c_id))
-
     def __str__(self):
         return 'ID={0}, FullName={1}, Nickname={2}'.format(
-            self._c_id, self.full_name.encode('utf-8'), self.nickname.encode('utf-8'))
+            self.c_id, self.full_name.encode('utf-8'), self.nickname.encode('utf-8'))
 
 
 class CGDTCharacter:

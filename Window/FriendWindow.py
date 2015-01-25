@@ -6,25 +6,15 @@ from ModelUtility.CommonString import *
 
 
 class FriendInfoUpdaterWindow(BasicWindow):
-    def __init__(self, master, db_suffix, friend_info=None, friend_id=None, width=312, height=272, **kwargs):
+    def __init__(self, master, db_suffix, friend_info, callback, width=312, height=273, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Friend Info')
         self.geometry('+750+260')
         self.db_suffix = db_suffix
 
-        self._init_friend_info(friend_info, friend_id)
-
+        self.friend_info = friend_info  #TODO 放到_init_widget下
         self._init_widget()
-
-    def _init_friend_info(self, friend_info, friend_id):
-        if friend_info is not None:
-            self.friend_info = friend_info
-        elif friend_id is not None:
-            self.friend_info = list(DBAccessor.execute('select ' + ','.join(FRIEND_DISPLAYED_COLUMN) + ' from ' +
-                                                       self.get_db_table_name() + ' where ID=' +
-                                                       str(friend_id)).fetchone())
-        else:
-            raise LookupError('Both friend_info and friend_id are None.')
+        self.callback = callback
 
     def _init_widget(self):
         label_space = 24  # Label 與 輸入元件的距離
@@ -59,7 +49,7 @@ class FriendInfoUpdaterWindow(BasicWindow):
         excellence_entry.bind('<Return>', move_focus_to_defect_entry)
 
         # 送出的按鈕
-        current_y += 66
+        current_y += 69
         Button(self, text="Submit", command=self.submitting, width=26, borderwidth=3,
                font=("", 12)).place(x=31, y=current_y)
 
@@ -89,6 +79,7 @@ class FriendInfoUpdaterWindow(BasicWindow):
         DBAccessor.commit()
 
         self.destroy()
+        self.callback()
 
     # 好友已存在時使用原記錄，若好友不存在時使用當天日期
     def init_added_date(self):
@@ -99,18 +90,19 @@ class FriendInfoUpdaterWindow(BasicWindow):
 
 
 class FriendRecordUpdaterWindow(BasicWindow):
-    def __init__(self, master, record, width=309, height=198, **kwargs):
+    def __init__(self, master, record, callback, width=309, height=198, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Friend Record')
         self.geometry('+740+230')
 
         self._init_widget()
         self._init_record(record)
+        self.callback = callback
 
     def _init_widget(self):
         Label(self, width=12, text='UsedNames :', font=(SCP, 12)).place(x=15, y=8)
         self.used_names = StringVar()
-        Label(self, width=24, textvariable=self.used_names, font=(MS_JH, 12), anchor=W).place(x=40, y=32)
+        Label(self, width=22, textvariable=self.used_names, font=(MS_JH, 12), anchor=W).place(x=47, y=32)
 
         self.character_selector = CharacterSelectorCanvas(self)
         self.character_selector.place(x=8, y=68)
@@ -137,7 +129,7 @@ class FriendRecordUpdaterWindow(BasicWindow):
         self.record = record
         self.used_names.set(record[2])
         # 角色名稱已指定時便套用，否則套用前名稱
-        character_name = record[4] if record[4] != '' else record[8]
+        character_name = record[4] if record[4] is not None else record[8]
         self.character_selector.set(DBAccessor.select_character_by_specific_column('Nickname', character_name)
                                     if character_name != '' else None)
         # 角色等級/Rank等級未選擇時為空，已選擇便用已選擇
@@ -150,3 +142,4 @@ class FriendRecordUpdaterWindow(BasicWindow):
         self.record[5] = self.character_level_var.get()
         self.record[6] = self.rank_var.get()
         self.destroy()
+        self.callback()

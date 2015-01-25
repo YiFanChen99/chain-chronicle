@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
-from ModelUtility.CommonString import *
 from ModelUtility.DBAccessor import *
-from ModelUtility.DataObject import Character, CGDTCharacter
+from ModelUtility.DataObject import *
 
 DEFAULT_PATH = 'data/CCGameDBTW.txt'
 # BulletSpeed 弓統基本15，法10
@@ -53,8 +52,7 @@ class MyDBUpdater:
                 DBAccessor.execute('update Character{0} where FullName={1}'.format(
                     convert_data_to_update_command(['ID'], [cgdt_character.c_id]),
                     convert_datum_to_command(character[0])))
-                data_object = Character(cgdt_character=cgdt_character)
-                data_object.update_to_db_without_commit()
+                DBAccessor.update_character_to_db(Character(cgdt_character=cgdt_character))
             # 若資料取得發生問題，則記錄後就略過
             except StandardError as e:
                 print e

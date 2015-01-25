@@ -16,26 +16,26 @@ class RecordWindow(BasicWindow):
 
     def _init_widgets(self, event_names):
         # 筆數
-        current_y = 14
-        Label(self, text=DRAW_LOTS_DB_TABLE[0], width=6, font=("", 12)).place(x=3, y=current_y)
+        current_y = 15
+        Label(self, text=DRAW_LOTS_DB_TABLE[0], width=6, font=("", 12)).place(x=4, y=current_y)
         self.times = Variable()  # 下一次的筆數
-        Label(self, textvariable=self.times, width=6, font=("", 12)).place(x=3, y=current_y + 27)
+        Label(self, textvariable=self.times, width=6, font=("", 12)).place(x=4, y=current_y + 27)
 
         # 酒廠
-        Label(self, text=DRAW_LOTS_DB_TABLE[1], width=14, font=("", 12)).place(x=56, y=current_y)
+        Label(self, text=DRAW_LOTS_DB_TABLE[1], width=14, font=("", 12)).place(x=57, y=current_y)
         self.event_selector = ttk.Combobox(self, state='readonly', width=14, justify=CENTER)
         self.event_selector['values'] = event_names
-        self.event_selector.place(x=63, y=current_y + 27)
+        self.event_selector.place(x=64, y=current_y + 27)
 
         # 角色
         self.character_selector = CharacterSelectorCanvas(self)
-        self.character_selector.place(x=200, y=current_y - 3)
+        self.character_selector.place(x=201, y=current_y - 4)
 
         # 花費
-        Label(self, text=DRAW_LOTS_DB_TABLE[5], width=9, font=("", 12)).place(x=337 + 0, y=current_y)
+        Label(self, text=DRAW_LOTS_DB_TABLE[5], width=9, font=("", 12)).place(x=338, y=current_y)
         self.cost_selector = ttk.Combobox(self, state='readonly', width=8, justify=CENTER)
         self.cost_selector['values'] = DRAW_LOTS_COST
-        self.cost_selector.place(x=337 + 8, y=current_y + 27)
+        self.cost_selector.place(x=346, y=current_y + 27)
 
         # 送交、新增角色、取消並關閉的按鈕
         current_y = 90

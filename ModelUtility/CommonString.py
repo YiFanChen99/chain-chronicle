@@ -27,6 +27,4 @@ CHARACTER_DB_TABLE = ['ID', 'FullName', 'Nickname', 'Profession', 'Rank',
                       'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown',
                       'HPGrown', 'AtkSpeed', 'CriticalRate', 'Note', 'Belonged']
 FRIEND_MODIFIED_COLUMN = ['UsedNames', 'Excellence', 'Defect', 'AddedDate']
-FRIEND_DISPLAYED_COLUMN = ['ID', 'UsedNames', 'Excellence', 'Defect', 'UsedCharacters', 'Rank',
-                           'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate', 'LastProfession']
 DRAW_LOTS_DB_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']

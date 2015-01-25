@@ -3,6 +3,7 @@ from MainFrame import *
 from datetime import timedelta
 from ModelUtility.CommonString import *
 from Window.FriendWindow import FriendInfoUpdaterWindow, FriendRecordUpdaterWindow
+from ModelUtility.DBAccessor import DBAccessor
 from ModelUtility.Utility import bind_check_box_and_label
 
 UPDATED_BY_RECORD_COLUMN = ['UsedCharacters', 'Rank', 'RaisedIn3Weeks', 'RaisedIn2Months',
@@ -11,7 +12,9 @@ FRIEND_CLEAN_UP_COLUMN = FRIEND_MODIFIED_COLUMN + UPDATED_BY_RECORD_COLUMN
 ORDER_SELECTOR = ['Profession', 'Rank', 'In3Weeks', 'In2Months', 'AddedDate']
 RECORD_DB_COLUMN = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
 RECORD_DISPLAYED_COLUMN = ['Status', 'FriendID', 'UsedNames', 'LastProfession',
-                           'Character', 'CharacterLevel', 'Rank', 'LastRank']
+                           'Character', 'C_Level', 'Rank', 'LastRank']
+FRIEND_DISPLAYED_COLUMN = ['ID', 'UsedNames', 'Excellence', 'Defect', 'UsedCharacters', 'Rank',
+                           'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate', 'LastProfession']
 
 
 class FriendInfo(MainFrameWithTable):
@@ -120,15 +123,13 @@ class FriendInfo(MainFrameWithTable):
     # 取得未使用的 ID，並將新好友指定到該 ID
     def adding_new_friend(self):
         unused_record = DATABASE.execute('select ID from ' + self.compose_table_name('Friend') +
-                                  ' where UsedNames==\'\'').fetchone()
+                                         ' where UsedNames==\'\'').fetchone()
 
         if unused_record is None:
             tkMessageBox.showwarning("Can not add any friend", '已達好友上限', parent=self)
             return
 
-        popup = FriendInfoUpdaterWindow(self, self.db_suffix, friend_id=unused_record[0])
-        self.wait_window(popup)
-        self.updating_page()
+        FriendInfoUpdaterWindow(self, self.db_suffix, [unused_record[0]] + [''] * 9, callback=self.updating_page)
 
     def set_order_in_table_model(self):
         column_names = dict(zip(ORDER_SELECTOR, ['LastProfession', 'Rank', 'RaisedIn3Weeks',
@@ -139,9 +140,8 @@ class FriendInfo(MainFrameWithTable):
     def do_double_clicking(self, event):
         row = self.table_view.get_row_clicked(event)
         friend_id = int(self.table_model.getCellRecord(row, 0))
-        popup = FriendInfoUpdaterWindow(self, self.db_suffix, friend_info=self.get_info_by_id(friend_id))
-        self.wait_window(popup)
-        self.updating_table()
+        FriendInfoUpdaterWindow(self, self.db_suffix,
+                                friend_info=self.get_info_by_id(friend_id), callback=self.updating_table)
 
     def do_dragging_along_right(self, row_number):
         # 確認是否刪除
@@ -249,7 +249,7 @@ class FriendRecord(MainFrameWithTable):
                                    self.compose_table_name('Friend') + ' where UsedNames!=\'\'')
         for infos in friends:
             self.friend_records.append([UNRECORDED, infos[0], convert_to_str(infos[1]),
-                                        convert_to_str(infos[2]), '', None, None, infos[3], convert_to_str(infos[4])])
+                                        convert_to_str(infos[2]), None, None, None, infos[3], convert_to_str(infos[4])])
 
         self.friend_count_str.set('Friends: %02d' % len(self.friend_records))  # 好友總數
 
@@ -270,7 +270,7 @@ class FriendRecord(MainFrameWithTable):
             for row in records:
                 data = iter(row)
                 self.table_model.addRow(Status=next(data), FriendID=next(data), UsedNames=next(data),
-                                        LastProfession=next(data), Character=next(data), CharacterLevel=next(data),
+                                        LastProfession=next(data), Character=next(data), C_Level=next(data),
                                         Rank=next(data), LastRank=next(data))
 
         self.table_model.setSortOrder(columnName='LastProfession')
@@ -291,14 +291,15 @@ class FriendRecord(MainFrameWithTable):
 
         column = self.table_view.get_col_clicked(event)
         if column <= 2:
-            popup = FriendInfoUpdaterWindow(self, self.db_suffix, friend_id=friend_id)
-            self.wait_window(popup)
+            FriendInfoUpdaterWindow(self, self.db_suffix, self.get_friend_info_by_id(friend_id), callback=lambda: None)
         else:
-            popup = FriendRecordUpdaterWindow(self, self.get_record_by_friend_id(friend_id))
-            self.wait_window(popup)
-            self.updating_table()
+            FriendRecordUpdaterWindow(self, self.get_friend_record_by_id(friend_id), self.updating_table)
 
-    def get_record_by_friend_id(self, friend_id):
+    def get_friend_info_by_id(self, friend_id):
+        return list(DBAccessor.execute('select {0} from Friend{1} where ID={2}'.format(
+            ','.join(FRIEND_DISPLAYED_COLUMN), self.db_suffix, friend_id)).fetchone())
+
+    def get_friend_record_by_id(self, friend_id):
         for each_record in self.friend_records:
             if each_record[1] == friend_id:
                 return each_record

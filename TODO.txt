@@ -1,5 +1,5 @@
 
-新增好友欄位 off_line
+新增好友欄位 off_line, 關係
 改掉一直傳 db_suffix 的問題
 		
 待整理：
