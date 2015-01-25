@@ -3,21 +3,11 @@ import json
 from ModelUtility.DBAccessor import *
 from ModelUtility.DataObject import *
 
-DEFAULT_PATH = 'data/CCGameDBTW.txt'
-# BulletSpeed 弓統基本15，法10
-# Tag [male][Log Horizon]等，應是對應網站中提供的標籤篩選功能
-# @Unknown1 總是15，懷疑是跑速，但寶石也一樣；@Unknown2 總是2；@Unknown3 總是0
-COLUMNS = ['ID', 'Title', 'Name', 'Nickname', 'Rank', 'Cost', 'ProfessionID', 'Classification',
-           'Weapon', 'GrownSpeed', 'InitAtk', 'InitHP', 'MaxAtk', 'MaxHP', 'MaxBrokenAtk', 'MaxBrokenHP',
-           'OwnedWay', 'ActiveCost', 'Active', 'Passive1Level', 'Passive1', 'Passive2Level', 'Passive2',
-           'HitRate', '@Unknown1', 'BulletSpeed', 'CriticalRate', 'Artist', 'CharacterVoice', 'Tag',
-           'ActiveName', 'Passive1Name', 'Passive2Name', 'ExpGrown', '@Unknown2', '@Unknown3',
-           'Belonged', 'Attachment', 'AttachmentName', 'AttachedCost']
-COLUMN_COUNT = len(COLUMNS)
+CGDT_DEFAULT_PATH = 'data/CCGameDBTW.txt'
 
 
 class CCGameDBTWDataOwner:
-    def __init__(self, file_path=DEFAULT_PATH):
+    def __init__(self, file_path=CGDT_DEFAULT_PATH):
         self.data = load_json(file_path)
 
     def find_character_by_id(self, the_id):
@@ -85,15 +75,7 @@ class MyDBUpdater:
                 print e
 
 
-# 取出該 DB 檔案中的資訊，並作初步的欄位比對檢查
+# 取出該 DB 檔案中的資訊
 def load_json(filename):
     with open('%s' % filename) as json_data:
-        my_data = json.loads(json_data.read().decode('utf-8-sig'))
-
-    # verify columns
-    if len(my_data[0]) == COLUMN_COUNT:
-        return my_data
-    else:
-        for i in range(0, COLUMN_COUNT):
-            print COLUMNS[i], ': ', my_data[i]
-        raise Exception('Columns 比對錯誤： CCDB 共 %d 欄，COLUMNS 共 %d 欄' % (len(my_data[0]), COLUMN_COUNT))
+        return json.loads(json_data.read().decode('utf-8-sig'))

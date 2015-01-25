@@ -188,7 +188,7 @@ class CharacterInfoWindow(BasicWindow):
         # 將可能存在資料庫的資料先刪除，接續之後的插入就是更新動作了
         DBAccessor.execute('delete from Character where ID={0}'.format(self.character_id))
 
-        DBAccessor.execute('insert into Character({0})'.format(','.join(CHARACTER_DB_TABLE)) +
+        DBAccessor.execute('insert into Character({0})'.format(','.join(Character.DB_TABLE)) +
                            convert_data_to_insert_command(self.character_id, self.full_name.get(), self.nickname.get(),
                                                           self.profession.get(), self.rank.get(),
                                                           self.active.get(), self.active_cost.get(),

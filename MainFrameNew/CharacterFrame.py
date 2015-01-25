@@ -7,9 +7,6 @@ from ModelUtility.Comparator import *
 from UIUtility.Combobox import FilteredCombobox
 from UIUtility.Selector import ProfessionSelector, RankSelector
 
-DISPLAYED_COLUMNS = [CHARACTER_DB_TABLE[0]] + CHARACTER_DB_TABLE[2:11] + \
-                    CHARACTER_DB_TABLE[13:15] + CHARACTER_DB_TABLE[19:21]
-
 
 class CharacterFrame(MainFrameWithTable):
     def __init__(self, master, **kwargs):
@@ -66,7 +63,7 @@ class CharacterFrame(MainFrameWithTable):
     def updating_table(self, event=None):
         self.table_model = TableModel()
 
-        for column in DISPLAYED_COLUMNS:
+        for column in Character.DISPLAYED_COLUMNS:
             self.table_model.addColumn(column)
 
         # 取得符合篩選條件與篩選名稱的角色
@@ -94,8 +91,8 @@ class CharacterFrame(MainFrameWithTable):
     def __get_displated_columns(record):
         record = list(record)
         result = []
-        for i in range(len(CHARACTER_DB_TABLE)):
-            if CHARACTER_DB_TABLE[i] in DISPLAYED_COLUMNS:
+        for i in range(len(Character.DB_TABLE)):
+            if Character.DB_TABLE[i] in Character.DISPLAYED_COLUMNS:
                 result.append(record[i])
         return result
 

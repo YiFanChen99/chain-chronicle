@@ -22,9 +22,4 @@ SCP = 'Source Code Pro'  # Monokai 所用字型
 IMAGE_FOLDER = 'images/'
 
 # Tables
-CHARACTER_DB_TABLE = ['ID', 'FullName', 'Nickname', 'Profession', 'Rank',
-                      'Active', 'ActiveCost', 'Passive1', 'Passive2', 'Attachment', 'WeaponType',
-                      'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown',
-                      'HPGrown', 'AtkSpeed', 'CriticalRate', 'Note', 'Belonged']
 FRIEND_MODIFIED_COLUMN = ['UsedNames', 'Excellence', 'Defect', 'AddedDate']
-DRAW_LOTS_DB_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']

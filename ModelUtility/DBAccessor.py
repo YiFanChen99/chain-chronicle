@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import sqlite3
 from datetime import datetime
-from ModelUtility.CommonString import *
-from ModelUtility.DataObject import Character
+from ModelUtility.DataObject import *
 
 
 class DBAccessor():
@@ -30,7 +29,7 @@ class DBAccessor():
     @staticmethod
     def update_character_to_db(character):
         DBAccessor.execute('update Character{0} where ID={1}'.format(
-            convert_data_to_update_command(CHARACTER_DB_TABLE, character.info_list), character.c_id))
+            convert_data_to_update_command(Character.DB_TABLE, character.info_list), character.c_id))
 
 
 # 組成「"values(x1,x2,...,xn)"」的字串回傳

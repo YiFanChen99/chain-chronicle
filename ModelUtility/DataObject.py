@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
 from CommonString import *
 
+DRAW_LOTS_DB_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
+
 
 class Character(object):
+    DB_TABLE = ['ID', 'FullName', 'Nickname', 'Profession', 'Rank', 'Active', 'ActiveCost', 'Passive1', 'Passive2',
+                'Attachment', 'WeaponType', 'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown', 'HPGrown',
+                'AtkSpeed', 'CriticalRate', 'Note', 'Belonged']
+    DISPLAYED_COLUMNS = [DB_TABLE[0]] + DB_TABLE[2:11] + DB_TABLE[13:15] + DB_TABLE[19:21]
+
     def __init__(self, infos=None, cgdt_character=None):
         if infos is not None:
             self._init_info_list(infos)
@@ -108,11 +115,21 @@ class Character(object):
         self.info_list.append(self.belonged)
 
     def __str__(self):
-        return 'ID={0}, FullName={1}, Nickname={2}'.format(
+        return 'Character: ID={0}, FullName={1}, Nickname={2}'.format(
             self.c_id, self.full_name.encode('utf-8'), self.nickname.encode('utf-8'))
 
 
-class CGDTCharacter:
+class CGDTCharacter(object):
+    # BulletSpeed 弓統基本15，法10
+    # Tag [male][Log Horizon]等，應是對應網站中提供的標籤篩選功能
+    # @Unknown1 總是15，懷疑是跑速，但寶石也一樣；@Unknown2 總是2；@Unknown3 總是0
+    DB_TABLE = ['ID', 'Title', 'Name', 'Nickname', 'Rank', 'Cost', 'ProfessionID', 'Classification', 'Weapon',
+                'GrownSpeed', 'InitAtk', 'InitHP', 'MaxAtk', 'MaxHP', 'MaxBrokenAtk', 'MaxBrokenHP', 'OwnedWay',
+                'ActiveCost', 'Active', 'Passive1Level', 'Passive1', 'Passive2Level', 'Passive2', 'HitRate',
+                '@Unknown1', 'BulletSpeed', 'CriticalRate', 'Artist', 'CharacterVoice', 'Tag', 'ActiveName',
+                'Passive1Name', 'Passive2Name', 'ExpGrown', '@Unknown2', '@Unknown3',
+                'Belonged', 'Attachment', 'AttachmentName', 'AttachedCost']
+
     # noinspection PyUnusedLocal
     def __init__(self, the_list):
         self.fields_number = -1  # 本身會自動被記入，故設 -1 以平衡
@@ -153,7 +170,7 @@ class CGDTCharacter:
         self.exp_grown = next(properties)
         dropped = next(properties)  # Unknown2
         dropped = next(properties)  # Unknown3
-        self.__init_belonged(next(properties))
+        self._init_belonged(next(properties))
         self.attachment = next(properties)
         dropped = next(properties)  # AttachmentName
         self.attached_cost = int(next(properties))
@@ -171,7 +188,7 @@ class CGDTCharacter:
         return (broken_max - origin_max) / 4
 
     # 除了將其命名轉成我的格式以外，也檢查不可有我預期外的名稱出現
-    def __init_belonged(self, name):
+    def _init_belonged(self, name):
         replaced_name = name.replace(u'海風之港', u'海風').replace(u'賢者之塔', u'賢塔').\
             replace(u'迷宮山脈', u'山脈').replace(u'獸里', u'獸之里')
 
@@ -182,5 +199,57 @@ class CGDTCharacter:
                 name.encode('utf-8'), self.full_name.encode('utf-8')))
 
     def __str__(self):
-        return 'ID={0}, FullName={1}, Nickname={2}'.format(
+        return 'CGDTCharacter: ID={0}, FullName={1}, Nickname={2}'.format(
             self.c_id, self.full_name.encode('utf-8'), self.nickname.encode('utf-8'))
+
+
+class FriendInfo(object):
+    DB_TABLE = ['ID', 'UsedNames', 'Excellence', 'Defect', 'Relation', 'Offline', 'UsedCharacters', 'Rank',
+                'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate', 'LastProfession', 'LastCharacter']
+
+    def __init__(self, infos):
+        properties = iter(infos)
+
+        self.f_id = next(properties)
+        self.used_names = next(properties)
+        self.excellence = next(properties)
+        self.defect = next(properties)
+        self.relation = next(properties)
+        self.offline = next(properties)
+        self.used_characters = next(properties)
+        self.rank = next(properties)
+        self.raised_in_3_weeks = next(properties)
+        self.raised_in_2_months = next(properties)
+        self.added_date = next(properties)
+        self.last_profession = next(properties)
+        self.last_character = next(properties)
+
+    def __str__(self):
+        return 'FriendInfo: ID={0}, UsedNames={1}'.format(self.f_id, self.used_names.encode('utf-8'))
+
+
+class FriendRecord(object):
+    DB_TABLE = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
+    SELECTED_COLUMNS = ['ID', 'UsedNames', 'Rank', 'LastProfession', 'LastCharacter']
+    DISPLAYED_COLUMNS = ['Status'] + SELECTED_COLUMNS[0:2] + DB_TABLE[2:5] + SELECTED_COLUMNS[2:5]
+
+    def __init__(self, records):
+        properties = iter(records)
+
+        self.status = UNRECORDED
+        self.f_id = next(properties)
+        self.used_names = next(properties)
+        # self.recorded_date = next(properties)
+        self.character = None
+        self.character_level = None
+        self.rank = None
+        self.last_rank = next(properties)
+        self.last_profession = next(properties)
+        self.last_character = next(properties)
+
+    @staticmethod
+    def get_selection_command(db_suffix):
+        return 'select {0} from Friend{1} where UsedNames!=\'\''.format(','.join(FriendRecord.SELECTED_COLUMNS), db_suffix)
+
+    def __str__(self):
+        return 'FriendRecord: ID={0}, UsedNames={1}, Status={2}'.format(self.f_id, self.used_names.encode('utf-8'), self.status)
