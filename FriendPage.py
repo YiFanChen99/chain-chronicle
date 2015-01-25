@@ -185,18 +185,15 @@ class FriendRecord(MainFrameWithTable):
         button["command"] = self.switching_to_friend_info
 
     def submitting(self):
-        # 數量計算並要求確認，確認時才真正送出
-        updated_record_number = len([data for data in self.friend_records if data[0] == RECORDED])
-        if tkMessageBox.askyesno('Recording these records?', '總計 {0} 筆記錄，\n是否確認送出？'.format(
-                str(updated_record_number)), parent=self):
-            # 將已經登記的 record 更新到 DB 內
+        # 先確認資料的正確性
+        if self.validate_before_submitting():
+            # 將已經登記的 record 逐一更新到 DB 內
             for data in self.friend_records:
                 if data[0] == RECORDED:
                     DATABASE.execute('insert into ' + self.compose_table_name('FriendRecord') +
                                      ' (' + ','.join(RECORD_DB_COLUMN) + ')' +
                                      convert_data_to_insert_command(data[1], self.date.get(),
                                                                     data[4], data[5], data[6]))
-                    updated_record_number += 1
             DATABASE.commit()
         else:
             return
@@ -205,6 +202,12 @@ class FriendRecord(MainFrameWithTable):
         update_friend_info_table(self.db_suffix)
 
         self.master.update_main_frame(FriendInfo(self.master, self.db_suffix))
+
+    # 檢查數量計算並要求確認，確認時才真正送出
+    def validate_before_submitting(self):
+        updated_record_number = len([data for data in self.friend_records if data[0] == RECORDED])
+        return tkMessageBox.askyesno('Recording these records?', '總計 {0} 筆記錄，\n是否確認送出？'.format(
+            str(updated_record_number)), parent=self)
 
     def switching_to_friend_info(self):
         self.master.update_main_frame(FriendInfo(self.master, self.db_suffix))

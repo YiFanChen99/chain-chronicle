@@ -137,9 +137,16 @@ class FriendRecordUpdaterWindow(BasicWindow):
         self.rank_var.set('' if record[6] is None else record[6])
 
     def submitting(self):
+        # 檢查確認 rank 是否正確
+        if self.rank_var.get() < self.record[7] or self.rank_var.get() > self.record[7] + 3:
+            message = 'Friend {0} has rank {1} with previous rank {2}.\nSure to continue?'.format(
+                self.record[2], self.rank_var.get(), self.record[7])
+            if not tkMessageBox.askyesno('Unusual rank', message, parent=self):
+                return
+
         self.record[0] = RECORDED
         self.record[4] = convert_to_str(self.character_selector.get().nickname)
         self.record[5] = self.character_level_var.get()
         self.record[6] = self.rank_var.get()
-        self.destroy()
         self.callback()
+        self.destroy()
