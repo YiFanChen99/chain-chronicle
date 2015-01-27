@@ -3,10 +3,11 @@ from Tkinter import *
 from Static import *
 import FrequentPage
 import Utilities
-from MainFrameNew.RecordFrame import RecordFrame
+from MainFrameNew.BaseFrame import *
 from MainFrameNew.CharacterFrame import CharacterFrame
+from MainFrameNew.RecordFrame import RecordFrame
 from MainFrameNew.RecordOfDrawLotsFrame import RecordOfDrawLotsFrame
-import FriendPage
+from MainFrameNew.FriendFrame import FriendInfoFrame
 
 
 class SubMenuFrame(Frame):
@@ -68,13 +69,13 @@ class AccountGroupFrame(SubMenuFrame):
         frame_name = self.Frames[index]
         if frame_name == 'MyCharacter':
              # TODO MyCharacter
-            return FrequentPage.MainFrame(self.master, self.db_suffix, width=100, height=100, background='blue')
+            return MainFrame(self.master, self.db_suffix, width=100, height=100, background='blue')
         elif frame_name == 'Resource':
              # TODO Resource
-            return FrequentPage.MainFrame(self.master, self.db_suffix, width=100, height=100, background='red')
+            return MainFrame(self.master, self.db_suffix, width=100, height=100, background='red')
         elif frame_name == 'RecordOfDrawLots':
             return RecordOfDrawLotsFrame(self.master, self.db_suffix)
         elif frame_name == 'Friend':
-            return FriendPage.FriendInfo(self.master, self.db_suffix)
+            return FriendInfoFrame(self.master, self.db_suffix)
         else:
             raise Exception("Wrong group selected!")

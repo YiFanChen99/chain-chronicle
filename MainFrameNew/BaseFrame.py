@@ -106,6 +106,7 @@ class TableView(TableCanvas):
 class TableModelAdvance(TableModel):
     def __init__(self, **kwargs):
         TableModel.__init__(self, **kwargs)
+        self.main_column = ''
 
     # 清空原有的欄位，並依據給予的欄位重新設定。並設定無資料時提示文字顯示在哪欄
     def set_columns(self, columns, main_column=None):
@@ -116,7 +117,7 @@ class TableModelAdvance(TableModel):
         self.main_column = columns[0] if main_column is None else main_column
 
     # 清空原有的記錄，並依據給予的記錄重新設定
-    def set_Rows(self, rows):
+    def set_rows(self, rows):
         self.deleteRows()
 
         if len(rows) == 0:

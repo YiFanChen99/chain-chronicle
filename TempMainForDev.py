@@ -14,24 +14,31 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        DB_TABLE = ['ID', 'UsedNames', 'Excellence', 'Defect', 'Relation', 'Offline', 'UsedCharacters', 'Rank',
-                'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate', 'LastProfession', 'LastCharacter']
-        result = DB_TABLE[1:3]
-        print result
-        # tv = TableView(self)
-        # a = TableModelAdvance()
-        # a.set_columns(['I', 'you', 'she'])
-        # # a.addRow(I=10, she=3,you=9)
-        # a.set_Rows([])
-        # # a.set_Rows([[9, 3,6], [7, u'哈哈',666]])
-        #
-        # tv.setModel(a)
-        # tv.createTableFrame()
-        # tv.redrawTable()
-        # tv.adjustColumnWidths()
+        self.a = TableModelAdvance()
+        # self.a.set_columns(FriendInfo.DISPLAYED_COLUMNS, main_column='UsedNames')
+        self.a.set_columns(['1','2',u'我','4','5','6'])
+        self.tv = TableView(self)
+        self.tv.setModel(self.a)
+
+        f_info = DBAccessor.select_friend_info_list('JP')[0]
+        print f_info
+
+        # self.a.set_rows([f_info.get_displayed_info()])
+        self.a.set_rows([[1,2,3,'你',5,6]])
+
+        self.tv.createTableFrame()
+        self.tv.redrawTable()
+        self.tv.adjustColumnWidths()
+        self.tv.bind('<Return>', lambda x:(self.the_print(), self.update()))
+
+    def update(self):
+        self.a.set_rows([[9, 3,6], [7, u'哈哈',666]])
+        self.tv.createTableFrame()
+        self.tv.redrawTable()
+        self.tv.adjustColumnWidths()
 
     def the_print(self):
-        return 1, 2, 5
+        print 1, 2, 5
         # popup.mainloop()
         # popup = BasicWindow1(self, width=30 , height=60)
         # popup.transient(self)

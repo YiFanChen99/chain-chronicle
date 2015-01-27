@@ -206,6 +206,7 @@ class CGDTCharacter(object):
 class FriendInfo(object):
     DB_TABLE = ['ID', 'UsedNames', 'Excellence', 'Defect', 'Relation', 'Offline', 'UsedCharacters', 'Rank',
                 'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate', 'LastProfession', 'LastCharacter']
+    DISPLAYED_COLUMNS = DB_TABLE[0:12]
     # UPDATED_BY_STATISTIC_COLUMNS = DB_TABLE[6:10] + DB_TABLE[11:13]  #TODO
 
     def __init__(self, infos=None, the_id=None):  # TODO id 是否需要要看 FriendModel 實作成果
@@ -231,7 +232,14 @@ class FriendInfo(object):
         self.raised_in_2_months = next(properties)
         self.added_date = next(properties)
         self.last_profession = next(properties)
-        self.last_character = next(properties)
+
+    def get_displayed_info(self):
+        return [self.f_id, self.used_names.encode('utf-8'), self.excellence.encode('utf-8'), self.defect.encode('utf-8'),
+                self.relation.encode('utf-8'), self.offline, self.used_characters.encode('utf-8'), self.rank,
+                self.raised_in_3_weeks, self.raised_in_2_months, self.added_date, self.last_profession.encode('utf-8')]
+
+    def __getitem__(*args, **kwargs):
+        return getattr(*args, **kwargs)
 
     def __str__(self):
         return 'FriendInfo: ID={0}, UsedNames={1}'.format(self.f_id, self.used_names.encode('utf-8'))
@@ -244,7 +252,7 @@ class FriendRecord(object):
 class NewFriendRecord(FriendRecord):
     FRIEND_INFO_SELECTED_COLUMNS = ['ID', 'UsedNames', 'Rank', 'LastProfession', 'LastCharacter']
     DISPLAYED_COLUMNS = FRIEND_INFO_SELECTED_COLUMNS[0:2] + FriendRecord.DB_TABLE[2:5] + \
-        FRIEND_INFO_SELECTED_COLUMNS[2:5]
+        FRIEND_INFO_SELECTED_COLUMNS[2:4]
 
     def __init__(self, infos):
         self.f_id = infos[0]
@@ -279,7 +287,8 @@ class NewFriendRecord(FriendRecord):
     # 角色名稱已指定時便套用，否則套用前角色名稱
     @property
     def current_character(self):
-        return self.character_nickname if self.character_nickname is not None else self.last_character
+        return self.character_nickname if self.character_nickname is not None else \
+            self.last_character if self.last_character is not None else ''
 
     # 角色等級未選擇時為空（方便直接填新值），已選擇便用已選擇
     @property
@@ -292,8 +301,8 @@ class NewFriendRecord(FriendRecord):
         return self.rank if self.rank is not None else ''
 
     def get_displayed_info(self):
-        return [self.f_id, self.used_names, self.character_nickname, self.character_level,
-                self.rank, self.last_rank, self.last_profession, self.last_character]
+        return [self.f_id, self.used_names.encode('utf-8'), self.current_character.encode('utf-8'),
+                self.current_character_level, self.current_rank, self.last_rank, self.last_profession.encode('utf-8')]
 
     def get_inserted_info(self, date):
         return self.f_id, date, self.character_nickname, self.character_level, self.rank

@@ -32,6 +32,12 @@ class DBAccessor():
             convert_data_to_update_command(Character.DB_TABLE, character.info_list), character.c_id))
 
     @staticmethod
+    def select_friend_info_list(db_suffix):
+        return [FriendInfo(each) for each in
+                DBAccessor.execute('select {0} from Friend{1} where UsedNames!=\'\''.format(
+                    ','.join(FriendInfo.DISPLAYED_COLUMNS), db_suffix))]
+
+    @staticmethod
     def select_new_friend_record_list(db_suffix):
         return [NewFriendRecord(each) for each in
                 DBAccessor.execute('select {0} from Friend{1} where UsedNames!=\'\''.format(
