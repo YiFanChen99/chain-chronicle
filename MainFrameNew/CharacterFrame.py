@@ -67,7 +67,7 @@ class CharacterFrame(MainFrameWithTable):
             self.table_model.addColumn(column)
 
         # 取得符合篩選條件與篩選名稱的角色
-        results = self.filter_manager.filter(self.records, convert_to_str(self.request.get()))
+        results = self.filter_manager.filter(self.records, self.request.get())
 
         if len(results) == 0:
             self.table_model.addRow(Nickname='無任何記錄')

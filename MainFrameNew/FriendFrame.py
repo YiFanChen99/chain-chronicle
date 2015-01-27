@@ -47,7 +47,7 @@ class FriendInfoFrame(MainFrameWithTable):
         self.order_selector.set(self.ORDER_OPTIONS[0])
         self.order_selector['values'] = self.ORDER_OPTIONS
         self.order_selector.place(x=basic_x + 55, y=basic_y + 1)
-        self.order_selector.bind('<<ComboboxSelected>>', lambda x: self.updating_table())
+        self.order_selector.bind('<<ComboboxSelected>>', lambda x: self.redisplay_table_by_order_rule())
 
         # 角色部分名稱篩選
         basic_x = 322
@@ -87,8 +87,16 @@ class FriendInfoFrame(MainFrameWithTable):
         self.table_model.set_rows([info.get_displayed_info()
                                    for info in self.filer_manager.filter(self.friends, self.queried_name.get())])
 
-        self.update_order_rule(self.order_selector.get())
-        self.redisplay_table()
+        self.redisplay_table_by_order_rule()
+
+    def redisplay_table_by_order_rule(self):
+        # 先根據目前的選擇設定排序方法
+        corresponding_column_names = \
+            dict(zip(self.ORDER_OPTIONS, ['LastProfession', 'Rank', 'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate']))
+        self.table_model.setSortOrder(columnName=corresponding_column_names[self.order_selector.get()])
+
+        MainFrameWithTable.redisplay_table(self)
+
         self.table_view.hide_column('ID')
         self.table_view.hide_column('LastProfession')
 
@@ -99,11 +107,6 @@ class FriendInfoFrame(MainFrameWithTable):
         self.table_view.resizeColumn(4, 58)  # Relation
         self.table_view.resizeColumn(5, 70)  # Offline
         self.table_view.resizeColumn(6, 155)  # UsedCharacters
-
-    def update_order_rule(self, selection):
-        corresponding_column_names = \
-            dict(zip(self.ORDER_OPTIONS, ['LastProfession', 'Rank', 'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate']))
-        self.table_model.setSortOrder(columnName=corresponding_column_names[selection])
 
     def switching_to_friend_record(self):
         self.master.update_main_frame(FriendRecordFrame(self.master, self.db_suffix))
