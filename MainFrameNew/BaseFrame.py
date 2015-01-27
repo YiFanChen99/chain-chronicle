@@ -51,8 +51,9 @@ class MainFrameWithTable(MainFrame):
     def do_dragging_along_right(self, row_number):
         pass
 
-    def redisplay_table(self):
-        self.table_view.setModel(self.table_model)
+    def redisplay_table(self, is_reset_model=False):
+        if is_reset_model:
+            self.table_view.setModel(self.table_model)
         self.table_view.createTableFrame()
         self.table_view.redrawTable()
         self.table_view.adjustColumnWidths()
@@ -100,3 +101,30 @@ class TableView(TableCanvas):
         self.setColPositions()
         self.redrawTable()
         self.drawSelectedCol(self.currentcol)
+
+
+class TableModelAdvance(TableModel):
+    def __init__(self, **kwargs):
+        TableModel.__init__(self, **kwargs)
+
+    # 清空原有的欄位，並依據給予的欄位重新設定。並設定無資料時提示文字顯示在哪欄
+    def set_columns(self, columns, main_column=None):
+        self.deleteColumns()
+        for col in columns:
+            TableModel.addColumn(self, col)
+
+        self.main_column = columns[0] if main_column is None else main_column
+
+    # 清空原有的記錄，並依據給予的記錄重新設定
+    def set_Rows(self, rows):
+        self.deleteRows()
+
+        if len(rows) == 0:
+            self.addRow(**{self.main_column: '無任何記錄'})
+            return
+
+        row_number = 0
+        for i in range(len(rows)):
+            row_number += 1
+            self.data[row_number] = dict(zip(self.columnNames, rows[i]))
+            self.reclist.append(row_number)

@@ -4,7 +4,7 @@ from UIUtility.Selector import ProfessionSelector, RankSelector
 from UIUtility.Combobox import FilteredCombobox
 from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
-from ModelUtility.Filter import FilterManager
+from ModelUtility.Filter import FilterRuleManager
 
 
 class CharacterSelectorCanvas(Canvas):
@@ -44,7 +44,7 @@ class CharacterSelectionWindow(BasicWindow):
 
         self.records = None
         self.update_records()
-        self.filter_manager = FilterManager()
+        self.filter_manager = FilterRuleManager()
         self.filter_manager.set_comparison_rule(0)
         self.filter_manager.set_comparison_rule(1)
 

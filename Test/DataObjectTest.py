@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
-from ModelUtility.CCGameDBTW import *
+
+from Model.CCGameDBTWModel import *
 
 
 class DataObjectTest(unittest.TestCase):

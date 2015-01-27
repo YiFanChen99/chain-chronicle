@@ -31,12 +31,24 @@ class DBAccessor():
         DBAccessor.execute('update Character{0} where ID={1}'.format(
             convert_data_to_update_command(Character.DB_TABLE, character.info_list), character.c_id))
 
+    @staticmethod
+    def select_new_friend_record_list(db_suffix):
+        return [NewFriendRecord(each) for each in
+                DBAccessor.execute('select {0} from Friend{1} where UsedNames!=\'\''.format(
+                    ','.join(NewFriendRecord.FRIEND_INFO_SELECTED_COLUMNS), db_suffix))]
+
+    @staticmethod
+    def insert_friend_record_to_db(record, db_suffix, date):
+        DBAccessor.execute('insert into FriendRecord{0} ({1}){2}'.format(
+            db_suffix, ','.join(FriendRecord.DB_TABLE),
+            convert_data_to_insert_command(*record.get_inserted_info(date))))
+
 
 # 組成「"values(x1,x2,...,xn)"」的字串回傳
-def convert_data_to_insert_command(*arguments):
+def convert_data_to_insert_command(*args):
     command = ' values('
     is_first = True
-    for each in arguments:
+    for each in args:
         if is_first:
             is_first = False
         else:

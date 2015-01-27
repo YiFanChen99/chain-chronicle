@@ -7,6 +7,6 @@ def set_db_suffix(db_suffix):
     _db_suffix = db_suffix
 
 
-def compose_db_table_name(table_name):
+def get_db_suffix():
     global _db_suffix
-    return table_name + _db_suffix
+    return _db_suffix

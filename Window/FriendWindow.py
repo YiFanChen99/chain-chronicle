@@ -126,27 +126,24 @@ class FriendRecordUpdaterWindow(BasicWindow):
         Button(self, text="Cancel", command=self.destroy, width=28, borderwidth=2, font=(SCP, 11)).place(x=23, y=150)
 
     def _init_record(self, record):
-        self.record = record
-        self.used_names.set(record[2])
-        # 角色名稱已指定時便套用，否則套用前名稱
-        character_name = record[4] if record[4] is not None else record[8]
-        self.character_selector.set(DBAccessor.select_character_by_specific_column('Nickname', character_name)
-                                    if character_name != '' else None)
-        # 角色等級/Rank等級未選擇時為空，已選擇便用已選擇
-        self.character_level_var.set('' if record[5] is None else record[5])
-        self.rank_var.set('' if record[6] is None else record[6])
+        if isinstance(record, NewFriendRecord):
+            self.record = record
+            self.used_names.set(record.used_names)
+            self.character_selector.set(DBAccessor.select_character_by_specific_column(
+                'Nickname', record.current_character) if record.current_character != '' else None)
+            self.character_level_var.set(record.current_character_level)
+            self.rank_var.set(record.current_rank)
+        else:
+            raise TypeError('In FriendRecordUpdaterWindow, arg: \"record\"')
 
     def submitting(self):
-        # 檢查確認 rank 是否正確
-        if self.rank_var.get() < self.record[7] or self.rank_var.get() > self.record[7] + 3:
+        # 確認 rank 沒有異常
+        if self.record.is_unusual_rank(self.rank_var.get()):
             message = 'Friend {0} has rank {1} with previous rank {2}.\nSure to continue?'.format(
-                self.record[2], self.rank_var.get(), self.record[7])
+                self.used_names.get().encode('utf-8'), self.rank_var.get(), self.record.last_rank)
             if not tkMessageBox.askyesno('Unusual rank', message, parent=self):
                 return
 
-        self.record[0] = RECORDED
-        self.record[4] = convert_to_str(self.character_selector.get().nickname)
-        self.record[5] = self.character_level_var.get()
-        self.record[6] = self.rank_var.get()
+        self.record.record(self.character_selector.get().nickname, self.character_level_var.get(), self.rank_var.get())
         self.callback()
         self.destroy()

@@ -5,7 +5,7 @@ from Window.RecordOfDrawLotsWindow import AddRecordWindow, UpdatingRecordWindow
 from ModelUtility.DBAccessor import *
 from ModelUtility.Utility import bind_check_box_and_label
 from UIUtility.Combobox import FilteredCombobox, IntFilteredCombobox
-from ModelUtility.Filter import FilterManager
+from ModelUtility.Filter import FilterRuleManager
 from datetime import timedelta
 
 DB_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
@@ -17,7 +17,7 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
         MainFrameWithTable.__init__(self, master, db_suffix=db_suffix, **kwargs)
         self.set_table_place(34, 29)
 
-        self.filter_manager = FilterManager()
+        self.filter_manager = FilterRuleManager()
         self.records = None
         self.events = DBAccessor.execute('select Name, End from ' +
                                          self.compose_table_name('EventOfDrawLots')).fetchall()
@@ -152,7 +152,7 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
 
         self.table_model.setSortOrder(columnName=DB_TABLE[0], reverse=1)
 
-        self.redisplay_table()
+        self.redisplay_table(is_reset_model=True)
 
         # 就篩選結果更新統計資料
         self._update_statistic_by_specific_results(results)

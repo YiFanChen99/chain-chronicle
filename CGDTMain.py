@@ -5,7 +5,7 @@ __author__ = 'Ricky Chen'
 import os
 from configparser3 import configparser
 from MainFrameNew.BaseFrame import *
-from ModelUtility.CCGameDBTW import *
+from Model.CCGameDBTWModel import *
 
 README_PATH = 'data\CCGameDBTW_Readme.txt'
 

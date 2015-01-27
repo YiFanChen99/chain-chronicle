@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from BaseFrame import *
 from Window.CharacterWindow import CharacterInfoWindow
-from ModelUtility.Filter import FilterManager
+from ModelUtility.Filter import FilterRuleManager
 from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
 from UIUtility.Combobox import FilteredCombobox
@@ -21,7 +21,7 @@ class CharacterFrame(MainFrameWithTable):
         self.__init_filter_frame()
 
         self.records = DBAccessor.execute('select * from Character').fetchall()
-        self.filter_manager = FilterManager()
+        self.filter_manager = FilterRuleManager()
         self.__init_filter_manager()
 
         self.updating_table()
@@ -84,7 +84,7 @@ class CharacterFrame(MainFrameWithTable):
         self.table_model.setSortOrder(columnName='Rank', reverse=1)
         self.table_model.setSortOrder(columnName='Profession')
 
-        self.redisplay_table()
+        self.redisplay_table(is_reset_model=True)
         self.table_view.hide_column('ID')
 
     @staticmethod

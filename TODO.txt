@@ -1,6 +1,7 @@
 
 新增好友欄位 off_line, 關係
-	使用 DataObject 處理，將 CommonString 內的表資料移到 DataObject 中
+	FriendInfo 的Frame, windows, dataobject
+	FriendModel 的 re_do_statistic_to_update_friend_info 功能實作
 
 改掉一直傳 db_suffix 的問題
 		

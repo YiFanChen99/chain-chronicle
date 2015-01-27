@@ -189,7 +189,7 @@ class CGDTCharacter(object):
 
     # 除了將其命名轉成我的格式以外，也檢查不可有我預期外的名稱出現
     def _init_belonged(self, name):
-        replaced_name = name.replace(u'海風之港', u'海風').replace(u'賢者之塔', u'賢塔').\
+        replaced_name = name.replace(u'海風之港', u'海風').replace(u'賢者之塔', u'賢塔'). \
             replace(u'迷宮山脈', u'山脈').replace(u'獸里', u'獸之里')
 
         if replaced_name in BELONGEDS:
@@ -206,8 +206,17 @@ class CGDTCharacter(object):
 class FriendInfo(object):
     DB_TABLE = ['ID', 'UsedNames', 'Excellence', 'Defect', 'Relation', 'Offline', 'UsedCharacters', 'Rank',
                 'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate', 'LastProfession', 'LastCharacter']
+    # UPDATED_BY_STATISTIC_COLUMNS = DB_TABLE[6:10] + DB_TABLE[11:13]  #TODO
 
-    def __init__(self, infos):
+    def __init__(self, infos=None, the_id=None):  # TODO id 是否需要要看 FriendModel 實作成果
+        if infos is not None:
+            self._init_by_infos(infos)
+        elif the_id is not None:
+            self.f_id = the_id
+        else:
+            raise LookupError('None infos and the_id input.')
+
+    def _init_by_infos(self, infos):
         properties = iter(infos)
 
         self.f_id = next(properties)
@@ -230,26 +239,68 @@ class FriendInfo(object):
 
 class FriendRecord(object):
     DB_TABLE = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
-    SELECTED_COLUMNS = ['ID', 'UsedNames', 'Rank', 'LastProfession', 'LastCharacter']
-    DISPLAYED_COLUMNS = ['Status'] + SELECTED_COLUMNS[0:2] + DB_TABLE[2:5] + SELECTED_COLUMNS[2:5]
 
-    def __init__(self, records):
-        properties = iter(records)
 
-        self.status = UNRECORDED
-        self.f_id = next(properties)
-        self.used_names = next(properties)
-        # self.recorded_date = next(properties)
-        self.character = None
+class NewFriendRecord(FriendRecord):
+    FRIEND_INFO_SELECTED_COLUMNS = ['ID', 'UsedNames', 'Rank', 'LastProfession', 'LastCharacter']
+    DISPLAYED_COLUMNS = FRIEND_INFO_SELECTED_COLUMNS[0:2] + FriendRecord.DB_TABLE[2:5] + \
+        FRIEND_INFO_SELECTED_COLUMNS[2:5]
+
+    def __init__(self, infos):
+        self.f_id = infos[0]
+        self.used_names = infos[1]
+        self.character_nickname = None
         self.character_level = None
         self.rank = None
-        self.last_rank = next(properties)
-        self.last_profession = next(properties)
-        self.last_character = next(properties)
+        self.last_rank = infos[2]
+        self.last_profession = infos[3]
+        self.last_character = infos[4]
 
-    @staticmethod
-    def get_selection_command(db_suffix):
-        return 'select {0} from Friend{1} where UsedNames!=\'\''.format(','.join(FriendRecord.SELECTED_COLUMNS), db_suffix)
+        self.status = UNRECORDED
+
+    # 簡單檢查資料，若通過則更新記錄，並調整狀態為「已記錄」
+    def record(self, nickname, level, rank):
+        # 檢查 level/rank 是否大於 0
+        if level < 1 or rank < 1:
+            raise ValueError('Level/Rank < 1')
+        # 檢查 rank 是否不小於前記錄
+        if rank < self.last_rank:
+            raise ValueError('Rank {0} too small, last rank is {1}'.format(rank, self.last_rank))
+
+        self.character_nickname = nickname
+        self.character_level = level
+        self.rank = rank
+        self.status = RECORDED
+
+    # 該 rank 之變化是否異常（成長過快 / 負成長）
+    def is_unusual_rank(self, the_rank):
+        return the_rank > self.last_rank + 3 or the_rank < self.last_rank
+
+    # 角色名稱已指定時便套用，否則套用前角色名稱
+    @property
+    def current_character(self):
+        return self.character_nickname if self.character_nickname is not None else self.last_character
+
+    # 角色等級未選擇時為空（方便直接填新值），已選擇便用已選擇
+    @property
+    def current_character_level(self):
+        return self.character_level if self.character_level is not None else ''
+
+    # Rank 等級未選擇時為空（方便直接填新值），已選擇便用已選擇
+    @property
+    def current_rank(self):
+        return self.rank if self.rank is not None else ''
+
+    def get_displayed_info(self):
+        return [self.f_id, self.used_names, self.character_nickname, self.character_level,
+                self.rank, self.last_rank, self.last_profession, self.last_character]
+
+    def get_inserted_info(self, date):
+        return self.f_id, date, self.character_nickname, self.character_level, self.rank
+
+    def __getitem__(*args, **kwargs):
+        return getattr(*args, **kwargs)
 
     def __str__(self):
-        return 'FriendRecord: ID={0}, UsedNames={1}, Status={2}'.format(self.f_id, self.used_names.encode('utf-8'), self.status)
+        return 'FriendRecord: ID={0}, UsedNames={1}, Status={2}'.format(
+            self.f_id, self.used_names.encode('utf-8'), self.status)
