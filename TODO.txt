@@ -1,6 +1,7 @@
 
 新增好友欄位 off_line, 關係
 	FriendInfo 的Frame, windows, dataobject
+		Frame只缺最後的新增事件
 	FriendModel 的 re_do_statistic_to_update_friend_info 功能實作
 
 改掉一直傳 db_suffix 的問題

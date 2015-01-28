@@ -27,9 +27,11 @@ class DBAccessor():
         return Character(matched_character)
 
     @staticmethod
-    def update_character_to_db(character):
+    def update_character_into_db(character, commit_followed):
         DBAccessor.execute('update Character{0} where ID={1}'.format(
             convert_data_to_update_command(Character.DB_TABLE, character.info_list), character.c_id))
+        if commit_followed:
+            DBAccessor.commit()
 
     @staticmethod
     def select_friend_info_list(db_suffix):
@@ -38,16 +40,31 @@ class DBAccessor():
                     ','.join(FriendInfo.DISPLAYED_COLUMNS), db_suffix))]
 
     @staticmethod
+    def select_specific_friend_info(requested_id, db_suffix):
+        return FriendInfo(DBAccessor.execute('select {0} from Friend{1} where ID=={2}'.format(
+            ','.join(FriendInfo.DISPLAYED_COLUMNS), db_suffix, requested_id)))
+
+    @staticmethod
+    def update_friend_info_into_db(friend_info, db_suffix, commit_followed):
+        DBAccessor.execute('update Friend{0}{1} where ID={2}'.format(db_suffix,
+            convert_data_to_update_command(FriendInfo.UPDATED_COLUMNS, friend_info.get_updated_info()),
+            friend_info.f_id))
+        if commit_followed:
+            DBAccessor.commit()
+
+    @staticmethod
     def select_new_friend_record_list(db_suffix):
         return [NewFriendRecord(each) for each in
                 DBAccessor.execute('select {0} from Friend{1} where UsedNames!=\'\''.format(
                     ','.join(NewFriendRecord.FRIEND_INFO_SELECTED_COLUMNS), db_suffix))]
 
     @staticmethod
-    def insert_friend_record_to_db(record, db_suffix, date):
+    def insert_friend_record_into_db(record, db_suffix, date, commit_followed):
         DBAccessor.execute('insert into FriendRecord{0} ({1}){2}'.format(
             db_suffix, ','.join(FriendRecord.DB_TABLE),
             convert_data_to_insert_command(*record.get_inserted_info(date))))
+        if commit_followed:
+            DBAccessor.commit()
 
 
 # 組成「"values(x1,x2,...,xn)"」的字串回傳

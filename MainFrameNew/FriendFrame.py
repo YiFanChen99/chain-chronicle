@@ -4,7 +4,7 @@ from ModelUtility.Filter import FilterRuleManager
 from ModelUtility.DBAccessor import *
 from ModelUtility.Utility import bind_check_box_and_label
 from ModelUtility.CommonState import *
-from Window.FriendWindow import FriendRecordUpdaterWindow
+from Window.FriendWindow import FriendInfoUpdaterWindow, FriendRecordUpdaterWindow
 from Model.FriendModel import re_do_statistic_to_update_friend_info
 
 
@@ -13,6 +13,7 @@ class FriendInfoFrame(MainFrameWithTable):
 
     def __init__(self, master, db_suffix):
         MainFrameWithTable.__init__(self, master, db_suffix)
+        set_db_suffix(self.db_suffix)
         self.set_table_place(34, 29)
         self.table_model = TableModelAdvance()
         self.table_model.set_columns(FriendInfo.DISPLAYED_COLUMNS, main_column='UsedNames')
@@ -69,7 +70,7 @@ class FriendInfoFrame(MainFrameWithTable):
         # 欲取得最後更新全體記錄的時間，但只用了效果類似的手段（抓不特定老朋友最後被更新的時間）
         date = convert_str_to_datetime(
             DBAccessor.execute(
-                "select max({2}) from {0} where {1} = (select {1} from {0} where {2} = (select min({2}) from {0}))".format(
+                'select max({2}) from {0} where {1} = (select {1} from {0} where {2} = (select min({2}) from {0}))'.format(
                     self.compose_table_name('FriendRecord'), 'FriendID', 'RecordedDate')).fetchone()[0])
         if date is not None:
             self.since_last_record_var.set('Since: %d days ago' % (datetime.now() - date).days)
@@ -95,7 +96,7 @@ class FriendInfoFrame(MainFrameWithTable):
             dict(zip(self.ORDER_OPTIONS, ['LastProfession', 'Rank', 'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate']))
         self.table_model.setSortOrder(columnName=corresponding_column_names[self.order_selector.get()])
 
-        MainFrameWithTable.redisplay_table(self)
+        self.redisplay_table()
 
         self.table_view.hide_column('ID')
         self.table_view.hide_column('LastProfession')
@@ -125,37 +126,40 @@ class FriendInfoFrame(MainFrameWithTable):
 
     # 更改好友資訊
     def do_double_clicking(self, event):
-        pass
-        # row = self.table_view.get_row_clicked(event)
-        # friend_id = int(self.table_model.getCellRecord(row, 0))
-        # FriendInfoUpdaterWindow(self, self.db_suffix,
-        #                         friend_info=self.get_info_by_id(friend_id), callback=self.updating_table)
+        friend_info = self.get_corresponding_friend_info_in_row(self.table_view.get_row_clicked(event))
+        FriendInfoUpdaterWindow(self, friend_info,
+                                callback=lambda f_info: DBAccessor.update_friend_info_into_db(
+                                    f_info, self.db_suffix, commit_followed=True))
 
     def do_dragging_along_right(self, row_number):
-        pass
-        # # 確認是否刪除
-        # names = self.table_model.getCellRecord(row_number, 1)
-        # if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete friend 「' + names + '」？', parent=self):
-        #     friend_id = int(self.table_model.getCellRecord(row_number, 0))
-        #     # 將該 ID 的資料全數清空，並將其對應的 Records 刪除
-        #     DATABASE.execute('update ' + self.compose_table_name('Friend') +
-        #                      convert_data_to_update_command(FRIEND_CLEAN_UP_COLUMN, [''] * 10) +
-        #                      ' where ID=' + str(friend_id))
-        #     DATABASE.execute('delete from ' + self.compose_table_name('FriendRecord') +
-        #                      ' where FriendID=' + str(friend_id))
-        #     DATABASE.commit()
-        #
-        #     self.updating_context()
+        friend_info = self.get_corresponding_friend_info_in_row(row_number)
+        # 確認是否刪除
+        if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete friend 「{0}」？'.format(
+                friend_info.used_names), parent=self):
+            self.remove_friend(friend_info)
+            self.updating_context()
 
-    def get_info_by_id(self, the_id):
-        for info in self.friends:
-            if info[0] == the_id:
-                return info
+    @staticmethod
+    def remove_friend(friend_info):
+        # 將 Friend table 中該 ID 的其他欄位全數清空
+        columns = FriendInfo.CLEANED_UP_COLUMNS
+        DBAccessor.execute('update Friend{0}{1} where ID={2}'.format(
+            get_db_suffix(), convert_data_to_update_command(columns, [''] * len(columns)), friend_info.f_id))
+        # 將 FriendRecord table 中對應其 ID 的記錄全數刪除
+        DBAccessor.execute('delete from FriendRecord{0} where FriendID={1}'.format(get_db_suffix(), friend_info.f_id))
+        DBAccessor.commit()
+
+    def get_corresponding_friend_info_in_row(self, row_number):
+        selected_id = self.table_model.getCellRecord(row_number, 0)
+        for friend_info in self.friends:
+            if friend_info.f_id == selected_id:
+                return friend_info
 
 
 class FriendRecordFrame(MainFrameWithTable):
     def __init__(self, master, db_suffix):
         MainFrameWithTable.__init__(self, master, db_suffix=db_suffix)
+        set_db_suffix(self.db_suffix)
         self.set_table_place(34, 29)
         self.table_view.cellwidth = 85
         self.table_model = TableModelAdvance()
@@ -225,8 +229,8 @@ class FriendRecordFrame(MainFrameWithTable):
         # 根據名稱要求篩選，同時篩選符合設定的已登記/未登記紀錄
         self.filer_manager.set_specific_condition(
             'status', RECORDED if self.is_show_recorded_friends.get() else UNRECORDED)
-        self.table_model.set_rows([record.get_displayed_info()
-                                   for record in self.filer_manager.filter(self.friend_records, self.queried_name.get())])
+        self.table_model.set_rows([record.get_displayed_info() for record in
+                                   self.filer_manager.filter(self.friend_records, self.queried_name.get())])
 
         self.table_model.setSortOrder(columnName='LastProfession')
 
@@ -240,38 +244,34 @@ class FriendRecordFrame(MainFrameWithTable):
             # 將已經登記的 record 逐一更新到 DB 內
             for record in self.friend_records:
                 if record.status == RECORDED:
-                    DBAccessor.insert_friend_record_to_db(record, self.db_suffix, self.date.get())
+                    DBAccessor.insert_friend_record_into_db(
+                        record, self.db_suffix, self.date.get(), commit_followed=False)
             DBAccessor.commit()
 
             # 更新 FriendTable 中的資訊（RaisedIn3Weeks, LastCharacter 等）
-            set_db_suffix(self.db_suffix)
             re_do_statistic_to_update_friend_info()
 
             self.switching_to_friend_info()
 
     # 檢查數量計算並要求確認，確認後時才真正送出
     def validate_before_submitting(self):
-        updated_record_number = len([None for record in self.friend_records if record.status == RECORDED])
+        updated_record_number = sum(1 for record in self.friend_records if record.status == RECORDED)
         return tkMessageBox.askyesno('Recording these records?', '總計 {0} 筆記錄，\n是否確認送出？'.format(
             updated_record_number), parent=self)
 
     def switching_to_friend_info(self):
         self.master.update_main_frame(FriendInfoFrame(self.master, self.db_suffix))
 
-    # 若雙擊右側，則欲輸入好友記錄，若雙擊左側，則為更改好友資訊
+    # 若雙擊右側，則欲編輯好友記錄，若雙擊左側，則為更改好友資訊
     def do_double_clicking(self, event):
         row = self.table_view.get_row_clicked(event)
         the_friend_id = int(self.table_model.getCellRecord(row, 0))
 
         column = self.table_view.get_col_clicked(event)
         if column == 1:
-            # TODO
-            FriendInfoUpdaterWindow(self, self.db_suffix, self.get_friend_info_by_id(friend_id), callback=lambda: None)
+            FriendInfoUpdaterWindow(self, DBAccessor.select_specific_friend_info(the_friend_id, get_db_suffix()),
+                                    callback=lambda info: None)
         else:
             for record in self.friend_records:
                 if record.f_id == the_friend_id:
                     FriendRecordUpdaterWindow(self, record, self.updating_table)
-
-    def get_friend_info_by_id(self, friend_id):
-        return list(DBAccessor.execute('select {0} from Friend{1} where ID={2}'.format(
-            ','.join(FRIEND_DISPLAYED_COLUMN), self.db_suffix, friend_id)).fetchone())

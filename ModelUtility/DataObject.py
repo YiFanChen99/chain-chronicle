@@ -206,7 +206,9 @@ class CGDTCharacter(object):
 class FriendInfo(object):
     DB_TABLE = ['ID', 'UsedNames', 'Excellence', 'Defect', 'Relation', 'Offline', 'UsedCharacters', 'Rank',
                 'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate', 'LastProfession', 'LastCharacter']
+    CLEANED_UP_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 ID 外的所有欄位
     DISPLAYED_COLUMNS = DB_TABLE[0:12]
+    UPDATED_COLUMNS = DB_TABLE[1:6] + [DB_TABLE[10]]
     # UPDATED_BY_STATISTIC_COLUMNS = DB_TABLE[6:10] + DB_TABLE[11:13]  #TODO
 
     def __init__(self, infos=None, the_id=None):  # TODO id 是否需要要看 FriendModel 實作成果
@@ -237,6 +239,10 @@ class FriendInfo(object):
         return [self.f_id, self.used_names.encode('utf-8'), self.excellence.encode('utf-8'), self.defect.encode('utf-8'),
                 self.relation.encode('utf-8'), self.offline, self.used_characters.encode('utf-8'), self.rank,
                 self.raised_in_3_weeks, self.raised_in_2_months, self.added_date, self.last_profession.encode('utf-8')]
+
+    def get_updated_info(self):
+        return [self.used_names.encode('utf-8'), self.excellence.encode('utf-8'), self.defect.encode('utf-8'),
+                self.relation.encode('utf-8'), self.offline, self.added_date]
 
     def __getitem__(*args, **kwargs):
         return getattr(*args, **kwargs)

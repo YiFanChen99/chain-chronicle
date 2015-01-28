@@ -6,11 +6,10 @@ from ModelUtility.CommonString import *
 
 
 class FriendInfoUpdaterWindow(BasicWindow):
-    def __init__(self, master, db_suffix, friend_info, callback, width=312, height=273, **kwargs):
+    def __init__(self, master, friend_info, callback, width=312, height=273, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Friend Info')
         self.geometry('+750+260')
-        self.db_suffix = db_suffix
 
         self.friend_info = friend_info  #TODO 放到_init_widget下
         self._init_widget()
