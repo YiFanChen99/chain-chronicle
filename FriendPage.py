@@ -29,7 +29,7 @@ class FriendInfo(MainFrameWithTable):
 
         self.__init_upper_frame()
 
-        self.friends = []
+        self.friend_infos = []
         self.__init_since_last_record()
         self.updating_page()
 
@@ -79,11 +79,11 @@ class FriendInfo(MainFrameWithTable):
 
     def updating_page(self):
         # 建立 Friend_List
-        self.friends = [list(info) for info in
+        self.friend_infos = [list(info) for info in
                         DATABASE.execute('select ' + ','.join(FRIEND_DISPLAYED_COLUMN) + ' from ' +
-                                         self.compose_table_name('Friend') + ' where UsedNames!=\'\'').fetchall()]
+                                         self.compose_table_name('FriendInfo') + ' where UsedNames!=\'\'').fetchall()]
 
-        self.friend_count_str.set('Friends: %02d' % len(self.friends))  # 好友總數
+        self.friend_count_str.set('Friends: %02d' % len(self.friend_infos))  # 好友總數
 
         self.updating_table()
 
@@ -95,7 +95,7 @@ class FriendInfo(MainFrameWithTable):
             self.table_model.addColumn(column)
 
         # 將符合名稱篩選的好友加入欲呈現表格中
-        records = [each for each in self.friends if
+        records = [each for each in self.friend_infos if
                    is_string_match_query(self.queried_name.get(), convert_to_str(each[1]))]
 
         if len(records) == 0:
@@ -159,7 +159,7 @@ class FriendInfo(MainFrameWithTable):
             self.updating_page()
 
     def get_info_by_id(self, the_id):
-        for info in self.friends:
+        for info in self.friend_infos:
             if info[0] == the_id:
                 return info
 

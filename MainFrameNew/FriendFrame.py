@@ -5,7 +5,7 @@ from ModelUtility.DBAccessor import *
 from ModelUtility.Utility import bind_check_box_and_label
 from ModelUtility.CommonState import *
 from Window.FriendWindow import FriendInfoUpdaterWindow, FriendRecordUpdaterWindow
-from Model.FriendModel import re_do_statistic_to_update_friend_info
+from Model.FriendModel import do_statistic_to_update_friend_info
 
 
 class FriendInfoFrame(MainFrameWithTable):
@@ -30,7 +30,7 @@ class FriendInfoFrame(MainFrameWithTable):
 
         self._init_upper_frame()
 
-        self.friends = []
+        self.friend_infos = []
         self._init_since_last_record()
         self.updating_context()
 
@@ -76,17 +76,17 @@ class FriendInfoFrame(MainFrameWithTable):
             self.since_last_record_var.set('Since: %d days ago' % (datetime.now() - date).days)
 
     def updating_context(self):
-        # 建立 Friend_List
-        self.friends = DBAccessor.select_friend_info_list(self.db_suffix)
+        # 建立 FriendInfoObjects
+        self.friend_infos = DBAccessor.select_friend_info_list(self.db_suffix)
 
-        self.friend_count_var.set('Friends: %02d' % len(self.friends))  # 好友總數
+        self.friend_count_var.set('Friends: %02d' % len(self.friend_infos))  # 好友總數
 
         self.updating_table()
 
     def updating_table(self):
         # 將符合名稱篩選的好友加入欲呈現表格中
         self.table_model.set_rows([info.get_displayed_info()
-                                   for info in self.filer_manager.filter(self.friends, self.queried_name.get())])
+                                   for info in self.filer_manager.filter(self.friend_infos, self.queried_name.get())])
 
         self.redisplay_table_by_order_rule()
 
@@ -116,7 +116,7 @@ class FriendInfoFrame(MainFrameWithTable):
     def adding_new_friend(self):
         try:
             friend_info = DBAccessor.select_unused_friend_info(get_db_suffix())
-        except LookupError:
+        except ValueError:
             tkMessageBox.showwarning("Can not add any friend", '已達好友上限', parent=self)
             return
 
@@ -143,9 +143,9 @@ class FriendInfoFrame(MainFrameWithTable):
 
     @staticmethod
     def remove_friend(friend_info):
-        # 將 Friend table 中該 ID 的其他欄位全數清空
+        # 將 FriendInfo table 中該 ID 的其他欄位全數清空
         columns = FriendInfo.CLEANED_UP_COLUMNS
-        DBAccessor.execute('update Friend{0}{1} where ID={2}'.format(
+        DBAccessor.execute('update FriendInfo{0}{1} where ID={2}'.format(
             get_db_suffix(), convert_data_to_update_command(columns, [''] * len(columns)), friend_info.f_id))
         # 將 FriendRecord table 中對應其 ID 的記錄全數刪除
         DBAccessor.execute('delete from FriendRecord{0} where FriendID={1}'.format(get_db_suffix(), friend_info.f_id))
@@ -153,7 +153,7 @@ class FriendInfoFrame(MainFrameWithTable):
 
     def get_corresponding_friend_info_in_row(self, row_number):
         selected_id = self.table_model.getCellRecord(row_number, 0)
-        for friend_info in self.friends:
+        for friend_info in self.friend_infos:
             if friend_info.f_id == selected_id:
                 return friend_info
 
@@ -165,7 +165,7 @@ class FriendRecordFrame(MainFrameWithTable):
         self.set_table_place(34, 29)
         self.table_view.cellwidth = 85
         self.table_model = TableModelAdvance()
-        self.table_model.set_columns(NewFriendRecord.DISPLAYED_COLUMNS, main_column='UsedNames')
+        self.table_model.set_columns(FriendRecord.DISPLAYED_COLUMNS, main_column='UsedNames')
         self.table_view.setModel(self.table_model)
         self.filer_manager = FilterRuleManager()
         self.filer_manager.set_comparison_rule('used_names')
@@ -250,8 +250,8 @@ class FriendRecordFrame(MainFrameWithTable):
                         record, self.db_suffix, self.date.get(), commit_followed=False)
             DBAccessor.commit()
 
-            # 更新 FriendTable 中的資訊（RaisedIn3Weeks, LastCharacter 等）
-            re_do_statistic_to_update_friend_info()
+            # 更新 FriendInfo Table 中的資訊（RaisedIn3Weeks, LastCharacter 等）
+            do_statistic_to_update_friend_info()
 
             self.switching_to_friend_info()
 

@@ -212,15 +212,10 @@ class FriendInfo(object):
     UPDATED_COLUMNS = DB_TABLE[1:6] + [DB_TABLE[10]]
     # UPDATED_BY_STATISTIC_COLUMNS = DB_TABLE[6:10] + DB_TABLE[11:13]  #TODO
 
-    def __init__(self, infos=None, the_id=None):  # TODO id 是否需要要看 FriendModel 實作成果
-        if infos is not None:
-            self._init_by_infos(infos)
-        elif the_id is not None:
-            self.f_id = the_id
-        else:
-            raise LookupError('None infos and the_id input.')
+    def __init__(self, infos):
+        if infos is None:
+            raise ValueError('Input infos is None.')
 
-    def _init_by_infos(self, infos):
         properties = iter(infos)
 
         self.f_id = next(properties)
@@ -266,12 +261,8 @@ class FriendInfo(object):
 
 class FriendRecord(object):
     DB_TABLE = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
-
-
-class NewFriendRecord(FriendRecord):
     FRIEND_INFO_SELECTED_COLUMNS = ['ID', 'UsedNames', 'Rank', 'LastProfession', 'LastCharacter']
-    DISPLAYED_COLUMNS = FRIEND_INFO_SELECTED_COLUMNS[0:2] + FriendRecord.DB_TABLE[2:5] + \
-        FRIEND_INFO_SELECTED_COLUMNS[2:4]
+    DISPLAYED_COLUMNS = FRIEND_INFO_SELECTED_COLUMNS[0:2] + DB_TABLE[2:5] + FRIEND_INFO_SELECTED_COLUMNS[2:4]
 
     def __init__(self, infos):
         self.f_id = infos[0]

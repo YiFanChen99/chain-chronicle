@@ -31,9 +31,9 @@ class DBColumnsTest(unittest.TestCase):
             'DRAW_LOTS_DB_TABLE lens {0}, but RecordOfDrawLots table has {1} columns.'.format(
                 len(DRAW_LOTS_DB_TABLE), len(draw_lots))
 
-    # FriendInfo.DB_TABLE 是否涵蓋所有 Friend 表內的欄位
+    # FriendInfo.DB_TABLE 是否涵蓋所有 FriendInfo 表內的欄位
     def test_friend_info_db_table_completed(self):
-        friend = DBAccessor.execute('select * from FriendJP').fetchone()
+        friend = DBAccessor.execute('select * from FriendInfoJP').fetchone()
         assert len(FriendInfo.DB_TABLE) == len(friend),\
             'FriendInfo.DB_TABLE lens {0}, but RecordOfDrawLots table has {1} columns.'.format(
                 len(FriendInfo.DB_TABLE), len(friend))
@@ -69,7 +69,7 @@ class CGDTCharacterTest(unittest.TestCase):
 
 class FriendInfoTest(unittest.TestCase):
     def test_get_updated_info(self):
-        record = DBAccessor.execute('select {0} from FriendJP where UsedNames!=\'\''.format(
+        record = DBAccessor.execute('select {0} from FriendInfoJP where UsedNames!=\'\''.format(
             ','.join(FriendInfo.DISPLAYED_COLUMNS))).fetchone()
 
         FriendInfo(record)  # Pass

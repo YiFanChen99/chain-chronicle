@@ -131,7 +131,7 @@ class FriendRecordUpdaterWindow(BasicWindow):
         Button(self, text="Cancel", command=self.destroy, width=28, borderwidth=2, font=(SCP, 11)).place(x=23, y=150)
 
     def _init_record(self, record):
-        if isinstance(record, NewFriendRecord):
+        if isinstance(record, FriendRecord):
             self.record = record
             self.used_names.set(record.used_names)
             self.character_selector.set(DBAccessor.select_character_by_specific_column(

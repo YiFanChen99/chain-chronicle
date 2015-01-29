@@ -36,22 +36,22 @@ class DBAccessor():
     @staticmethod
     def select_friend_info_list(db_suffix):
         return [FriendInfo(each) for each in
-                DBAccessor.execute('select {0} from Friend{1} where UsedNames!=\'\''.format(
+                DBAccessor.execute('select {0} from FriendInfo{1} where UsedNames!=\'\''.format(
                     ','.join(FriendInfo.DISPLAYED_COLUMNS), db_suffix))]
 
     @staticmethod
     def select_specific_friend_info(requested_id, db_suffix):
-        return FriendInfo(DBAccessor.execute('select {0} from Friend{1} where ID=={2}'.format(
+        return FriendInfo(DBAccessor.execute('select {0} from FriendInfo{1} where ID=={2}'.format(
             ','.join(FriendInfo.DISPLAYED_COLUMNS), db_suffix, requested_id)).fetchone())
 
     @staticmethod
     def select_unused_friend_info(db_suffix):
-        return FriendInfo(DBAccessor.execute('select {0} from Friend{1} where UsedNames==\'\''.format(
+        return FriendInfo(DBAccessor.execute('select {0} from FriendInfo{1} where UsedNames==\'\''.format(
             ','.join(FriendInfo.DISPLAYED_COLUMNS), db_suffix)).fetchone())
 
     @staticmethod
     def update_friend_info_into_db(friend_info, db_suffix, commit_followed):
-        DBAccessor.execute('update Friend{0}{1} where ID={2}'.format(db_suffix,
+        DBAccessor.execute('update FriendInfo{0}{1} where ID={2}'.format(db_suffix,
             convert_data_to_update_command(FriendInfo.UPDATED_COLUMNS, friend_info.get_updated_info()),
             friend_info.f_id))
         if commit_followed:
@@ -59,9 +59,9 @@ class DBAccessor():
 
     @staticmethod
     def select_new_friend_record_list(db_suffix):
-        return [NewFriendRecord(each) for each in
-                DBAccessor.execute('select {0} from Friend{1} where UsedNames!=\'\''.format(
-                    ','.join(NewFriendRecord.FRIEND_INFO_SELECTED_COLUMNS), db_suffix))]
+        return [FriendRecord(each) for each in
+                DBAccessor.execute('select {0} from FriendInfo{1} where UsedNames!=\'\''.format(
+                    ','.join(FriendRecord.FRIEND_INFO_SELECTED_COLUMNS), db_suffix))]
 
     @staticmethod
     def insert_friend_record_into_db(record, db_suffix, date, commit_followed):
