@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 from CommonString import *
 
 DRAW_LOTS_DB_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
@@ -232,15 +233,27 @@ class FriendInfo(object):
         self.rank = next(properties)
         self.raised_in_3_weeks = next(properties)
         self.raised_in_2_months = next(properties)
-        self.added_date = next(properties)
+        self._added_date = next(properties)
         self.last_profession = next(properties)
 
+    # 資料已存在時使用原資料，若為新好友則回傳當天日期
+    @property
+    def added_date(self):
+        return self._added_date if self._added_date else datetime.now().date()
+
+    @added_date.setter
+    def added_date(self, value):
+        self._added_date = value
+
     def get_displayed_info(self):
-        return [self.f_id, self.used_names.encode('utf-8'), self.excellence.encode('utf-8'), self.defect.encode('utf-8'),
-                self.relation.encode('utf-8'), self.offline, self.used_characters.encode('utf-8'), self.rank,
-                self.raised_in_3_weeks, self.raised_in_2_months, self.added_date, self.last_profession.encode('utf-8')]
+        return [self.f_id, self.used_names.encode('utf-8'), self.excellence.encode('utf-8'),
+                self.defect.encode('utf-8'), self.relation.encode('utf-8'), self.offline,
+                self.used_characters.encode('utf-8'), self.rank, self.raised_in_3_weeks,
+                self.raised_in_2_months, self._added_date, self.last_profession.encode('utf-8')]
 
     def get_updated_info(self):
+        if not self.used_names:
+            raise ValueError('Used names is empty')
         return [self.used_names.encode('utf-8'), self.excellence.encode('utf-8'), self.defect.encode('utf-8'),
                 self.relation.encode('utf-8'), self.offline, self.added_date]
 

@@ -67,8 +67,12 @@ class MainFrameWithTable(MainFrame):
 class TableView(TableCanvas):
     def __init__(self, master, **kwargs):
         TableCanvas.__init__(self, master, editable=False, rowheaderwidth=0, cellwidth=60, **kwargs)
-        self.unbind_all("<Delete>")  # 刪除
-        self.unbind_all('<Return>')  # Enter
+        # 取消其預設的事件
+        self.unbind_all("<Delete>")
+        self.unbind_all('<Return>')
+        self.unbind_all('<Control-x>')
+        self.unbind_all('<Control-c>')
+        self.unbind_all('<Control-v>')
 
     # 選中的 cells 不需要黃色高亮
     def drawSelectedRect(self, row, col, color=None):

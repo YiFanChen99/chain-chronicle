@@ -103,9 +103,9 @@ class FriendInfoFrame(MainFrameWithTable):
 
         # 不限制會太寬，難以瀏覽全部資訊
         self.table_view.resizeColumn(1, 125)  # UsedNames
-        self.table_view.resizeColumn(2, 95)  # Excellence
+        self.table_view.resizeColumn(2, 100)  # Excellence
         self.table_view.resizeColumn(3, 85)  # Defect
-        self.table_view.resizeColumn(4, 58)  # Relation
+        self.table_view.resizeColumn(4, 65)  # Relation
         self.table_view.resizeColumn(5, 70)  # Offline
         self.table_view.resizeColumn(6, 155)  # UsedCharacters
 
@@ -114,22 +114,24 @@ class FriendInfoFrame(MainFrameWithTable):
 
     # 取得未使用的 ID，並將新好友指定到該 ID
     def adding_new_friend(self):
-        pass
-        # unused_record = DATABASE.execute('select ID from ' + self.compose_table_name('Friend') +
-        #                                  ' where UsedNames==\'\'').fetchone()
-        #
-        # if unused_record is None:
-        #     tkMessageBox.showwarning("Can not add any friend", '已達好友上限', parent=self)
-        #     return
-        #
-        # FriendInfoUpdaterWindow(self, self.db_suffix, [unused_record[0]] + [''] * 9, callback=self.updating_context)
+        try:
+            friend_info = DBAccessor.select_unused_friend_info(get_db_suffix())
+        except LookupError:
+            tkMessageBox.showwarning("Can not add any friend", '已達好友上限', parent=self)
+            return
+
+        FriendInfoUpdaterWindow(self, friend_info, callback=lambda: (
+            self.update_friend_info_into_db(friend_info), self.updating_table()))
 
     # 更改好友資訊
     def do_double_clicking(self, event):
         friend_info = self.get_corresponding_friend_info_in_row(self.table_view.get_row_clicked(event))
-        FriendInfoUpdaterWindow(self, friend_info,
-                                callback=lambda f_info: DBAccessor.update_friend_info_into_db(
-                                    f_info, self.db_suffix, commit_followed=True))
+        FriendInfoUpdaterWindow(self, friend_info, callback=lambda: (
+            self.update_friend_info_into_db(friend_info), self.updating_table()))
+
+    @staticmethod
+    def update_friend_info_into_db(friend_info):
+        DBAccessor.update_friend_info_into_db(friend_info, get_db_suffix(), commit_followed=True)
 
     def do_dragging_along_right(self, row_number):
         friend_info = self.get_corresponding_friend_info_in_row(row_number)

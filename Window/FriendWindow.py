@@ -6,86 +6,92 @@ from ModelUtility.CommonString import *
 
 
 class FriendInfoUpdaterWindow(BasicWindow):
-    def __init__(self, master, friend_info, callback, width=312, height=273, **kwargs):
+    def __init__(self, master, friend_info, callback, width=347, height=283, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Friend Info')
         self.geometry('+750+260')
 
-        self.friend_info = friend_info  #TODO 放到_init_widget下
         self._init_widget()
+        self._init_info(friend_info)
         self.callback = callback
 
     def _init_widget(self):
-        label_space = 24  # Label 與 輸入元件的距離
+        current_y = 11
+        Label(self, width=12, text='UsedNames:', font=(SCP, 12)).place(x=5, y=current_y)
+        self.used_names = StringVar()
+        Entry(self, width=19, textvariable=self.used_names, font=(MS_JH, 12))\
+            .place(x=34, y=current_y + 25)
 
-        current_y = 8
-        Label(self, width=12, text='UsedNames :', font=(MS_JH, 12)).place(x=5, y=current_y)
-        self.used_names = StringVar(value=self.friend_info[1])
-        Entry(self, width=16, textvariable=self.used_names, font=(MS_JH, 12), justify=LEFT)\
-            .place(x=30, y=current_y + label_space)
+        Label(self, width=11, text='AddedDate', font=(SCP, 10)).place(x=226, y=current_y + 6)
+        self.added_date = StringVar()
+        Entry(self, width=10, textvariable=self.added_date, font=(MS_JH, 10), justify=CENTER)\
+            .place(x=231, y=current_y + 26)
 
-        Label(self, width=11, text='AddedDate', font=(MS_JH, 10)).place(x=197, y=current_y + 1)
-        self.added_date = StringVar(value=self.init_added_date())
-        Entry(self, width=11, textvariable=self.added_date, font=(MS_JH, 10), justify=CENTER)\
-            .place(x=196, y=current_y + label_space + 1)
-
-        current_y += 55
-        Label(self, width=25, text='Excellence', font=(MS_JH, 12)).place(x=29, y=current_y)
-        self.excellence = StringVar(value=self.friend_info[2])
-        excellence_entry = Entry(self, width=28, textvariable=self.excellence, font=(MS_JH, 12), justify=CENTER)
-        excellence_entry.place(x=27, y=current_y + label_space)
-
-        current_y += 55
-        Label(self, width=25, text='Defect', font=(MS_JH, 12)).place(x=29, y=current_y)
-        self.defect = StringVar(value=self.friend_info[3])
-        defect_entry = Entry(self, width=28, textvariable=self.defect, font=(MS_JH, 12), justify=CENTER)
-        defect_entry.place(x=27, y=current_y + label_space)
-        defect_entry.bind('<Return>', self.submitting)
-
-        # noinspection PyUnusedLocal
-        def move_focus_to_defect_entry(*args):
-            defect_entry.focus_set()
-        excellence_entry.bind('<Return>', move_focus_to_defect_entry)
-
-        # 送出的按鈕
         current_y += 69
-        Button(self, text="Submit", command=self.submitting, width=26, borderwidth=3,
-               font=("", 12)).place(x=31, y=current_y)
+        label_x = 7
+        entry_x = label_x + 56
 
-        # 取消的按鈕
-        current_y += 39
-        Button(self, text="Cancel", command=self.destroy, width=26, borderwidth=3,
-               font=("", 12)).place(x=31, y=current_y)
+        Label(self, width=6, text='Exce.', font=(SCP, 10)).place(x=label_x, y=current_y)
+        self.excellence = StringVar()
+        excellence_entry = Entry(self, width=28, textvariable=self.excellence, font=(MS_JH, 12))
+        excellence_entry.place(x=entry_x, y=current_y)
+        excellence_entry.bind('<Return>', lambda x: defect_entry.focus_set())
+
+        current_y += 36
+        Label(self, width=6, text='Defe.', font=(SCP, 10)).place(x=label_x, y=current_y)
+        self.defect = StringVar()
+        defect_entry = Entry(self, width=28, textvariable=self.defect, font=(MS_JH, 12))
+        defect_entry.place(x=entry_x, y=current_y)
+        defect_entry.bind('<Return>', self.submitting)
+        defect_entry.bind('<Return>', lambda x: relation_entry.focus_set())
+
+        current_y += 36
+        Label(self, width=6, text='Rela.', font=(SCP, 10)).place(x=label_x, y=current_y)
+        self.relation = StringVar()
+        relation_entry = Entry(self, width=28, textvariable=self.relation, font=(MS_JH, 12), justify=CENTER)
+        relation_entry.place(x=entry_x, y=current_y)
+        relation_entry.bind('<Return>', lambda x: offline_entry.focus_set())
+
+        current_y += 36
+        Label(self, width=6, text='Off .', font=(SCP, 10)).place(x=label_x, y=current_y)
+        self.offline = StringVar()
+        offline_entry = Entry(self, width=28, textvariable=self.offline, font=(MS_JH, 12), justify=CENTER)
+        offline_entry.place(x=entry_x, y=current_y)
+        offline_entry.bind('<Return>', self.submitting)
+
+        # 送出、取消的按鈕
+        current_y += 46
+        Button(self, text="Submit", command=self.submitting, width=20, relief=RIDGE,
+               font=(SCP, 11)).place(x=19, y=current_y)
+        Button(self, text="Cancel", command=self.destroy, width=10, relief=RIDGE,
+               font=(SCP, 11)).place(x=226, y=current_y)
+
+    def _init_info(self, friend_info):
+        self.friend_info = friend_info
+        self.used_names.set(friend_info.used_names)
+        self.added_date.set(friend_info.added_date)
+        self.excellence.set(friend_info.excellence)
+        self.defect.set(friend_info.defect)
+        self.relation.set(friend_info.relation)
+        self.offline.set(friend_info.offline)
 
     # noinspection PyUnusedLocal
     def submitting(self, *args):
         # 進行檢查，不允許 UsedNames 為空
-        if self.used_names.get() == '':
-            tkMessageBox.showwarning("Can not submit", '不允許 UsedNames 為空', parent=self)
+        if not self.used_names.get():
+            tkMessageBox.showwarning("Can not submit", 'UsedNames 不能為空', parent=self)
             return
 
         # 更新回原記錄
-        self.friend_info[1] = self.used_names.get()
-        self.friend_info[2] = self.excellence.get()
-        self.friend_info[3] = self.defect.get()
-        self.friend_info[8] = self.added_date.get()
-
-        # 更新到資料庫
-        values = [self.friend_info[1], self.friend_info[2], self.friend_info[3], self.friend_info[8]]
-        DBAccessor.execute('update ' + self.get_db_table_name() +
-                           convert_data_to_update_command(FRIEND_MODIFIED_COLUMN, values) +
-                           ' where ID=' + str(self.friend_info[0]))
-        DBAccessor.commit()
+        self.friend_info.used_names = self.used_names.get()
+        self.friend_info.excellence = self.excellence.get()
+        self.friend_info.defect = self.defect.get()
+        self.friend_info.added_date = self.added_date.get()
+        self.friend_info.relation = self.relation.get()
+        self.friend_info.offline = self.offline.get()
 
         self.destroy()
         self.callback()
-
-    # 好友已存在時使用原記錄，若好友不存在時使用當天日期
-    def init_added_date(self):
-        return self.friend_info[8] if self.used_names.get() != '' else datetime.now().date()
-
-    def get_db_table_name(self):
-        return 'Friend' + self.db_suffix
 
 
 class FriendRecordUpdaterWindow(BasicWindow):
@@ -144,5 +150,5 @@ class FriendRecordUpdaterWindow(BasicWindow):
                 return
 
         self.record.record(self.character_selector.get().nickname, self.character_level_var.get(), self.rank_var.get())
-        self.callback()
         self.destroy()
+        self.callback()

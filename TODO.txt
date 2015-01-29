@@ -1,13 +1,12 @@
 
 新增好友欄位 off_line, 關係
-	FriendInfo 的Frame, windows, dataobject
-		Frame只缺最後的新增事件
 	FriendModel 的 re_do_statistic_to_update_friend_info 功能實作
+	最後移掉 CommonStr內的table，並刪掉 friend page
 
 改掉一直傳 db_suffix 的問題
 		
 待整理：
-CharacterFrame、CharacterWindow、FriendFrame、FriendWindows（剩FriendInfoUpdaterWindow）
+CharacterFrame、CharacterWindow
 
 讀取CCDB，新增角色的所屬欄位，並能對此搜尋/篩選
 	更新新增角色（小數字IDs）: 改成跳出更新的視窗，送出後才更新

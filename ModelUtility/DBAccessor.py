@@ -42,7 +42,12 @@ class DBAccessor():
     @staticmethod
     def select_specific_friend_info(requested_id, db_suffix):
         return FriendInfo(DBAccessor.execute('select {0} from Friend{1} where ID=={2}'.format(
-            ','.join(FriendInfo.DISPLAYED_COLUMNS), db_suffix, requested_id)))
+            ','.join(FriendInfo.DISPLAYED_COLUMNS), db_suffix, requested_id)).fetchone())
+
+    @staticmethod
+    def select_unused_friend_info(db_suffix):
+        return FriendInfo(DBAccessor.execute('select {0} from Friend{1} where UsedNames==\'\''.format(
+            ','.join(FriendInfo.DISPLAYED_COLUMNS), db_suffix)).fetchone())
 
     @staticmethod
     def update_friend_info_into_db(friend_info, db_suffix, commit_followed):
