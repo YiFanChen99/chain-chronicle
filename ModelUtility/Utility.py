@@ -7,6 +7,13 @@ def convert_str_to_date(date_str):
     return datetime.strptime(date_str, "%Y-%m-%d").date() if date_str is not None else None
 
 
+def is_any_japanese_character_contain(variable):
+    for character in variable:
+        if u'\u3000' <= character <= u'\u30f0':
+            return True
+    return False
+
+
 # 使點擊 label 與點擊 check box 有相同效果
 # p.s. Checkbutton 本身就有 variable 可以用，還有 onvalue 等內建能力，
 # 但缺點在無法調整文字與格子的相對位置，故需要調整要手動建立並 binding

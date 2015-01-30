@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from CommonString import *
-
+from Utility import is_any_japanese_character_contain
 
 def match_request(source, request):
     if request == CONDITIONLESS:
@@ -25,10 +25,8 @@ def sub_match_request(source, request, is_case_sensitive=False):
         return request.lower() in source.lower()
 
 
-# TODO 未用
-# def is_any_japanese_character_contain(variable):
-#     variable = variable.decode('utf8')
-#     for character in variable:
-#         if u'\u3000' <= character <= u'\u30f0':
-#             return True
-#     return False
+def sub_match_request_or_japanese_character(source, request, is_case_sensitive=False):
+    if request == '*j' or request == '*J':
+        return is_any_japanese_character_contain(source)
+    else:
+        return sub_match_request(source, request, is_case_sensitive)

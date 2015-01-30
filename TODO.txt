@@ -1,6 +1,4 @@
 
-改掉一直傳 db_suffix 的問題
-		
 待整理：
 CharacterFrame、CharacterWindow
 

@@ -3,6 +3,7 @@ from MainFrameNew.BaseFrame import *
 from ModelUtility.Filter import FilterRuleManager
 from ModelUtility.DBAccessor import *
 from ModelUtility.Utility import bind_check_box_and_label, convert_str_to_date
+from ModelUtility.Comparator import sub_match_request_or_japanese_character
 from ModelUtility.CommonState import *
 from Window.FriendWindow import FriendInfoUpdaterWindow, FriendRecordUpdaterWindow
 from Model.FriendModel import take_statistic_to_update_friend_info
@@ -18,7 +19,7 @@ class FriendInfoFrame(MainFrameWithTable):
         self.table_model.set_columns(FriendInfo.DISPLAYED_COLUMNS, main_column='UsedNames')
         self.table_view.setModel(self.table_model)
         self.filer_manager = FilterRuleManager()
-        self.filer_manager.set_comparison_rule('used_names')
+        self.filer_manager.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)
         self.filer_manager.set_comparison_rule('relation')
         self.filer_manager.set_comparison_rule('used_characters')
 
@@ -120,7 +121,7 @@ class FriendInfoFrame(MainFrameWithTable):
             return
 
         FriendInfoUpdaterWindow(self, friend_info, callback=lambda: (
-            self.update_friend_info_into_db(friend_info), self.updating_table()))
+            self.update_friend_info_into_db(friend_info), self.updating_context()))
 
     # 更改好友資訊
     def do_double_clicking(self, event):
@@ -166,8 +167,8 @@ class FriendRecordFrame(MainFrameWithTable):
         self.table_model.set_columns(FriendRecord.DISPLAYED_COLUMNS, main_column='UsedNames')
         self.table_view.setModel(self.table_model)
         self.filer_manager = FilterRuleManager()
-        self.filer_manager.set_comparison_rule('used_names')
-        self.filer_manager.set_comparison_rule('character_nickname')
+        self.filer_manager.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)
+        self.filer_manager.set_comparison_rule('current_character')
 
         self._init_left_frame()
         self._init_upper_frame()
