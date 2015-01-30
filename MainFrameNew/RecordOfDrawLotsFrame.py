@@ -4,6 +4,7 @@ from BaseFrame import *
 from Window.RecordOfDrawLotsWindow import AddRecordWindow, UpdatingRecordWindow
 from ModelUtility.DBAccessor import *
 from ModelUtility.Utility import bind_check_box_and_label, convert_str_to_date
+from ModelUtility.CommonState import *
 from UIUtility.Combobox import FilteredCombobox, IntFilteredCombobox
 from ModelUtility.Filter import FilterRuleManager
 from datetime import timedelta
@@ -13,14 +14,13 @@ EVENT_DURATION_TOLERANCE = 2
 
 
 class RecordOfDrawLotsFrame(MainFrameWithTable):
-    def __init__(self, master, db_suffix, **kwargs):
-        MainFrameWithTable.__init__(self, master, db_suffix=db_suffix, **kwargs)
+    def __init__(self, master, **kwargs):
+        MainFrameWithTable.__init__(self, master, **kwargs)
         self.set_table_place(34, 29)
 
         self.filter_manager = FilterRuleManager()
         self.records = None
-        self.events = DBAccessor.execute('select Name, End from ' +
-                                         self.compose_table_name('EventOfDrawLots')).fetchall()
+        self.events = DBAccessor.execute('select Name, End from EventOfDrawLots' + get_db_suffix()).fetchall()
 
         self._init_add_record_frame()
         self._init_filter_frame()
@@ -105,7 +105,7 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
         button["command"] = self.clearing_filter
 
     def update_all_records(self):
-        self.records = DBAccessor.execute('select * from ' + self.compose_table_name('RecordOfDrawLots')).fetchall()
+        self.records = DBAccessor.execute('select * from RecordOfDrawLots' + get_db_suffix()).fetchall()
         self.updating_table()
 
     def clearing_filter(self):
@@ -118,7 +118,7 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
     def adding_record(self):
         # 該 Window 預設送出後不關閉，故需要提供更新的 callback method
         # 理論上該 callback 將記錄插入 self.records 即可，但目前偷懶讓他全部更新
-        AddRecordWindow(self, self.db_suffix, self.get_suitable_event_names(), self.update_all_records)
+        AddRecordWindow(self, self.get_suitable_event_names(), self.update_all_records)
 
     # 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
     def get_suitable_event_names(self):
@@ -201,7 +201,7 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
         row = self.table_view.get_row_clicked(event)
         record = self.get_record_by_times(int(self.table_model.getCellRecord(row, 0)))
 
-        popup = UpdatingRecordWindow(self, self.db_suffix, self.get_suitable_event_names(), record)
+        popup = UpdatingRecordWindow(self, self.get_suitable_event_names(), record)
         self.wait_window(popup)
         # 已確認 tuple 理念上不希望會更動，故無易懂方法更新回去，而接受重新撈出
         self.update_all_records()
@@ -212,8 +212,7 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
         # 確認是否刪除
         if tkMessageBox.askyesno('Deleting',
                                  'Are you sure you want to delete the {0}th record ?'.format(times), parent=self):
-            DBAccessor.execute('delete from {0} where Times={1}'.format(
-                self.compose_table_name('RecordOfDrawLots'), times))
+            DBAccessor.execute('delete from RecordOfDrawLots{0} where Times={1}'.format(get_db_suffix(), times))
             DBAccessor.commit()
 
         # 從已撈出的資料中將之移除，並更新顯示

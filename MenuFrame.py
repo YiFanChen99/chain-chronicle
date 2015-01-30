@@ -4,6 +4,7 @@ from Static import *
 import SubMenuFrame
 import Utilities
 import os
+from ModelUtility.CommonState import *
 
 GROUP_STATIC_INFO = 'Static Info'
 GROUP_ACCOUNT_JP = 'Fuji Account'
@@ -41,9 +42,11 @@ class MenuFrame(Frame):
         if GROUPS[index] == GROUP_STATIC_INFO:
             return SubMenuFrame.StaticGroupFrame(self.master, height=height)
         elif GROUPS[index] == GROUP_ACCOUNT_JP:
-            return SubMenuFrame.AccountGroupFrame(self.master, height=height, db_suffix='JP')
+            set_db_suffix('JP')
+            return SubMenuFrame.AccountGroupFrame(self.master, height=height)
         elif GROUPS[index] == GROUP_ACCOUNT_CN:
-            return SubMenuFrame.AccountGroupFrame(self.master, height=height, db_suffix='CN')
+            set_db_suffix('CN')
+            return SubMenuFrame.AccountGroupFrame(self.master, height=height)
         else:
             raise Exception("Wrong group selected!")
 

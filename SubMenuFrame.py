@@ -61,21 +61,20 @@ class StaticGroupFrame(SubMenuFrame):
 class AccountGroupFrame(SubMenuFrame):
     Frames = ['Friend', 'RecordOfDrawLots', 'MyCharacter', 'Resource']
 
-    def __init__(self, master, height, db_suffix, **kwargs):
-        self.db_suffix = db_suffix
+    def __init__(self, master, height, **kwargs):
         SubMenuFrame.__init__(self, master, height=height, **kwargs)
 
     def create_main_frame(self, index):
         frame_name = self.Frames[index]
         if frame_name == 'MyCharacter':
              # TODO MyCharacter
-            return MainFrame(self.master, self.db_suffix, width=100, height=100, background='blue')
+            return MainFrame(self.master, width=100, height=100, background='blue')
         elif frame_name == 'Resource':
              # TODO Resource
-            return MainFrame(self.master, self.db_suffix, width=100, height=100, background='red')
+            return MainFrame(self.master, width=100, height=100, background='red')
         elif frame_name == 'RecordOfDrawLots':
-            return RecordOfDrawLotsFrame(self.master, self.db_suffix)
+            return RecordOfDrawLotsFrame(self.master)
         elif frame_name == 'Friend':
-            return FriendInfoFrame(self.master, self.db_suffix)
+            return FriendInfoFrame(self.master)
         else:
             raise Exception("Wrong group selected!")

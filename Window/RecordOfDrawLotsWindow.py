@@ -3,16 +3,17 @@ from BasicWindow import *
 from UIUtility.CharacterSelector import CharacterSelectorCanvas
 from ModelUtility.DBAccessor import *
 from ModelUtility.CommonString import *
+from ModelUtility.CommonState import *
 
 
 class RecordWindow(BasicWindow):
-    def __init__(self, master, db_suffix, event_names, width=445, height=131, **kwargs):
+    def __init__(self, master, event_names, width=445, height=131, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.geometry('+850+300')
 
         self._init_widgets(event_names)
 
-        self.record_table = 'RecordOfDrawLots' + db_suffix
+        self.table_name = 'RecordOfDrawLots' + get_db_suffix()
 
     def _init_widgets(self, event_names):
         # 筆數
@@ -59,22 +60,22 @@ class RecordWindow(BasicWindow):
 
 
 class AddRecordWindow(RecordWindow):
-    def __init__(self, master, db_suffix, event_names, callback, **kwargs):
-        RecordWindow.__init__(self, master, db_suffix, event_names, **kwargs)
+    def __init__(self, master, event_names, callback, **kwargs):
+        RecordWindow.__init__(self, master, event_names, **kwargs)
         self.title('Add new record')
 
         self.callback = callback
 
         # 以最近一筆資料作為預設值，設定內容
         last_record = DBAccessor.execute(
-            'select * from {0} where Times = (select max(Times) from {0})'.format(self.record_table)).fetchone()
+            'select * from {0} where Times = (select max(Times) from {0})'.format(self.table_name)).fetchone()
         self.times.set(last_record[0] + 1)
         self.event_selector.set(last_record[1])
         self.cost_selector.set(last_record[5])
 
     def do_submitting(self):
         character = self.character_selector.get()
-        DBAccessor.execute('insert into {0}({1})'.format(self.record_table, ','.join(DRAW_LOTS_DB_TABLE)) +
+        DBAccessor.execute('insert into {0}({1})'.format(self.table_name, ','.join(DRAW_LOTS_DB_TABLE)) +
                            convert_data_to_insert_command(
                                self.times.get(), self.event_selector.get(), character.profession,
                                character.rank, character.nickname, self.cost_selector.get()))
@@ -87,8 +88,8 @@ class AddRecordWindow(RecordWindow):
 
 
 class UpdatingRecordWindow(RecordWindow):
-    def __init__(self, master, db_suffix, event_names, record, **kwargs):
-        RecordWindow.__init__(self, master, db_suffix, event_names, **kwargs)
+    def __init__(self, master, event_names, record, **kwargs):
+        RecordWindow.__init__(self, master, event_names, **kwargs)
         self.title('Update record')
 
         self._init_context(record)
@@ -106,7 +107,7 @@ class UpdatingRecordWindow(RecordWindow):
     # 單純更新到資料庫，不寫回原 record (因tuple的關係)
     def do_submitting(self):
         character = self.character_selector.get()
-        DBAccessor.execute('update {0}{1} where Times={2}'.format(self.record_table, convert_data_to_update_command(
+        DBAccessor.execute('update {0}{1} where Times={2}'.format(self.table_name, convert_data_to_update_command(
             DRAW_LOTS_DB_TABLE[1:6], [self.event_selector.get(), character.profession, character.rank,
                                       character.nickname, self.cost_selector.get()]), self.times.get()))
         DBAccessor.commit()

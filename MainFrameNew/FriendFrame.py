@@ -11,9 +11,8 @@ from Model.FriendModel import take_statistic_to_update_friend_info
 class FriendInfoFrame(MainFrameWithTable):
     ORDER_OPTIONS = ['Profession', 'Rank', 'In3Weeks', 'In2Months', 'AddedDate']
 
-    def __init__(self, master, db_suffix):
-        MainFrameWithTable.__init__(self, master, db_suffix)
-        set_db_suffix(self.db_suffix)
+    def __init__(self, master):
+        MainFrameWithTable.__init__(self, master)
         self.set_table_place(34, 29)
         self.table_model = TableModelAdvance()
         self.table_model.set_columns(FriendInfo.DISPLAYED_COLUMNS, main_column='UsedNames')
@@ -71,13 +70,13 @@ class FriendInfoFrame(MainFrameWithTable):
         date = convert_str_to_date(
             DBAccessor.execute(
                 'select max({2}) from {0} where {1} = (select {1} from {0} where {2} = (select min({2}) from {0}))'.format(
-                    self.compose_table_name('FriendRecord'), 'FriendID', 'RecordedDate')).fetchone()[0])
+                    'FriendRecord' + get_db_suffix(), 'FriendID', 'RecordedDate')).fetchone()[0])
         if date is not None:
             self.since_last_record_var.set('Since: %d days ago' % (date.today() - date).days)
 
     def updating_context(self):
         # 建立 FriendInfoObjects
-        self.friend_infos = DBAccessor.select_friend_info_list(self.db_suffix)
+        self.friend_infos = DBAccessor.select_friend_info_list()
 
         self.friend_count_var.set('Friends: %02d' % len(self.friend_infos))  # 好友總數
 
@@ -110,12 +109,12 @@ class FriendInfoFrame(MainFrameWithTable):
         self.table_view.resizeColumn(6, 155)  # UsedCharacters
 
     def switching_to_friend_record(self):
-        self.master.update_main_frame(FriendRecordFrame(self.master, self.db_suffix))
+        self.master.update_main_frame(FriendRecordFrame(self.master))
 
     # 取得未使用的 ID，並將新好友指定到該 ID
     def adding_new_friend(self):
         try:
-            friend_info = DBAccessor.select_unused_friend_info(get_db_suffix())
+            friend_info = DBAccessor.select_unused_friend_info()
         except ValueError:
             tkMessageBox.showwarning("Can not add any friend", '已達好友上限', parent=self)
             return
@@ -131,7 +130,7 @@ class FriendInfoFrame(MainFrameWithTable):
 
     @staticmethod
     def update_friend_info_into_db(friend_info):
-        DBAccessor.update_friend_info_into_db(friend_info, get_db_suffix(), commit_followed=True)
+        DBAccessor.update_friend_info_into_db(friend_info, commit_followed=True)
 
     def do_dragging_along_right(self, row_number):
         friend_info = self.get_corresponding_friend_info_in_row(row_number)
@@ -159,9 +158,8 @@ class FriendInfoFrame(MainFrameWithTable):
 
 
 class FriendRecordFrame(MainFrameWithTable):
-    def __init__(self, master, db_suffix):
-        MainFrameWithTable.__init__(self, master, db_suffix=db_suffix)
-        set_db_suffix(self.db_suffix)
+    def __init__(self, master):
+        MainFrameWithTable.__init__(self, master)
         self.set_table_place(34, 29)
         self.table_view.cellwidth = 85
         self.table_model = TableModelAdvance()
@@ -220,7 +218,7 @@ class FriendRecordFrame(MainFrameWithTable):
         self.date.set(date.today())  # 此次記錄的日期
 
         # 建立 FriendRecordObjects
-        self.friend_records = DBAccessor.select_new_friend_record_list(self.db_suffix)
+        self.friend_records = DBAccessor.select_new_friend_record_list()
 
         self.friend_count_str.set('Friends: %02d' % len(self.friend_records))  # 好友總數
 
@@ -247,7 +245,7 @@ class FriendRecordFrame(MainFrameWithTable):
             for record in self.friend_records:
                 if record.status == RECORDED:
                     DBAccessor.insert_friend_record_into_db(
-                        record, self.db_suffix, self.date.get(), commit_followed=False)
+                        record, self.date.get(), commit_followed=False)
             DBAccessor.commit()
 
             # 更新 FriendInfo Table 中的資訊（RaisedIn3Weeks, LastCharacter 等）
@@ -262,7 +260,7 @@ class FriendRecordFrame(MainFrameWithTable):
             updated_record_number), parent=self)
 
     def switching_to_friend_info(self):
-        self.master.update_main_frame(FriendInfoFrame(self.master, self.db_suffix))
+        self.master.update_main_frame(FriendInfoFrame(self.master))
 
     # 若雙擊右側，則欲編輯好友記錄，若雙擊左側，則為更改好友資訊
     def do_double_clicking(self, event):
@@ -271,7 +269,7 @@ class FriendRecordFrame(MainFrameWithTable):
 
         column = self.table_view.get_col_clicked(event)
         if column == 1:
-            FriendInfoUpdaterWindow(self, DBAccessor.select_specific_friend_info(the_friend_id, get_db_suffix()),
+            FriendInfoUpdaterWindow(self, DBAccessor.select_specific_friend_info(the_friend_id),
                                     callback=lambda info: None)
         else:
             for record in self.friend_records:

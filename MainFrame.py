@@ -8,8 +8,7 @@ from tkintertable.TableModels import TableModel
 
 
 class MainFrame(Frame):
-    def __init__(self, master, db_suffix=None, **kwargs):
-        self.db_suffix = db_suffix
+    def __init__(self, master, **kwargs):
         Frame.__init__(self, master, **kwargs)
         self.pack(fill=BOTH, expand=1)
 
@@ -17,13 +16,10 @@ class MainFrame(Frame):
         self['width'] = width
         self['height'] = height
 
-    def compose_table_name(self, table_name):
-        return table_name + self.db_suffix
-
 
 class MainFrameWithTable(MainFrame):
-    def __init__(self, master, db_suffix=None, **kwargs):
-        MainFrame.__init__(self, master, db_suffix, **kwargs)
+    def __init__(self, master, **kwargs):
+        MainFrame.__init__(self, master, **kwargs)
 
         # init table
         self.table_x = None

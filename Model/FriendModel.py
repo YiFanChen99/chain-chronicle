@@ -8,7 +8,8 @@ from ModelUtility.Utility import convert_str_to_date
 # 重新統計 FriendRecord 並寫入 FriendInfo 內
 def take_statistic_to_update_friend_info():
     # 對每個目前好友進行處理
-    for friend in DBAccessor.execute('select ID from FriendInfo' + get_db_suffix() + ' where UsedNames!=\'\'').fetchall():
+    for friend in DBAccessor.execute('select ID from FriendInfo{0} where UsedNames!=\'\''.format(
+            get_db_suffix())).fetchall():
         f_id = friend[0]
         statistic_taker = FriendStatisticTaker(f_id)
         # 取出該 ID 對應的所有記錄，從最近排序到最久以前
