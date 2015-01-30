@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 """ 此 module 放置通用卻無明顯分類的小功能 """
+from datetime import datetime
+
+
+def convert_str_to_date(date_str):
+    return datetime.strptime(date_str, "%Y-%m-%d").date() if date_str is not None else None
 
 
 # 使點擊 label 與點擊 check box 有相同效果

@@ -2,10 +2,10 @@
 from MainFrameNew.BaseFrame import *
 from ModelUtility.Filter import FilterRuleManager
 from ModelUtility.DBAccessor import *
-from ModelUtility.Utility import bind_check_box_and_label
+from ModelUtility.Utility import bind_check_box_and_label, convert_str_to_date
 from ModelUtility.CommonState import *
 from Window.FriendWindow import FriendInfoUpdaterWindow, FriendRecordUpdaterWindow
-from Model.FriendModel import do_statistic_to_update_friend_info
+from Model.FriendModel import take_statistic_to_update_friend_info
 
 
 class FriendInfoFrame(MainFrameWithTable):
@@ -68,12 +68,12 @@ class FriendInfoFrame(MainFrameWithTable):
 
     def _init_since_last_record(self):
         # 欲取得最後更新全體記錄的時間，但只用了效果類似的手段（抓不特定老朋友最後被更新的時間）
-        date = convert_str_to_datetime(
+        date = convert_str_to_date(
             DBAccessor.execute(
                 'select max({2}) from {0} where {1} = (select {1} from {0} where {2} = (select min({2}) from {0}))'.format(
                     self.compose_table_name('FriendRecord'), 'FriendID', 'RecordedDate')).fetchone()[0])
         if date is not None:
-            self.since_last_record_var.set('Since: %d days ago' % (datetime.now() - date).days)
+            self.since_last_record_var.set('Since: %d days ago' % (date.today() - date).days)
 
     def updating_context(self):
         # 建立 FriendInfoObjects
@@ -137,7 +137,7 @@ class FriendInfoFrame(MainFrameWithTable):
         friend_info = self.get_corresponding_friend_info_in_row(row_number)
         # 確認是否刪除
         if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete friend 「{0}」？'.format(
-                friend_info.used_names), parent=self):
+                friend_info.used_names.encode('utf-8')), parent=self):
             self.remove_friend(friend_info)
             self.updating_context()
 
@@ -217,7 +217,7 @@ class FriendRecordFrame(MainFrameWithTable):
         Label(self, textvariable=self.friend_count_str, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
 
     def _init_context(self):
-        self.date.set(datetime.now().date())  # 此次記錄的日期
+        self.date.set(date.today())  # 此次記錄的日期
 
         # 建立 FriendRecordObjects
         self.friend_records = DBAccessor.select_new_friend_record_list(self.db_suffix)
@@ -251,7 +251,7 @@ class FriendRecordFrame(MainFrameWithTable):
             DBAccessor.commit()
 
             # 更新 FriendInfo Table 中的資訊（RaisedIn3Weeks, LastCharacter 等）
-            do_statistic_to_update_friend_info()
+            take_statistic_to_update_friend_info()
 
             self.switching_to_friend_info()
 

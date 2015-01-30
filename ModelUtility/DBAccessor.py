@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import sqlite3
-from datetime import datetime
 from ModelUtility.DataObject import *
 
 
@@ -122,7 +121,3 @@ def convert_to_str(value):
         return ''
     else:
         return value.encode('utf-8')
-
-
-def convert_str_to_datetime(date_str):
-    return datetime.strptime(date_str, "%Y-%m-%d") if date_str is not None else None

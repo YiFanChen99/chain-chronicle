@@ -20,6 +20,3 @@ SCP = 'Source Code Pro'  # Monokai 所用字型
 
 # Path
 IMAGE_FOLDER = 'images/'
-
-# Tables
-FRIEND_MODIFIED_COLUMN = ['UsedNames', 'Excellence', 'Defect', 'AddedDate']

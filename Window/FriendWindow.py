@@ -33,14 +33,14 @@ class FriendInfoUpdaterWindow(BasicWindow):
 
         Label(self, width=6, text='Exce.', font=(SCP, 10)).place(x=label_x, y=current_y)
         self.excellence = StringVar()
-        excellence_entry = Entry(self, width=28, textvariable=self.excellence, font=(MS_JH, 12))
+        excellence_entry = Entry(self, width=28, textvariable=self.excellence, font=(MS_JH, 12), justify=CENTER)
         excellence_entry.place(x=entry_x, y=current_y)
         excellence_entry.bind('<Return>', lambda x: defect_entry.focus_set())
 
         current_y += 36
         Label(self, width=6, text='Defe.', font=(SCP, 10)).place(x=label_x, y=current_y)
         self.defect = StringVar()
-        defect_entry = Entry(self, width=28, textvariable=self.defect, font=(MS_JH, 12))
+        defect_entry = Entry(self, width=28, textvariable=self.defect, font=(MS_JH, 12), justify=CENTER)
         defect_entry.place(x=entry_x, y=current_y)
         defect_entry.bind('<Return>', self.submitting)
         defect_entry.bind('<Return>', lambda x: relation_entry.focus_set())

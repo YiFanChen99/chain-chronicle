@@ -1,8 +1,4 @@
 
-新增好友欄位 off_line, 關係
-	FriendModel 的 re_do_statistic_to_update_friend_info 功能實作
-	最後移掉 CommonStr內的table，並刪掉 friend page
-
 改掉一直傳 db_suffix 的問題
 		
 待整理：

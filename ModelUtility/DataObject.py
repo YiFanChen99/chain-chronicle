@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+from datetime import date
 from CommonString import *
 
 DRAW_LOTS_DB_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
@@ -205,12 +205,11 @@ class CGDTCharacter(object):
 
 
 class FriendInfo(object):
-    DB_TABLE = ['ID', 'UsedNames', 'Excellence', 'Defect', 'Relation', 'Offline', 'UsedCharacters', 'Rank',
+    DB_TABLE = ['ID', 'UsedNames', 'Excellence', 'Defect', 'Relation', 'Offline', 'UsedCharacters', 'CurrentRank',
                 'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate', 'LastProfession', 'LastCharacter']
     CLEANED_UP_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 ID 外的所有欄位
     DISPLAYED_COLUMNS = DB_TABLE[0:12]
     UPDATED_COLUMNS = DB_TABLE[1:6] + [DB_TABLE[10]]
-    # UPDATED_BY_STATISTIC_COLUMNS = DB_TABLE[6:10] + DB_TABLE[11:13]  #TODO
 
     def __init__(self, infos):
         if infos is None:
@@ -225,7 +224,7 @@ class FriendInfo(object):
         self.relation = next(properties)
         self.offline = next(properties)
         self.used_characters = next(properties)
-        self.rank = next(properties)
+        self.current_rank = next(properties)
         self.raised_in_3_weeks = next(properties)
         self.raised_in_2_months = next(properties)
         self._added_date = next(properties)
@@ -234,7 +233,7 @@ class FriendInfo(object):
     # 資料已存在時使用原資料，若為新好友則回傳當天日期
     @property
     def added_date(self):
-        return self._added_date if self._added_date else datetime.now().date()
+        return self._added_date if self._added_date else date.today()
 
     @added_date.setter
     def added_date(self, value):
@@ -243,7 +242,7 @@ class FriendInfo(object):
     def get_displayed_info(self):
         return [self.f_id, self.used_names.encode('utf-8'), self.excellence.encode('utf-8'),
                 self.defect.encode('utf-8'), self.relation.encode('utf-8'), self.offline,
-                self.used_characters.encode('utf-8'), self.rank, self.raised_in_3_weeks,
+                self.used_characters.encode('utf-8'), self.current_rank, self.raised_in_3_weeks,
                 self.raised_in_2_months, self._added_date, self.last_profession.encode('utf-8')]
 
     def get_updated_info(self):
@@ -261,7 +260,7 @@ class FriendInfo(object):
 
 class FriendRecord(object):
     DB_TABLE = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
-    FRIEND_INFO_SELECTED_COLUMNS = ['ID', 'UsedNames', 'Rank', 'LastProfession', 'LastCharacter']
+    FRIEND_INFO_SELECTED_COLUMNS = ['ID', 'UsedNames', 'CurrentRank', 'LastProfession', 'LastCharacter']
     DISPLAYED_COLUMNS = FRIEND_INFO_SELECTED_COLUMNS[0:2] + DB_TABLE[2:5] + FRIEND_INFO_SELECTED_COLUMNS[2:4]
 
     def __init__(self, infos):
@@ -274,7 +273,7 @@ class FriendRecord(object):
         self.last_profession = infos[3]
         self.last_character = infos[4]
 
-        self.status = UNRECORDED
+        self._status = UNRECORDED
 
     # 簡單檢查資料，若通過則更新記錄，並調整狀態為「已記錄」
     def record(self, nickname, level, rank):
@@ -288,7 +287,11 @@ class FriendRecord(object):
         self.character_nickname = nickname
         self.character_level = level
         self.rank = rank
-        self.status = RECORDED
+        self._status = RECORDED
+
+    @property
+    def status(self):
+        return self._status
 
     # 該 rank 之變化是否異常（成長過快 / 負成長）
     def is_unusual_rank(self, the_rank):
@@ -314,8 +317,10 @@ class FriendRecord(object):
         return [self.f_id, self.used_names.encode('utf-8'), self.current_character.encode('utf-8'),
                 self.current_character_level, self.current_rank, self.last_rank, self.last_profession.encode('utf-8')]
 
-    def get_inserted_info(self, date):
-        return self.f_id, date, self.character_nickname, self.character_level, self.rank
+    def get_inserted_info(self, the_date):
+        if self._status != RECORDED:
+            raise Exception('Haven\'t call \'record\' yet!')
+        return self.f_id, the_date, self.character_nickname, self.character_level, self.rank
 
     def __getitem__(*args, **kwargs):
         return getattr(*args, **kwargs)

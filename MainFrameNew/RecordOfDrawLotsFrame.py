@@ -3,7 +3,7 @@
 from BaseFrame import *
 from Window.RecordOfDrawLotsWindow import AddRecordWindow, UpdatingRecordWindow
 from ModelUtility.DBAccessor import *
-from ModelUtility.Utility import bind_check_box_and_label
+from ModelUtility.Utility import bind_check_box_and_label, convert_str_to_date
 from UIUtility.Combobox import FilteredCombobox, IntFilteredCombobox
 from ModelUtility.Filter import FilterRuleManager
 from datetime import timedelta
@@ -123,10 +123,10 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
     # 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
     def get_suitable_event_names(self):
         names = []
-        available_time = datetime.now() - timedelta(days=EVENT_DURATION_TOLERANCE)
+        available_time = date.today() - timedelta(days=EVENT_DURATION_TOLERANCE)
 
         for each_event in self.events:
-            if not self.is_show_old_events.get() and convert_str_to_datetime(each_event[1]) < available_time:
+            if not self.is_show_old_events.get() and convert_str_to_date(each_event[1]) < available_time:
                 pass
             else:
                 names.append(each_event[0])
