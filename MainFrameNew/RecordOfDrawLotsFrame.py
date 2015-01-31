@@ -200,11 +200,7 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
     def do_double_clicking(self, event):
         row = self.table_view.get_row_clicked(event)
         record = self.get_record_by_times(int(self.table_model.getCellRecord(row, 0)))
-
-        popup = UpdatingRecordWindow(self, self.get_suitable_event_names(), record)
-        self.wait_window(popup)
-        # 已確認 tuple 理念上不希望會更動，故無易懂方法更新回去，而接受重新撈出
-        self.update_all_records()
+        UpdatingRecordWindow(self, self.get_suitable_event_names(), record, callback=self.update_all_records)
 
     def do_dragging_along_right(self, row_number):
         times = self.table_model.getCellRecord(row_number, 0)

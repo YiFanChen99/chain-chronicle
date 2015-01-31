@@ -29,7 +29,7 @@ class DBAccessor():
     @staticmethod
     def update_character_into_db(character, commit_followed):
         DBAccessor.execute('update Character{0} where ID={1}'.format(
-            convert_data_to_update_command(Character.DB_TABLE, character.info_list), character.c_id))
+            convert_data_to_update_command(Character.UPDATED__COLUMNS, character.get_updated_info()), character.c_id))
         if commit_followed:
             DBAccessor.commit()
 
@@ -51,9 +51,8 @@ class DBAccessor():
 
     @staticmethod
     def update_friend_info_into_db(friend_info, commit_followed):
-        DBAccessor.execute('update FriendInfo{0}{1} where ID={2}'.format(get_db_suffix(),
-            convert_data_to_update_command(FriendInfo.UPDATED_COLUMNS, friend_info.get_updated_info()),
-            friend_info.f_id))
+        DBAccessor.execute('update FriendInfo{0}{1} where ID={2}'.format(get_db_suffix(), convert_data_to_update_command(
+            FriendInfo.UPDATED_COLUMNS, friend_info.get_updated_info()), friend_info.f_id))
         if commit_followed:
             DBAccessor.commit()
 

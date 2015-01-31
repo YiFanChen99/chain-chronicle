@@ -9,6 +9,9 @@ CharacterFrame、CharacterWindow
 
 新增passive_1/2_level, attached_cost資訊到 character 表格與 CharacterDataObject 中
 
+RecordOfDraw 改成用 date object ，包含 window 不使用 DBAccessor，以及改為以 CharID 為記錄方式
+	抽卡記錄與酒廠的DB改成以ID與 EventName連結。並在 EventCombobox 加上 enter 可以跳出其號稱機率。
+
 記錄每週帳號相關資訊，含等級與道具（圖表）
 
 所有角色的註記型能力特質
@@ -25,7 +28,6 @@ CharacterPage 內的 CharacterInfoWindow 的職業與等級選擇用 Canvas。
 次次要（無按順序）：
 記錄好友現況時，若有更改好友ID，則送出後統計時會找不到而出錯，但只要再刷新後統計即可。也可以避免在該時改名。
 優化 Character，不再先刪除後新增，應分為更新與插入。
-抽卡記錄與酒廠的DB改成以Times為Key連結。
 角色列表分台日版（Ex: 台版小兔，2.0 角色，但似乎留著也不影響）
 Character 透過實作 do_dragging_along_right，增加「刪除」功能。（較複雜，需不需要考慮其他表單使用到的情況？）
 

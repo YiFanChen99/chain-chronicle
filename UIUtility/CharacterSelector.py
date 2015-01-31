@@ -131,7 +131,7 @@ class CharacterSelectionWindow(BasicWindow):
     def updating_character_selector(self, event=None):
         self.character_selector.set('')
         character_matched = []
-        for character_infos in self.filter_manager.filter(self.records, convert_to_str(self.name_request.get())):
+        for character_infos in self.filter_manager.filter(self.records, self.name_request.get()):
             character_matched.append(character_infos[0])
         self.character_selector['values'] = character_matched
 

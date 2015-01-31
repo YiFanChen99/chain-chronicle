@@ -7,13 +7,16 @@ from ModelUtility.CommonState import *
 
 
 class RecordWindow(BasicWindow):
-    def __init__(self, master, event_names, width=445, height=131, **kwargs):
+    def __init__(self, master, event_names, callback, width=445, height=131, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
-        self.geometry('+850+300')
+        self.geometry('+880+300')
 
         self._init_widgets(event_names)
+        self.callback = callback
 
         self.table_name = 'RecordOfDrawLots' + get_db_suffix()
+        # 註冊 Enter 確認
+        self.bind('<Return>', lambda event: self.submitting())
 
     def _init_widgets(self, event_names):
         # 筆數
@@ -61,10 +64,8 @@ class RecordWindow(BasicWindow):
 
 class AddRecordWindow(RecordWindow):
     def __init__(self, master, event_names, callback, **kwargs):
-        RecordWindow.__init__(self, master, event_names, **kwargs)
+        RecordWindow.__init__(self, master, event_names, callback, **kwargs)
         self.title('Add new record')
-
-        self.callback = callback
 
         # 以最近一筆資料作為預設值，設定內容
         last_record = DBAccessor.execute(
@@ -88,8 +89,8 @@ class AddRecordWindow(RecordWindow):
 
 
 class UpdatingRecordWindow(RecordWindow):
-    def __init__(self, master, event_names, record, **kwargs):
-        RecordWindow.__init__(self, master, event_names, **kwargs)
+    def __init__(self, master, event_names, record, callback, **kwargs):
+        RecordWindow.__init__(self, master, event_names, callback, **kwargs)
         self.title('Update record')
 
         self._init_context(record)
@@ -112,4 +113,5 @@ class UpdatingRecordWindow(RecordWindow):
                                       character.nickname, self.cost_selector.get()]), self.times.get()))
         DBAccessor.commit()
 
+        self.callback()
         self.destroy()

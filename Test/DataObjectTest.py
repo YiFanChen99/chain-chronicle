@@ -9,7 +9,7 @@ class DBColumnsTest(unittest.TestCase):
     def test_cgdt_columns_number(self):
         loaded_data = load_json(CGDT_DEFAULT_PATH)[0]
 
-        try :
+        try:
             assert len(loaded_data) == len(CGDTCharacter.DB_TABLE),\
                 'CGDTCharacter.DB_TABLE lens {0}, but loaded data has {1} columns.'.format(len(CGDTCharacter.DB_TABLE), len(loaded_data))
         except AssertionError as e:
@@ -53,9 +53,9 @@ class CharacterTest(unittest.TestCase):
         # Note +1. passive_1/2_level, attached_cost -3
         expected_length = cgdt_character.fields_number - 3 + 1
 
-        character = Character(cgdt_character=cgdt_character)
-        assert len(character.info_list) == expected_length,\
-            'Info list lens {0}, but expected {1}.'.format(len(character.info_list), expected_length)
+        character = Character.create_by_cgdt_character(cgdt_character)
+        actual_length = len(character.get_updated_info()) + 1  # 加上 ID 欄位
+        assert actual_length == expected_length, 'Info list lens {0}, but expected {1}.'.format(actual_length, expected_length)
 
 
 class CGDTCharacterTest(unittest.TestCase):

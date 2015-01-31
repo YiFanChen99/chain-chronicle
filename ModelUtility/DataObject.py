@@ -9,111 +9,47 @@ class Character(object):
     DB_TABLE = ['ID', 'FullName', 'Nickname', 'Profession', 'Rank', 'Active', 'ActiveCost', 'Passive1', 'Passive2',
                 'Attachment', 'WeaponType', 'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown', 'HPGrown',
                 'AtkSpeed', 'CriticalRate', 'Note', 'Belonged']
+    UPDATED__COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 ID 外的所有欄位
     DISPLAYED_COLUMNS = [DB_TABLE[0]] + DB_TABLE[2:11] + DB_TABLE[13:15] + DB_TABLE[19:21]
 
-    def __init__(self, infos=None, cgdt_character=None):
-        if infos is not None:
-            self._init_info_list(infos)
-        elif cgdt_character is not None:
-            if isinstance(cgdt_character, CGDTCharacter):
-                self._init_info_list_by_cgdt(cgdt_character)
-            else:
-                raise TypeError('Character object types {0}, not CGDTCharacter.'.format(type(cgdt_character)))
-        else:
-            raise LookupError('None infos and cgdt_character input.')
-
-    def _init_info_list(self, infos):
-        self.info_list = list(infos)
-        inputs = iter(infos)
-
-        self.c_id = next(inputs)
-        self.info_list.append(self.c_id)
-        self.full_name = next(inputs)
-        self.info_list.append(self.full_name)
-        self.nickname = next(inputs)
-        self.info_list.append(self.nickname)
-        self.profession = next(inputs)
-        self.info_list.append(self.profession)
-        self.rank = next(inputs)
-        self.info_list.append(self.rank)
-        self.active = next(inputs)
-        self.info_list.append(self.active)
-        self.active_cost = next(inputs)
-        self.info_list.append(self.active_cost)
-        self.passive1 = next(inputs)
-        self.info_list.append(self.passive1)
-        self.passive2 = next(inputs)
-        self.info_list.append(self.passive2)
-        self.attachment = next(inputs)
-        self.info_list.append(self.attachment)
-        self.weapon_type = next(inputs)
-        self.info_list.append(self.weapon_type)
-        self.exp_grown = next(inputs)
-        self.info_list.append(self.exp_grown)
-        self.attendance_cost = next(inputs)
-        self.info_list.append(self.attendance_cost)
-        self.max_atk = next(inputs)
-        self.info_list.append(self.max_atk)
-        self.max_hp = next(inputs)
-        self.info_list.append(self.max_hp)
-        self.atk_grown = next(inputs)
-        self.info_list.append(self.atk_grown)
-        self.hp_grown = next(inputs)
-        self.info_list.append(self.hp_grown)
-        self.atk_speed = next(inputs)
-        self.info_list.append(self.atk_speed)
-        self.critical_rate = next(inputs)
-        self.info_list.append(self.critical_rate)
-        self.note = next(inputs)
-        self.info_list.append(self.note)
-        self.belonged = next(inputs)
-        self.info_list.append(self.belonged)
-
-    def _init_info_list_by_cgdt(self, cgdt_character):
+    def __init__(self, infos):
         self.info_list = []
+        inputs = iter(infos)
+        self.c_id = next(inputs)
+        self.full_name = next(inputs)
+        self.nickname = next(inputs)
+        self.profession = next(inputs)
+        self.rank = next(inputs)
+        self.active = next(inputs)
+        self.active_cost = next(inputs)
+        self.passive_1 = next(inputs)
+        self.passive_2 = next(inputs)
+        self.attachment = next(inputs)
+        self.weapon_type = next(inputs)
+        self.exp_grown = next(inputs)
+        self.attendance_cost = next(inputs)
+        self.max_atk = next(inputs)
+        self.max_hp = next(inputs)
+        self.atk_grown = next(inputs)
+        self.hp_grown = next(inputs)
+        self.atk_speed = next(inputs)
+        self.critical_rate = next(inputs)
+        self.note = next(inputs)
+        self.belonged = next(inputs)
 
-        self.c_id = cgdt_character.c_id
-        self.info_list.append(self.c_id)
-        self.full_name = cgdt_character.full_name
-        self.info_list.append(self.full_name)
-        self.nickname = cgdt_character.nickname
-        self.info_list.append(self.nickname)
-        self.profession = cgdt_character.profession
-        self.info_list.append(self.profession)
-        self.rank = cgdt_character.rank
-        self.info_list.append(self.rank)
-        self.active = cgdt_character.active
-        self.info_list.append(self.active)
-        self.active_cost = cgdt_character.active_cost
-        self.info_list.append(self.active_cost)
-        self.passive1 = cgdt_character.passive_1
-        self.info_list.append(self.passive1)
-        self.passive2 = cgdt_character.passive_2
-        self.info_list.append(self.passive2)
-        self.attachment = cgdt_character.attachment
-        self.info_list.append(self.attachment)
-        self.weapon_type = cgdt_character.weapon
-        self.info_list.append(self.weapon_type)
-        self.exp_grown = cgdt_character.exp_grown
-        self.info_list.append(self.exp_grown)
-        self.attendance_cost = cgdt_character.cost
-        self.info_list.append(self.attendance_cost)
-        self.max_atk = cgdt_character.max_atk
-        self.info_list.append(self.max_atk)
-        self.max_hp = cgdt_character.max_hp
-        self.info_list.append(self.max_hp)
-        self.atk_grown = cgdt_character.atk_grown
-        self.info_list.append(self.atk_grown)
-        self.hp_grown = cgdt_character.hp_grown
-        self.info_list.append(self.hp_grown)
-        self.atk_speed = cgdt_character.hit_rate
-        self.info_list.append(self.atk_speed)
-        self.critical_rate = cgdt_character.critical_rate
-        self.info_list.append(self.critical_rate)
-        self.note = ''
-        self.info_list.append('')
-        self.belonged = cgdt_character.belonged
-        self.info_list.append(self.belonged)
+    @staticmethod
+    def create_by_cgdt_character(obj):
+        if isinstance(obj, CGDTCharacter):
+            return Character([obj.c_id, obj.full_name, obj.nickname, obj.profession, obj.rank, obj.active, obj.active_cost,
+                              obj.passive_1, obj.passive_2, obj.attachment, obj.weapon, obj.exp_grown, obj.cost, obj.max_atk,
+                              obj.max_hp, obj.atk_grown, obj.hp_grown, obj.hit_rate, obj.critical_rate, '', obj.belonged])
+        else:
+            raise TypeError('Input object types {0}, not CGDTCharacter.'.format(type(obj)))
+
+    def get_updated_info(self):
+        return [self.full_name, self.nickname, self.profession, self.rank, self.active, self.active_cost,
+                self.passive_1, self.passive_2, self.attachment, self.weapon_type, self.exp_grown, self.attendance_cost,
+                self.max_atk, self.max_hp, self.atk_grown, self.hp_grown, self.atk_speed, self.critical_rate, self.note, self.belonged]
 
     def __str__(self):
         return 'Character: ID={0}, FullName={1}, Nickname={2}'.format(
