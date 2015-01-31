@@ -19,19 +19,9 @@ class DBAccessor():
         return DBAccessor.DATABASE.commit()
 
     @staticmethod
-    def select_character_by_specific_column(column_name, key):
-        matched_character = DBAccessor.execute('select * from Character where {0}={1}'.format(
-            column_name, convert_datum_to_command(key))).fetchone()
-        if matched_character is None:
-            raise ValueError('Character with {0} {1} does not existed.'.format(column_name, key))
-        return Character(matched_character)
-
-    @staticmethod
-    def update_character_into_db(character, commit_followed):
-        DBAccessor.execute('update Character{0} where ID={1}'.format(
-            convert_data_to_update_command(Character.UPDATED__COLUMNS, character.get_updated_info()), character.c_id))
-        if commit_followed:
-            DBAccessor.commit()
+    def commit_if_requested(requested):
+        if requested:
+            return DBAccessor.DATABASE.commit()
 
     @staticmethod
     def select_friend_info_list():
@@ -53,8 +43,7 @@ class DBAccessor():
     def update_friend_info_into_db(friend_info, commit_followed):
         DBAccessor.execute('update FriendInfo{0}{1} where ID={2}'.format(get_db_suffix(), convert_data_to_update_command(
             FriendInfo.UPDATED_COLUMNS, friend_info.get_updated_info()), friend_info.f_id))
-        if commit_followed:
-            DBAccessor.commit()
+        DBAccessor.commit_if_requested(commit_followed)
 
     @staticmethod
     def select_new_friend_record_list():
@@ -67,8 +56,7 @@ class DBAccessor():
         DBAccessor.execute('insert into FriendRecord{0} ({1}){2}'.format(
             get_db_suffix(), ','.join(FriendRecord.DB_TABLE),
             convert_data_to_insert_command(*record.get_inserted_info(the_date))))
-        if commit_followed:
-            DBAccessor.commit()
+        DBAccessor.commit_if_requested(commit_followed)
 
 
 # 組成「"values(x1,x2,...,xn)"」的字串回傳

@@ -5,6 +5,7 @@ from UIUtility.Combobox import FilteredCombobox
 from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
 from ModelUtility.Filter import FilterRuleManager
+from Model import CharacterModel
 
 
 class CharacterSelectorCanvas(Canvas):
@@ -90,7 +91,8 @@ class CharacterSelectionWindow(BasicWindow):
         # 新增角色的按鈕
         button = Button(self, text="新增角色", width=9, borderwidth=3)
         button.place(x=225, y=y_position)
-        button["command"] = self.adding_new_character
+        button["command"] = lambda: CharacterModel.adding_new_character(
+            self, lambda: (self.update_records(), self.updating_character_selector()))
 
         # 取消並結束的按鈕
         button = Button(self, text="放棄選擇", width=9, borderwidth=3)
@@ -138,16 +140,10 @@ class CharacterSelectionWindow(BasicWindow):
     # 有選擇的情況下才回傳，否則彈出錯誤視窗
     def submitting(self):
         if self.character_selector.get() != '':
-            self.callback(DBAccessor.select_character_by_specific_column('Nickname', self.character_selector.get()))
+            self.callback(CharacterModel.select_character_by_specific_column('Nickname', self.character_selector.get()))
             self.destroy()
         else:
             tkMessageBox.showwarning("Character haven't selected", '\"Character\" 未選\n', parent=self)
-
-    def adding_new_character(self):
-        popup = CharacterInfoWindow(self)
-        self.wait_window(popup)
-        self.update_records()
-        self.updating_character_selector()
 
     def update_records(self):
         self.records = DBAccessor.execute(

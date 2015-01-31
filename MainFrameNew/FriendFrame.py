@@ -18,10 +18,10 @@ class FriendInfoFrame(MainFrameWithTable):
         self.table_model = TableModelAdvance()
         self.table_model.set_columns(FriendInfo.DISPLAYED_COLUMNS, main_column='UsedNames')
         self.table_view.setModel(self.table_model)
-        self.filer_manager = FilterRuleManager()
-        self.filer_manager.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)
-        self.filer_manager.set_comparison_rule('relation')
-        self.filer_manager.set_comparison_rule('used_characters')
+        self.filter_manager = FilterRuleManager()
+        self.filter_manager.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)
+        self.filter_manager.set_comparison_rule('relation')
+        self.filter_manager.set_comparison_rule('used_characters')
 
         # Left frame: 切換到記錄好友現況的按鈕
         button = Button(self, text="記錄好友現況", width=2, height=17, wraplength=1, font=(MS_JH, 12))
@@ -32,7 +32,7 @@ class FriendInfoFrame(MainFrameWithTable):
 
         self.friend_infos = []
         self._init_since_last_record()
-        self.updating_context()
+        self.update_all()
 
     def _init_upper_frame(self):
         basic_y = 3
@@ -56,7 +56,7 @@ class FriendInfoFrame(MainFrameWithTable):
         self.queried_name = StringVar()
         entry = Entry(self, width=8, textvariable=self.queried_name, font=(MS_JH, 11))
         entry.place(x=basic_x + 42, y=basic_y + 2)
-        entry.bind('<Return>', lambda x: self.updating_table())
+        entry.bind('<Return>', lambda x: self.update_table())
 
         basic_x = 460
         self.friend_count_var = StringVar()
@@ -68,25 +68,25 @@ class FriendInfoFrame(MainFrameWithTable):
 
     def _init_since_last_record(self):
         # 欲取得最後更新全體記錄的時間，但只用了效果類似的手段（抓不特定老朋友最後被更新的時間）
-        date = convert_str_to_date(
+        that_date = convert_str_to_date(
             DBAccessor.execute(
                 'select max({2}) from {0} where {1} = (select {1} from {0} where {2} = (select min({2}) from {0}))'.format(
                     'FriendRecord' + get_db_suffix(), 'FriendID', 'RecordedDate')).fetchone()[0])
-        if date is not None:
-            self.since_last_record_var.set('Since: %d days ago' % (date.today() - date).days)
+        if that_date is not None:
+            self.since_last_record_var.set('Since: %d days ago' % (date.today() - that_date).days)
 
-    def updating_context(self):
+    def update_all(self):
         # 建立 FriendInfoObjects
         self.friend_infos = DBAccessor.select_friend_info_list()
 
         self.friend_count_var.set('Friends: %02d' % len(self.friend_infos))  # 好友總數
 
-        self.updating_table()
+        self.update_table()
 
-    def updating_table(self):
+    def update_table(self):
         # 將符合名稱篩選的好友加入欲呈現表格中
         self.table_model.set_rows([info.get_displayed_info()
-                                   for info in self.filer_manager.filter(self.friend_infos, self.queried_name.get())])
+                                   for info in self.filter_manager.filter(self.friend_infos, self.queried_name.get())])
 
         self.redisplay_table_by_order_rule()
 
@@ -121,13 +121,13 @@ class FriendInfoFrame(MainFrameWithTable):
             return
 
         FriendInfoUpdaterWindow(self, friend_info, callback=lambda: (
-            self.update_friend_info_into_db(friend_info), self.updating_context()))
+            self.update_friend_info_into_db(friend_info), self.update_all()))
 
     # 更改好友資訊
     def do_double_clicking(self, event):
         friend_info = self.get_corresponding_friend_info_in_row(self.table_view.get_row_clicked(event))
         FriendInfoUpdaterWindow(self, friend_info, callback=lambda: (
-            self.update_friend_info_into_db(friend_info), self.updating_table()))
+            self.update_friend_info_into_db(friend_info), self.update_table()))
 
     @staticmethod
     def update_friend_info_into_db(friend_info):
@@ -139,7 +139,9 @@ class FriendInfoFrame(MainFrameWithTable):
         if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete friend 「{0}」？'.format(
                 friend_info.used_names.encode('utf-8')), parent=self):
             self.remove_friend(friend_info)
-            self.updating_context()
+            self.friend_infos.remove(friend_info)  # 直接從 list 中拿掉，不用重撈
+            self.friend_count_var.set('Friends: %02d' % len(self.friend_infos))  # 好友總數更新
+            self.update_table()
 
     @staticmethod
     def remove_friend(friend_info):
@@ -196,7 +198,7 @@ class FriendRecordFrame(MainFrameWithTable):
         # 選擇是否顯示已登記的好友
         basic_x = 256
         self.is_show_recorded_friends = BooleanVar()
-        self.is_show_recorded_friends.trace("w", self.updating_table)
+        self.is_show_recorded_friends.trace("w", lambda *args: self.update_table())
         check_button = Checkbutton(self, variable=self.is_show_recorded_friends)
         check_button.place(x=basic_x, y=basic_y)
         label = Label(self, text='顯示已登記', font=(MS_JH, 11))
@@ -209,7 +211,7 @@ class FriendRecordFrame(MainFrameWithTable):
         self.queried_name = StringVar()
         entry = Entry(self, width=11, textvariable=self.queried_name, font=(MS_JH, 11))
         entry.place(x=basic_x + 40, y=basic_y + 2)
-        entry.bind('<Return>', self.updating_table)
+        entry.bind('<Return>', lambda event: self.update_table())
 
         basic_x = 550
         self.friend_count_str = StringVar()
@@ -223,10 +225,9 @@ class FriendRecordFrame(MainFrameWithTable):
 
         self.friend_count_str.set('Friends: %02d' % len(self.friend_records))  # 好友總數
 
-        self.updating_table()
+        self.update_table()
 
-    # noinspection PyUnusedLocal
-    def updating_table(self, event=None, *args):
+    def update_table(self):
         # 根據名稱要求篩選，同時篩選符合設定的已登記/未登記紀錄
         self.filer_manager.set_specific_condition(
             'status', RECORDED if self.is_show_recorded_friends.get() else UNRECORDED)
@@ -275,4 +276,4 @@ class FriendRecordFrame(MainFrameWithTable):
         else:
             for record in self.friend_records:
                 if record.f_id == the_friend_id:
-                    FriendRecordUpdaterWindow(self, record, self.updating_table)
+                    FriendRecordUpdaterWindow(self, record, self.update_table)

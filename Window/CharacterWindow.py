@@ -4,16 +4,17 @@ from ModelUtility.DBAccessor import *
 from ModelUtility.CommonString import *
 
 
-class CharacterInfoWindow(BasicWindow):
-    def __init__(self, master, character_id=None, width=558, height=285, **kwargs):
+class CharacterWindow(BasicWindow):
+    def __init__(self, master, character, callback, width=558, height=287, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.geometry('+840+300')
 
-        self.__init_widget()
-        self.__init_character_info(character_id)
-        self.title('Character ID: {0}'.format(self.character_id))
+        self._init_widget()
+        self._init_character(character)
+        self.callback = callback
+        self.title('Character with ID: {0}'.format(self.character.c_id))
 
-    def __init_widget(self):
+    def _init_widget(self):
         label_space = 22  # Label 與 輸入元件的距離
 
         # 第一個 Row
@@ -33,7 +34,7 @@ class CharacterInfoWindow(BasicWindow):
         self.profession = ttk.Combobox(self, state='readonly', width=5, justify=CENTER)
         self.profession['values'] = PROFESSIONS
         self.profession.place(x=current_x, y=current_y + label_space - 2)
-        self.profession.bind('<<ComboboxSelected>>', self.filling_in_automatically_by_professions)
+        self.profession.bind('<<ComboboxSelected>>', lambda event: self.fill_in_automatically_by_professions())
 
         current_x += 70
         Label(self, width=4, text='等級').place(x=current_x, y=current_y)
@@ -51,7 +52,7 @@ class CharacterInfoWindow(BasicWindow):
         self.weapon_type = ttk.Combobox(self, state='readonly', width=5, justify=CENTER)
         self.weapon_type['values'] = WEAPONS
         self.weapon_type.place(x=current_x, y=current_y + label_space - 2)
-        self.weapon_type.bind('<<ComboboxSelected>>', self.filling_in_automatically_by_weapon)
+        self.weapon_type.bind('<<ComboboxSelected>>', lambda event: self.fill_in_automatically_by_weapon())
 
         current_x += 71
         Label(self, width=6, text='成長類型').place(x=current_x + 2, y=current_y)
@@ -135,13 +136,40 @@ class CharacterInfoWindow(BasicWindow):
         Entry(self, width=56, textvariable=self.attachment).place(x=144, y=current_y)
 
         # 最後一個 Row
-        current_y += 38
-        Button(self, text="Submit", command=self.submitting, width=33, borderwidth=3).place(x=23, y=current_y)
-        Button(self, text="Cancel", command=self.destroy, width=33, borderwidth=3).place(x=289, y=current_y)
+        current_y += 40
+        Button(self, text="Submit", command=self.submitting, width=34, relief=RIDGE).place(x=19, y=current_y)
+        Button(self, text="Cancel", command=self.destroy, width=34, relief=RIDGE).place(x=286, y=current_y)
 
-    # noinspection PyUnusedLocal
-    # 根據選擇職業，預設填入對應資訊
-    def filling_in_automatically_by_professions(self, event=None):
+    def _init_character(self, character):
+        if not isinstance(character, Character):
+            raise TypeError('Input Character types {0}, not \'Character\'!'.format(type(character)))
+
+        self.character = character
+        self.nickname.set(self.character.nickname)
+        self.full_name.set(self.character.full_name)
+        self.profession.set(self.character.profession)
+        self.rank.set(self.character.rank)
+        self.attendance_cost.set(self.character.attendance_cost)
+        self.weapon_type.set(self.character.weapon_type)
+        self.exp_grown.set(self.character.exp_grown)
+        self.critical_rate.set(self.character.critical_rate)
+        self.atk_speed.set(self.character.atk_speed)
+        self.max_atk.set(self.character.max_atk)
+        self.max_hp.set(self.character.max_hp)
+        self.max_atk_after_break.set(self.character.max_atk_after_break)
+        self.max_hp_after_break.set(self.character.max_hp_after_break)
+        self.atk_grown.set(self.character.atk_grown)
+        self.hp_grown.set(self.character.hp_grown)
+        self.note.set(convert_to_str(self.character.note))
+        self.active.set(convert_to_str(self.character.active))
+        self.active_cost.set(self.character.active_cost)
+        self.passive1.set(convert_to_str(self.character.passive_1))
+        self.passive2.set(convert_to_str(self.character.passive_2))
+        self.belonged.set(convert_to_str(self.character.belonged))
+        self.attachment.set(convert_to_str(self.character.attachment))
+
+    # 根據選擇職業，填入預設的對應資訊
+    def fill_in_automatically_by_professions(self):
         profession = self.profession.get()
         if profession == PROFESSIONS[0]:  # 戰士
             self.weapon_type.set(WEAPONS[0])
@@ -164,76 +192,42 @@ class CharacterInfoWindow(BasicWindow):
             self.critical_rate.set(0)
             self.atk_speed.set(2)
 
-    # noinspection PyUnusedLocal
-    # 根據選擇武器，預設填入對應資訊
-    def filling_in_automatically_by_weapon(self, event=None):
+    # 根據選擇武器，填入預設的對應資訊
+    def fill_in_automatically_by_weapon(self):
         weapon = self.weapon_type.get()
-        if weapon == WEAPONS[7]:  # 銃/ 狙
+        if weapon == WEAPONS[7]:  # 銃 or 狙
             self.atk_speed.set(6)
 
     # 若四格都有輸入，則會計算出每突的成長值
     def transforming_grown(self):
         if (self.max_atk.get() != '') & (self.max_hp.get() != '') & \
                 (self.max_atk_after_break.get() != '') & (self.max_hp_after_break.get() != ''):
-            self.atk_grown.set(self.calculate_grown(self.max_atk.get(), self.max_atk_after_break.get()))
-            self.hp_grown.set(self.calculate_grown(self.max_hp.get(), self.max_hp_after_break.get()))
+            self.atk_grown.set(calculate_grown(int(self.max_atk.get()), int(self.max_atk_after_break.get())))
+            self.hp_grown.set(calculate_grown(int(self.max_hp.get()), int(self.max_hp_after_break.get())))
         else:
             tkMessageBox.showerror('錯誤', '部分 Atk/HP 欄位未填', parent=self)
 
-    @staticmethod
-    def calculate_grown(max_value, max_after_break):
-        return str((int(max_after_break) - int(max_value)) / 4)
-
     def submitting(self):
-        # 將可能存在資料庫的資料先刪除，接續之後的插入就是更新動作了
-        DBAccessor.execute('delete from Character where ID={0}'.format(self.character_id))
+        self.character.nickname = self.nickname.get()
+        self.character.full_name = self.full_name.get()
+        self.character.profession = self.profession.get()
+        self.character.rank = int(self.rank.get())
+        self.character.attendance_cost = int(self.attendance_cost.get())
+        self.character.weapon_type = self.weapon_type.get()
+        self.character.exp_grown = self.exp_grown.get()
+        self.character.critical_rate = float(self.critical_rate.get())
+        self.character.atk_speed = float(self.atk_speed.get())
+        self.character.max_atk = int(self.max_atk.get())
+        self.character.max_hp = int(self.max_hp.get())
+        self.character.atk_grown = int(self.atk_grown.get())
+        self.character.hp_grown = int(self.hp_grown.get())
+        self.character.note = self.note.get()
+        self.character.active = self.active.get()
+        self.character.active_cost = int(self.active_cost.get())
+        self.character.passive_1 = self.passive1.get()
+        self.character.passive_2 = self.passive2.get()
+        self.character.belonged = self.belonged.get()
+        self.character.attachment = self.attachment.get()
 
-        DBAccessor.execute('insert into Character({0})'.format(','.join(Character.DB_TABLE)) +
-                           convert_data_to_insert_command(self.character_id, self.full_name.get(), self.nickname.get(),
-                                                          self.profession.get(), self.rank.get(),
-                                                          self.active.get(), self.active_cost.get(),
-                                                          self.passive1.get(), self.passive2.get(),
-                                                          self.attachment.get(), self.weapon_type.get(),
-                                                          self.exp_grown.get(), self.attendance_cost.get(),
-                                                          self.max_atk.get(), self.max_hp.get(),
-                                                          self.atk_grown.get(), self.hp_grown.get(),
-                                                          self.atk_speed.get(), self.critical_rate.get(),
-                                                          self.note.get(), self.belonged.get()))
-        DBAccessor.commit()
+        self.callback()
         self.destroy()
-
-    # 當有特定的 character 時，讀取其資料並更新各元件
-    def __init_character_info(self, character_id):
-        if character_id is not None:
-            data = iter(self.select_character(character_id))
-            self.character_id = next(data)
-            self.full_name.set(convert_to_str(next(data)))
-            self.nickname.set(convert_to_str(next(data)))
-            self.profession.set(convert_to_str(next(data)))
-            self.rank.set(next(data))
-            self.active.set(convert_to_str(next(data)))
-            self.active_cost.set(next(data))
-            self.passive1.set(convert_to_str(next(data)))
-            self.passive2.set(convert_to_str(next(data)))
-            self.attachment.set(convert_to_str(next(data)))
-            self.weapon_type.set(convert_to_str(next(data)))
-            self.exp_grown.set(convert_to_str(next(data)))
-            self.attendance_cost.set(next(data))
-            self.max_atk.set(next(data))
-            self.max_hp.set(next(data))
-            self.atk_grown.set(next(data))
-            self.hp_grown.set(next(data))
-            self.atk_speed.set(next(data))
-            self.critical_rate.set(next(data))
-            self.note.set(convert_to_str(next(data)))
-            self.belonged.set(convert_to_str(next(data)))
-        else:
-            self.__init_character_id()
-
-    @staticmethod
-    def select_character(character_id):
-        return DBAccessor.execute('select * from Character where ID={0}'.format(character_id)).fetchone()
-
-    def __init_character_id(self):
-        min_id = DBAccessor.execute('select min(ID) from Character').fetchone()[0]
-        self.character_id = 900 if min_id > 999 else min_id - 1

@@ -57,6 +57,9 @@ class CharacterTest(unittest.TestCase):
         actual_length = len(character.get_updated_info()) + 1  # 加上 ID 欄位
         assert actual_length == expected_length, 'Info list lens {0}, but expected {1}.'.format(actual_length, expected_length)
 
+    def test_relation_between_db_table_and_updated_columns(self):
+        assert len(Character.DB_TABLE) == len(Character.UPDATED_COLUMNS) + 1
+
 
 class CGDTCharacterTest(unittest.TestCase):
     # 檢查 CGDTCharacter 能使用的資料欄位個數符合設計
@@ -76,4 +79,7 @@ class FriendInfoTest(unittest.TestCase):
 
         # 故意丟空的 UsedNames
         friend_info = FriendInfo([''] * len(record))
-        self.assertRaises(ValueError, lambda: friend_info.get_updated_info() )
+        self.assertRaises(ValueError, lambda: friend_info.get_updated_info())
+
+    def test_relation_between_db_table_and_cleaned_up_columns(self):
+        assert len(FriendInfo.DB_TABLE) == len(FriendInfo.CLEANED_UP_COLUMNS) + 1

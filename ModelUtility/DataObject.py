@@ -9,11 +9,10 @@ class Character(object):
     DB_TABLE = ['ID', 'FullName', 'Nickname', 'Profession', 'Rank', 'Active', 'ActiveCost', 'Passive1', 'Passive2',
                 'Attachment', 'WeaponType', 'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown', 'HPGrown',
                 'AtkSpeed', 'CriticalRate', 'Note', 'Belonged']
-    UPDATED__COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 ID 外的所有欄位
+    UPDATED_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 ID 外的所有欄位
     DISPLAYED_COLUMNS = [DB_TABLE[0]] + DB_TABLE[2:11] + DB_TABLE[13:15] + DB_TABLE[19:21]
 
     def __init__(self, infos):
-        self.info_list = []
         inputs = iter(infos)
         self.c_id = next(inputs)
         self.full_name = next(inputs)
@@ -46,10 +45,28 @@ class Character(object):
         else:
             raise TypeError('Input object types {0}, not CGDTCharacter.'.format(type(obj)))
 
+    @property
+    def max_atk_after_break(self):
+        return self.max_atk + self.atk_grown * 4
+
+    @property
+    def max_hp_after_break(self):
+        return self.max_hp + self.hp_grown * 4
+
     def get_updated_info(self):
-        return [self.full_name, self.nickname, self.profession, self.rank, self.active, self.active_cost,
-                self.passive_1, self.passive_2, self.attachment, self.weapon_type, self.exp_grown, self.attendance_cost,
-                self.max_atk, self.max_hp, self.atk_grown, self.hp_grown, self.atk_speed, self.critical_rate, self.note, self.belonged]
+        return [self.full_name.encode('utf-8'), self.nickname.encode('utf-8'), self.profession.encode('utf-8'), self.rank,
+                self.active.encode('utf-8'), self.active_cost, self.passive_1.encode('utf-8'), self.passive_2.encode('utf-8'),
+                self.attachment.encode('utf-8'), self.weapon_type.encode('utf-8'), self.exp_grown.encode('utf-8'), self.attendance_cost,
+                self.max_atk, self.max_hp, self.atk_grown, self.hp_grown, self.atk_speed, self.critical_rate,
+                self.note.encode('utf-8'), self.belonged.encode('utf-8')]
+
+    def get_displayed_info(self):
+        return [self.c_id, self.nickname.encode('utf-8'), self.profession.encode('utf-8'), self.rank, self.active.encode('utf-8'),
+                self.active_cost, self.passive_1.encode('utf-8'), self.passive_2.encode('utf-8'), self.attachment.encode('utf-8'),
+                self.weapon_type.encode('utf-8'), self.max_atk, self.max_hp, self.note.encode('utf-8'), self.belonged.encode('utf-8')]
+
+    def __getitem__(*args, **kwargs):
+        return getattr(*args, **kwargs)
 
     def __str__(self):
         return 'Character: ID={0}, FullName={1}, Nickname={2}'.format(
@@ -85,8 +102,8 @@ class CGDTCharacter(object):
         dropped = next(properties)  # InitHP
         self.max_atk = int(next(properties))
         self.max_hp = int(next(properties))
-        self.atk_grown = self.convert_grown(self.max_atk, int(next(properties)))
-        self.hp_grown = self.convert_grown(self.max_hp, int(next(properties)))
+        self.atk_grown = calculate_grown(self.max_atk, int(next(properties)))
+        self.hp_grown = calculate_grown(self.max_hp, int(next(properties)))
         dropped = next(properties)  # OwnedWay
         self.active_cost = int(next(properties))
         self.active = next(properties)
@@ -119,10 +136,6 @@ class CGDTCharacter(object):
 
         self.__dict__[attr] = value
         self.__dict__['fields_number'] += 1
-
-    @staticmethod
-    def convert_grown(origin_max, broken_max):
-        return (broken_max - origin_max) / 4
 
     # 除了將其命名轉成我的格式以外，也檢查不可有我預期外的名稱出現
     def _init_belonged(self, name):
@@ -264,3 +277,7 @@ class FriendRecord(object):
     def __str__(self):
         return 'FriendRecord: ID={0}, UsedNames={1}, Status={2}'.format(
             self.f_id, self.used_names.encode('utf-8'), self.status)
+
+
+def calculate_grown(origin_max, max_after_broken):
+    return (max_after_broken - origin_max) / 4

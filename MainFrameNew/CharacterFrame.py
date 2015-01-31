@@ -1,32 +1,48 @@
 # -*- coding: utf-8 -*-
 from BaseFrame import *
-from Window.CharacterWindow import CharacterInfoWindow
+from Window.CharacterWindow import CharacterWindow
 from ModelUtility.Filter import FilterRuleManager
 from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
 from UIUtility.Combobox import FilteredCombobox
 from UIUtility.Selector import ProfessionSelector, RankSelector
+from Model import CharacterModel
 
 
 class CharacterFrame(MainFrameWithTable):
     def __init__(self, master, **kwargs):
         MainFrameWithTable.__init__(self, master, **kwargs)
         self.set_table_place(34, 38)
+        self.table_model = TableModelAdvance()
+        self.table_model.set_columns(Character.DISPLAYED_COLUMNS, main_column='Nickname')
+        self.table_view.setModel(self.table_model)
+        self.filter_manager = FilterRuleManager()
+        self._init_filter_manager()
+
+        self._init_upper_frame()
+        self._init_left_frame()
+
+        self.characters = None
+        self.update_all()
+
+    def _init_filter_manager(self):
+        self.filter_manager.set_comparison_rule('full_name')
+        self.filter_manager.set_comparison_rule('nickname')
+        self.filter_manager.set_comparison_rule('active')
+        self.filter_manager.set_comparison_rule('passive_1')
+        self.filter_manager.set_comparison_rule('passive_2')
+        self.filter_manager.set_comparison_rule('attachment')
+
+    def _init_left_frame(self):
+        self.character_count = IntVar()
+        Label(self, textvariable=self.character_count, font=(SCP, 9, 'bold')).place(x=5, y=7)
 
         # 新增記錄的按鈕
-        button = Button(self, text="新增角色資訊", width=2, height=17, wraplength=1, font=(MS_JH, 12))
-        button.place(x=4, y=23)
-        button["command"] = self.adding_character
+        button = Button(self, text="新增角色資訊", width=2, height=16, wraplength=1, font=(MS_JH, 12))
+        button.place(x=4, y=30)
+        button["command"] = lambda: CharacterModel.adding_new_character(self, lambda: self.update_all())
 
-        self.__init_filter_frame()
-
-        self.records = DBAccessor.execute('select * from Character').fetchall()
-        self.filter_manager = FilterRuleManager()
-        self.__init_filter_manager()
-
-        self.updating_table()
-
-    def __init_filter_frame(self):
+    def _init_upper_frame(self):
         filter_frame = Frame(self, width=self['width'], height=40)
         filter_frame.place(x=0, y=0)
 
@@ -44,7 +60,7 @@ class CharacterFrame(MainFrameWithTable):
         self.belonged = FilteredCombobox(filter_frame, width=6, justify=CENTER)
         self.belonged['values'] = BELONGEDS
         self.belonged.place(x=current_x, y=16)
-        self.belonged.bind('<<ComboboxSelected>>', self.updating_belonged)
+        self.belonged.bind('<<ComboboxSelected>>', lambda event: self.updating_belonged())
 
         # 角色部分名稱篩選
         current_x += 75
@@ -52,88 +68,68 @@ class CharacterFrame(MainFrameWithTable):
         self.request = StringVar()
         entry = Entry(filter_frame, width=9, textvariable=self.request, font=(MS_JH, 11))
         entry.place(x=current_x + 42, y=9)
-        entry.bind('<Return>', self.updating_table)
+        entry.bind('<Return>', lambda event: self.update_table())
 
         # 清空進行篩選的條件
         button = Button(filter_frame, text="清空條件", width=7, font=(MS_JH, 11))
         button.place(x=667, y=3)
         button["command"] = self.clearing_filters
 
-    # noinspection PyUnusedLocal
-    def updating_table(self, event=None):
-        self.table_model = TableModel()
+    def update_all(self):
+        # 建立 CharacterObjects
+        self.characters = CharacterModel.select_character_list()
+        self.character_count.set(len(self.characters))
+        self.update_table()
 
-        for column in Character.DISPLAYED_COLUMNS:
-            self.table_model.addColumn(column)
-
-        # 取得符合篩選條件與篩選名稱的角色
-        results = self.filter_manager.filter(self.records, self.request.get())
-
-        if len(results) == 0:
-            self.table_model.addRow(Nickname='無任何記錄')
-        for record in results:
-            data = iter(self.__get_displated_columns(record))
-            self.table_model.addRow(ID=next(data), Nickname=convert_to_str(next(data)),
-                                    Profession=convert_to_str(next(data)), Rank=next(data),
-                                    Active=convert_to_str(next(data)), ActiveCost=next(data),
-                                    Passive1=convert_to_str(next(data)), Passive2=convert_to_str(next(data)),
-                                    Attachment=convert_to_str(next(data)), WeaponType=convert_to_str(next(data)),
-                                    MaxAtk=next(data), MaxHP=next(data), Note=convert_to_str(next(data)),
-                                    Belonged=convert_to_str(next(data)))
+    def update_table(self):
+        # 將符合篩選條件的角色加入欲呈現表格中
+        self.table_model.set_rows([character.get_displayed_info()
+                                   for character in self.filter_manager.filter(self.characters, self.request.get())])
 
         self.table_model.setSortOrder(columnName='Rank', reverse=1)
         self.table_model.setSortOrder(columnName='Profession')
 
-        self.redisplay_table(is_reset_model=True)
+        self.redisplay_table()
         self.table_view.hide_column('ID')
 
-    @staticmethod
-    def __get_displated_columns(record):
-        record = list(record)
-        result = []
-        for i in range(len(Character.DB_TABLE)):
-            if Character.DB_TABLE[i] in Character.DISPLAYED_COLUMNS:
-                result.append(record[i])
-        return result
-
-    def __init_filter_manager(self):
-        self.filter_manager.set_comparison_rule(1)  # FullName
-        self.filter_manager.set_comparison_rule(2)  # Nickname
-        self.filter_manager.set_comparison_rule(5)  # Active
-        self.filter_manager.set_comparison_rule(7)  # Passive1
-        self.filter_manager.set_comparison_rule(8)  # Passive2
-        self.filter_manager.set_comparison_rule(9)  # Attachment
-
     def updating_profession(self, request):
-        self.filter_manager.set_specific_condition(3, request)
-        self.updating_table()
+        self.filter_manager.set_specific_condition('profession', request)
+        self.update_table()
 
     def updating_rank(self, request):
-        self.filter_manager.set_specific_condition(4, request, match_requested_rank)
-        self.updating_table()
+        self.filter_manager.set_specific_condition('rank', request, match_requested_rank)
+        self.update_table()
 
-    # noinspection PyUnusedLocal
-    def updating_belonged(self, event):
-        self.filter_manager.set_specific_condition(20, self.belonged.get())
-        self.updating_table()
+    def updating_belonged(self):
+        self.filter_manager.set_specific_condition('belonged', self.belonged.get())
+        self.update_table()
 
     def clearing_filters(self):
         self.profession_selector.clean_current_selection()
         self.rank_selector.clean_current_selection()
+        self.belonged.set('')
         self.filter_manager.clean_specific_condition()
         self.request.set('')
-        self.updating_table()
-
-    def adding_character(self):
-        popup = CharacterInfoWindow(self)
-        self.wait_window(popup)
-        self.records = DBAccessor.execute('select * from Character').fetchall()
-        self.updating_table()
+        self.update_table()
 
     def do_double_clicking(self, event):
-        row = self.table_view.get_row_clicked(event)
-        character_id = self.table_model.getCellRecord(row, 0)
+        character = self.get_corresponding_character_in_row(self.table_view.get_row_clicked(event))
+        CharacterWindow(self, character, lambda: (
+            CharacterModel.update_character_into_db(character, commit_followed=True), self.update_table()))
 
-        popup = CharacterInfoWindow(self, character_id)
-        self.wait_window(popup)
-        self.updating_table()
+    # 主要供方便刪除測試或誤加的角色用，未檢查其他 table 中使用到的該角色
+    def do_dragging_along_right(self, row_number):
+        character = self.get_corresponding_character_in_row(row_number)
+        # 確認是否刪除
+        if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete character 「{0}」？'.format(
+                character.nickname.encode('utf-8')), parent=self):
+            CharacterModel.delete_character_from_db(character, commit_followed=True)
+            self.characters.remove(character)  # 直接從 list 中拿掉，不用重撈
+            self.character_count.set(self.character_count.get() - 1)
+            self.update_table()
+
+    def get_corresponding_character_in_row(self, row_number):
+        selected_id = self.table_model.getCellRecord(row_number, 0)
+        for character in self.characters:
+            if character.c_id == selected_id:
+                return character
