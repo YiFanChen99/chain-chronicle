@@ -218,7 +218,7 @@ class FriendRecord(object):
         self.character_nickname = None
         self.character_level = None
         self.rank = None
-        self.last_rank = infos[2]
+        self.last_rank = infos[2] if infos[2] else 0
         self.last_profession = infos[3]
         self.last_character = infos[4]
 

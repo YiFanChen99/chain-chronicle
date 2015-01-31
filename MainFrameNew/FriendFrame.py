@@ -103,9 +103,9 @@ class FriendInfoFrame(MainFrameWithTable):
 
         # 不限制會太寬，難以瀏覽全部資訊
         self.table_view.resizeColumn(1, 125)  # UsedNames
-        self.table_view.resizeColumn(2, 100)  # Excellence
-        self.table_view.resizeColumn(3, 85)  # Defect
-        self.table_view.resizeColumn(4, 65)  # Relation
+        self.table_view.resizeColumn(2, 90)  # Excellence
+        self.table_view.resizeColumn(3, 75)  # Defect
+        self.table_view.resizeColumn(4, 85)  # Relation
         self.table_view.resizeColumn(5, 70)  # Offline
         self.table_view.resizeColumn(6, 155)  # UsedCharacters
 
@@ -171,6 +171,7 @@ class FriendRecordFrame(MainFrameWithTable):
         self.filer_manager = FilterRuleManager()
         self.filer_manager.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)
         self.filer_manager.set_comparison_rule('current_character')
+        self.table_view.bind("<Button-2>", lambda event: self.opening_info_update_window(event))  # 滑鼠中鍵事件註冊
 
         self._init_left_frame()
         self._init_upper_frame()
@@ -264,16 +265,15 @@ class FriendRecordFrame(MainFrameWithTable):
     def switching_to_friend_info(self):
         self.master.update_main_frame(FriendInfoFrame(self.master))
 
-    # 若雙擊右側，則欲編輯好友記錄，若雙擊左側，則為更改好友資訊
+    # 編輯好友記錄
     def do_double_clicking(self, event):
-        row = self.table_view.get_row_clicked(event)
-        the_friend_id = int(self.table_model.getCellRecord(row, 0))
+        the_friend_id = int(self.table_model.getCellRecord(self.table_view.get_row_clicked(event), 0))
+        for record in self.friend_records:
+            if record.f_id == the_friend_id:
+                FriendRecordUpdaterWindow(self, record, self.update_table)
 
-        column = self.table_view.get_col_clicked(event)
-        if column == 1:
-            FriendInfoUpdaterWindow(self, DBAccessor.select_specific_friend_info(the_friend_id),
-                                    callback=lambda info: None)
-        else:
-            for record in self.friend_records:
-                if record.f_id == the_friend_id:
-                    FriendRecordUpdaterWindow(self, record, self.update_table)
+    # 更改好友資訊
+    def opening_info_update_window(self, event):
+        friend_info = DBAccessor.select_specific_friend_info(
+            int(self.table_model.getCellRecord(self.table_view.get_row_clicked(event), 0)))
+        FriendInfoUpdaterWindow(self, friend_info, callback=lambda: FriendInfoFrame.update_friend_info_into_db(friend_info))

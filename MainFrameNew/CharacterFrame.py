@@ -78,13 +78,13 @@ class CharacterFrame(MainFrameWithTable):
     def update_all(self):
         # 建立 CharacterObjects
         self.characters = CharacterModel.select_character_list()
-        self.character_count.set(len(self.characters))
         self.update_table()
 
     def update_table(self):
+        results = self.filter_manager.filter(self.characters, self.request.get())
+        self.character_count.set(len(results))
         # 將符合篩選條件的角色加入欲呈現表格中
-        self.table_model.set_rows([character.get_displayed_info()
-                                   for character in self.filter_manager.filter(self.characters, self.request.get())])
+        self.table_model.set_rows([character.get_displayed_info() for character in results])
 
         self.table_model.setSortOrder(columnName='Rank', reverse=1)
         self.table_model.setSortOrder(columnName='Profession')
@@ -125,7 +125,6 @@ class CharacterFrame(MainFrameWithTable):
                 character.nickname.encode('utf-8')), parent=self):
             CharacterModel.delete_character_from_db(character, commit_followed=True)
             self.characters.remove(character)  # 直接從 list 中拿掉，不用重撈
-            self.character_count.set(self.character_count.get() - 1)
             self.update_table()
 
     def get_corresponding_character_in_row(self, row_number):

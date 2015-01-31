@@ -3,6 +3,7 @@ from BasicWindow import *
 from UIUtility.CharacterSelector import CharacterSelectorCanvas
 from ModelUtility.DBAccessor import *
 from ModelUtility.CommonString import *
+from Model import CharacterModel
 
 
 class FriendInfoUpdaterWindow(BasicWindow):
@@ -98,7 +99,7 @@ class FriendRecordUpdaterWindow(BasicWindow):
     def __init__(self, master, record, callback, width=309, height=198, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Friend Record')
-        self.geometry('+740+230')
+        self.geometry('+760+230')
 
         self._init_widget()
         self._init_record(record)
@@ -134,7 +135,7 @@ class FriendRecordUpdaterWindow(BasicWindow):
         if isinstance(record, FriendRecord):
             self.record = record
             self.used_names.set(record.used_names)
-            self.character_selector.set(DBAccessor.select_character_by_specific_column(
+            self.character_selector.set(CharacterModel.select_character_by_specific_column(
                 'Nickname', record.current_character) if record.current_character != '' else None)
             self.character_level_var.set(record.current_character_level)
             self.rank_var.set(record.current_rank)

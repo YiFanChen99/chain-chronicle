@@ -2,6 +2,7 @@
 import json
 from ModelUtility.DBAccessor import *
 from ModelUtility.DataObject import *
+from Model import CharacterModel
 
 CGDT_DEFAULT_PATH = 'data/CCGameDBTW.txt'
 
@@ -42,7 +43,7 @@ class MyDBUpdater:
                 DBAccessor.execute('update Character{0} where FullName={1}'.format(
                     convert_data_to_update_command(['ID'], [cgdt_character.c_id]),
                     convert_datum_to_command(character[0])))
-                DBAccessor.update_character_into_db(Character.create_by_cgdt_character(cgdt_character), commit_followed=False)
+                CharacterModel.update_character_into_db(Character.create_by_cgdt_character(cgdt_character), commit_followed=False)
             # 若資料取得發生問題，則記錄後就略過
             except StandardError as e:
                 print e

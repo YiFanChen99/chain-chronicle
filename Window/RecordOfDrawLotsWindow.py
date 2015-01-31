@@ -4,6 +4,7 @@ from UIUtility.CharacterSelector import CharacterSelectorCanvas
 from ModelUtility.DBAccessor import *
 from ModelUtility.CommonString import *
 from ModelUtility.CommonState import *
+from Model import CharacterModel
 
 
 class RecordWindow(BasicWindow):
@@ -102,7 +103,7 @@ class UpdatingRecordWindow(RecordWindow):
         self.event_selector.set(next(record))
         dropped = next(record)
         dropped = next(record)
-        self.character_selector.set(DBAccessor.select_character_by_specific_column('Nickname', next(record)))
+        self.character_selector.set(CharacterModel.select_character_by_specific_column('Nickname', next(record)))
         self.cost_selector.set(next(record))
 
     # 單純更新到資料庫，不寫回原 record (因tuple的關係)
