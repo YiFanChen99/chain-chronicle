@@ -35,12 +35,12 @@ class CharacterFrame(MainFrameWithTable):
 
     def _init_left_frame(self):
         self.character_count = IntVar()
-        Label(self, textvariable=self.character_count, font=(SCP, 9, 'bold')).place(x=5, y=7)
+        Label(self, textvariable=self.character_count, width=3, font=(SCP, 9, 'bold')).place(x=4, y=7)
 
         # 新增記錄的按鈕
         button = Button(self, text="新增角色資訊", width=2, height=16, wraplength=1, font=(MS_JH, 12))
         button.place(x=4, y=30)
-        button["command"] = lambda: CharacterModel.adding_new_character(self, lambda: self.update_all())
+        button["command"] = lambda: CharacterModel.open_adding_new_character_window(self, lambda: self.update_all())
 
     def _init_upper_frame(self):
         filter_frame = Frame(self, width=self['width'], height=40)
@@ -114,18 +114,13 @@ class CharacterFrame(MainFrameWithTable):
 
     def do_double_clicking(self, event):
         character = self.get_corresponding_character_in_row(self.table_view.get_row_clicked(event))
-        CharacterWindow(self, character, lambda: (
-            CharacterModel.update_character_into_db(character, commit_followed=True), self.update_table()))
+        CharacterModel.open_updating_character_window(self, character, lambda: self.update_table())
 
     # 主要供方便刪除測試或誤加的角色用，未檢查其他 table 中使用到的該角色
     def do_dragging_along_right(self, row_number):
         character = self.get_corresponding_character_in_row(row_number)
-        # 確認是否刪除
-        if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete character 「{0}」？'.format(
-                character.nickname.encode('utf-8')), parent=self):
-            CharacterModel.delete_character_from_db(character, commit_followed=True)
-            self.characters.remove(character)  # 直接從 list 中拿掉，不用重撈
-            self.update_table()
+        CharacterModel.delete_character_with_conforming(self, character, lambda: (
+            self.characters.remove(character), self.update_table()))  # 直接從 list 中拿掉，不用重撈
 
     def get_corresponding_character_in_row(self, row_number):
         selected_id = self.table_model.getCellRecord(row_number, 0)
