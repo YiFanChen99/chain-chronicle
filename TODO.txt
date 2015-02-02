@@ -1,6 +1,4 @@
 
-MyDBInserter 實作
-
 新增passive_1/2_level, attached_cost資訊到 character 表格與 CharacterDataObject 中
 
 RecordOfDraw 改成用 date object ，包含 window 不使用 DBAccessor，以及改為以 CharID 為記錄方式

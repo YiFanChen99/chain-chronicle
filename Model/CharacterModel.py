@@ -20,7 +20,7 @@ def select_character_list():
 # CharacterWindow 確認新增要求後，才新增至 DB 並通知 caller
 def open_adding_new_character_window(master, callback):
     character = _create_character_with_new_id()
-    CharacterWindow(master, character, lambda: (_insert_character_into_db(character), callback()))
+    CharacterWindow(master, character, lambda: (insert_character_into_db(character), callback()))
 
 
 # CharacterWindow 確認更新要求後，才更新至 DB 並通知 caller
@@ -43,7 +43,7 @@ def _create_character_with_new_id():
     return Character([character_id] + ([''] * len(Character.UPDATED_COLUMNS)))
 
 
-def _insert_character_into_db(character):
+def insert_character_into_db(character):
     DBAccessor.execute('insert into Character({0}){1}'.format(
         ','.join(Character.DB_TABLE), convert_data_to_insert_command(character.c_id, *character.get_updated_info())))
     DBAccessor.commit()

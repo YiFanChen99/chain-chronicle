@@ -29,14 +29,15 @@ class Main(MainFrameWithTable):
 
         button = Button(self, text='Insert', width=15, font=(MS_JH, 12))
         button.place(x=18, y=20)
-        button['command'] = lambda event: self.insert()
+        button['command'] = lambda: self.insert()
 
         button = Button(self, text='Update', width=15, font=(MS_JH, 12))
         button.place(x=192, y=20)
-        button['command'] = lambda event: self.update()
+        button['command'] = lambda: self.update()
 
     def insert(self):
-        inserter = MyDBUpdater(self.data_owner)
+        inserter = MyDBInserter(self, self.data_owner)
+        inserter.insert_new_characters()
 
     def update(self):
         updater = MyDBUpdater(self, self.data_owner)

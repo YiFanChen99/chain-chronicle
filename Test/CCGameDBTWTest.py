@@ -7,7 +7,7 @@ from Model.CCGameDBTWModel import *
 class CCGameDBTWTest(unittest.TestCase):
     # 確認角色個數與欄位正確性
     def test_total_count(self):
-        expected = 413
+        expected = 417
         actual = len(CCGameDBTWDataOwner().data)
         assert actual == expected, 'Total character count expect {0}, but actual {1}'.format(expected, actual)
 
@@ -23,5 +23,10 @@ class CCGameDBTWTest(unittest.TestCase):
             cgdt_info = data_owner.find_character_by_id(the_id)
             assert cgdt_info is not None, 'Character ID={0} {1} did not match any id.'.format(
                 the_id, name.encode('utf-8'))
-            assert cgdt_info.full_name == name, 'Character ID={0} has FullName {1} and {2}.'.format(
-                the_id, name.encode('utf-8'), cgdt_info.full_name.encode('utf-8'))
+            assert _compare_full_name(cgdt_info.full_name, name), 'Character ID={0} has FullName {1} and {2}.'.format(
+                the_id, cgdt_info.full_name.encode('utf-8'), name.encode('utf-8'))
+
+
+def _compare_full_name(cgdt_name, db_name):
+    name = db_name.replace('v1', '')
+    return cgdt_name == name
