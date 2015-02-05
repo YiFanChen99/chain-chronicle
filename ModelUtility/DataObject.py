@@ -6,9 +6,9 @@ DRAW_LOTS_DB_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost
 
 
 class Character(object):
-    DB_TABLE = ['ID', 'FullName', 'Nickname', 'Profession', 'Rank', 'Active', 'ActiveCost', 'Passive1', 'Passive2',
-                'Attachment', 'WeaponType', 'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP', 'AtkGrown', 'HPGrown',
-                'AtkSpeed', 'CriticalRate', 'Note', 'Belonged']
+    DB_TABLE = ['ID', 'FullName', 'Nickname', 'Profession', 'Rank', 'Active', 'ActiveCost', 'Passive1', 'Passive1Lv',
+                'Passive2', 'Passive2Lv', 'Attachment', 'WeaponType', 'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP',
+                'AtkGrown', 'HPGrown', 'AtkSpeed', 'CriticalRate', 'Note', 'Belonged', 'AttachedCost']
     UPDATED_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 ID 外的所有欄位
     DISPLAYED_COLUMNS = [DB_TABLE[0]] + DB_TABLE[2:11] + DB_TABLE[13:15] + DB_TABLE[19:21]
 
@@ -22,7 +22,9 @@ class Character(object):
         self.active = next(inputs)
         self.active_cost = next(inputs)
         self.passive_1 = next(inputs)
+        self.passive_1_lv = next(inputs)
         self.passive_2 = next(inputs)
+        self.passive_2_lv = next(inputs)
         self.attachment = next(inputs)
         self.weapon_type = next(inputs)
         self.exp_grown = next(inputs)
@@ -35,13 +37,16 @@ class Character(object):
         self.critical_rate = next(inputs)
         self.note = next(inputs)
         self.belonged = next(inputs)
+        self.attached_cost = next(inputs)
 
     @staticmethod
     def create_by_cgdt_character(obj):
         if isinstance(obj, CGDTCharacter):
-            return Character([obj.c_id, obj.full_name, obj.nickname, obj.profession, obj.rank, obj.active, obj.active_cost,
-                              obj.passive_1, obj.passive_2, obj.attachment, obj.weapon, obj.exp_grown, obj.cost, obj.max_atk,
-                              obj.max_hp, obj.atk_grown, obj.hp_grown, obj.hit_rate, obj.critical_rate, '', obj.belonged])
+            return Character([obj.c_id, obj.full_name, obj.nickname, obj.profession, obj.rank, obj.active,
+                              obj.active_cost, obj.passive_1, obj.passive_1_level, obj.passive_2, obj.passive_2_level,
+                              obj.attachment, obj.weapon, obj.exp_grown, obj.cost, obj.max_atk, obj.max_hp,
+                              obj.atk_grown, obj.hp_grown, obj.hit_rate, obj.critical_rate, '',
+                              obj.belonged, obj.attached_cost])
         else:
             raise TypeError('Input object types {0}, not CGDTCharacter.'.format(type(obj)))
 
@@ -54,16 +59,18 @@ class Character(object):
         return self.max_hp + self.hp_grown * 4
 
     def get_updated_info(self):
-        return [self.full_name.encode('utf-8'), self.nickname.encode('utf-8'), self.profession.encode('utf-8'), self.rank,
-                self.active.encode('utf-8'), self.active_cost, self.passive_1.encode('utf-8'), self.passive_2.encode('utf-8'),
-                self.attachment.encode('utf-8'), self.weapon_type.encode('utf-8'), self.exp_grown.encode('utf-8'), self.attendance_cost,
+        return [self.full_name.encode('utf-8'), self.nickname.encode('utf-8'), self.profession.encode('utf-8'),
+                self.rank, self.active.encode('utf-8'), self.active_cost, self.passive_1.encode('utf-8'),
+                self.passive_1_lv, self.passive_2.encode('utf-8'), self.passive_2_lv, self.attachment.encode('utf-8'),
+                self.weapon_type.encode('utf-8'), self.exp_grown.encode('utf-8'), self.attendance_cost,
                 self.max_atk, self.max_hp, self.atk_grown, self.hp_grown, self.atk_speed, self.critical_rate,
-                self.note.encode('utf-8'), self.belonged.encode('utf-8')]
+                self.note.encode('utf-8'), self.belonged.encode('utf-8'), self.attached_cost]
 
     def get_displayed_info(self):
-        return [self.c_id, self.nickname.encode('utf-8'), self.profession.encode('utf-8'), self.rank, self.active.encode('utf-8'),
-                self.active_cost, self.passive_1.encode('utf-8'), self.passive_2.encode('utf-8'), self.attachment.encode('utf-8'),
-                self.weapon_type.encode('utf-8'), self.max_atk, self.max_hp, self.note.encode('utf-8'), self.belonged.encode('utf-8')]
+        return [self.c_id, self.nickname.encode('utf-8'), self.profession.encode('utf-8'), self.rank,
+                self.active.encode('utf-8'), self.active_cost, self.passive_1.encode('utf-8'),
+                self.passive_2.encode('utf-8'), self.attachment.encode('utf-8'), self.weapon_type.encode('utf-8'),
+                self.max_atk, self.max_hp, self.note.encode('utf-8'), self.belonged.encode('utf-8')]
 
     def __getitem__(*args, **kwargs):
         return getattr(*args, **kwargs)

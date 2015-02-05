@@ -11,7 +11,8 @@ class DBColumnsTest(unittest.TestCase):
 
         try:
             assert len(loaded_data) == len(CGDTCharacter.DB_TABLE),\
-                'CGDTCharacter.DB_TABLE lens {0}, but loaded data has {1} columns.'.format(len(CGDTCharacter.DB_TABLE), len(loaded_data))
+                'CGDTCharacter.DB_TABLE lens {0}, but loaded data has {1} columns.'.format(
+                    len(CGDTCharacter.DB_TABLE), len(loaded_data))
         except AssertionError as e:
             for i in range(len(CGDTCharacter.DB_TABLE)):
                 print CGDTCharacter.DB_TABLE[i], ': ', loaded_data[i]
@@ -50,12 +51,13 @@ class CharacterTest(unittest.TestCase):
     # Character 物件是否完整讀出所有 CGDTCharacter 的欄位
     def test_character_object_read_cgdt_character_correctly(self):
         cgdt_character = CCGameDBTWDataOwner().find_character_by_id(5002)
-        # Note +1. passive_1/2_level, attached_cost -3
-        expected_length = cgdt_character.fields_number - 3 + 1
+        # Note +1
+        expected_length = cgdt_character.fields_number + 1
 
         character = Character.create_by_cgdt_character(cgdt_character)
         actual_length = len(character.get_updated_info()) + 1  # 加上 ID 欄位
-        assert actual_length == expected_length, 'Info list lens {0}, but expected {1}.'.format(actual_length, expected_length)
+        assert actual_length == expected_length, 'Info list lens {0}, but expected {1}.'.format(
+            actual_length, expected_length)
 
     def test_relation_between_db_table_and_updated_columns(self):
         assert len(Character.DB_TABLE) == len(Character.UPDATED_COLUMNS) + 1

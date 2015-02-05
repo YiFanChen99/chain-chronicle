@@ -120,20 +120,26 @@ class CharacterWindow(BasicWindow):
         self.active = StringVar(value='')
         Entry(self, width=59, textvariable=self.active).place(x=123, y=current_y)
         current_y += 33
-        Label(self, width=6, text='被動技1').place(x=12, y=current_y - 1)
+        Label(self, width=6, text='被動技1').place(x=9, y=current_y - 1)
+        self.passive1_lv = StringVar()
+        Entry(self, width=3, textvariable=self.passive1_lv, justify=CENTER).place(x=62, y=current_y)
         self.passive1 = StringVar(value='')
-        Entry(self, width=67, textvariable=self.passive1).place(x=68, y=current_y)
+        Entry(self, width=63, textvariable=self.passive1).place(x=95, y=current_y)
         current_y += 32
-        Label(self, width=6, text='被動技2').place(x=12, y=current_y - 1)
+        Label(self, width=6, text='被動技2').place(x=9, y=current_y - 1)
+        self.passive2_lv = StringVar()
+        Entry(self, width=3, textvariable=self.passive2_lv, justify=CENTER).place(x=62, y=current_y)
         self.passive2 = StringVar(value='')
-        Entry(self, width=67, textvariable=self.passive2).place(x=68, y=current_y)
+        Entry(self, width=63, textvariable=self.passive2).place(x=95, y=current_y)
         current_y += 32
-        Label(self, width=6, text='絆能力').place(x=12, y=current_y - 1)
+        Label(self, width=6, text='絆能力').place(x=9, y=current_y - 1)
+        self.attached_cost = IntVar()
+        Entry(self, width=3, textvariable=self.attached_cost, justify=CENTER).place(x=62, y=current_y)
         self.belonged = ttk.Combobox(self, state='readonly', width=6, justify=CENTER)
         self.belonged['values'] = BELONGEDS
-        self.belonged.place(x=65, y=current_y - 2)
+        self.belonged.place(x=94, y=current_y)
         self.attachment = StringVar(value='')
-        Entry(self, width=56, textvariable=self.attachment).place(x=144, y=current_y)
+        Entry(self, width=53, textvariable=self.attachment).place(x=166, y=current_y)
 
         # 最後一個 Row
         current_y += 40
@@ -163,8 +169,11 @@ class CharacterWindow(BasicWindow):
         self.note.set(convert_to_str(self.character.note))
         self.active.set(convert_to_str(self.character.active))
         self.active_cost.set(self.character.active_cost)
+        self.passive1_lv.set(self.character.passive_1_lv)
         self.passive1.set(convert_to_str(self.character.passive_1))
+        self.passive2_lv.set(self.character.passive_2_lv)
         self.passive2.set(convert_to_str(self.character.passive_2))
+        self.attached_cost.set(self.character.attached_cost)
         self.belonged.set(convert_to_str(self.character.belonged))
         self.attachment.set(convert_to_str(self.character.attachment))
 
@@ -224,8 +233,11 @@ class CharacterWindow(BasicWindow):
         self.character.note = self.note.get()
         self.character.active = self.active.get()
         self.character.active_cost = int(self.active_cost.get())
+        self.character.passive_1_lv = self.passive1_lv.get()
         self.character.passive_1 = self.passive1.get()
+        self.character.passive_2_lv = self.passive2_lv.get()
         self.character.passive_2 = self.passive2.get()
+        self.character.attached_cost = self.attached_cost.get()
         self.character.belonged = self.belonged.get()
         self.character.attachment = self.attachment.get()
 

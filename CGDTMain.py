@@ -35,11 +35,19 @@ class Main(MainFrameWithTable):
         button.place(x=192, y=20)
         button['command'] = lambda: self.update()
 
+        button = Button(self, text='TempMethod', width=15, font=(MS_JH, 12))
+        button.place(x=105, y=65)
+        button['command'] = lambda: self.executeTemp()
+
     def insert(self):
         inserter = MyDBInserter(self, self.data_owner)
         inserter.insert_new_characters()
 
     def update(self):
+        updater = MyDBUpdater(self, self.data_owner)
+        updater.update_new_characters()
+
+    def executeTemp(self):
         updater = MyDBUpdater(self, self.data_owner)
         updater.update_new_characters()
 

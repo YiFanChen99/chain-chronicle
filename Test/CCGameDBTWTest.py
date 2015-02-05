@@ -28,5 +28,5 @@ class CCGameDBTWTest(unittest.TestCase):
 
 
 def _compare_full_name(cgdt_name, db_name):
-    name = db_name.replace('v1', '')
+    name = db_name.replace('v1', '')  # 主人公的 FullName 有重複
     return cgdt_name == name
