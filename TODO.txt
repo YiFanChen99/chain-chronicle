@@ -1,6 +1,4 @@
 
-建立 DroppedStatisticTacker ，給 RecordFrame 用
-
 RecordOfDraw 改成用 date object ，包含 window 不使用 DBAccessor，以及改為以 CharID 為記錄方式
 	抽卡記錄與酒廠的DB改成以ID與 EventName連結。並在 EventCombobox 加上 enter 可以跳出其號稱機率。
 
