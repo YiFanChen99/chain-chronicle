@@ -123,11 +123,15 @@ class FriendInfoFrame(MainFrameWithTable):
         FriendInfoUpdaterWindow(self, friend_info, callback=lambda: (
             self.update_friend_info_into_db(friend_info), self.update_all()))
 
-    # 更改好友資訊
+    # 更改好友資訊，或顯示其歷史角色訊息
     def do_double_clicking(self, event):
         friend_info = self.get_corresponding_friend_info_in_row(self.table_view.get_row_clicked(event))
-        FriendInfoUpdaterWindow(self, friend_info, callback=lambda: (
-            self.update_friend_info_into_db(friend_info), self.update_table()))
+        # 雙擊歷史角色欄位時顯示其訊息，否則更改好友資訊
+        if self.table_view.get_col_clicked(event) == 6:
+            tkMessageBox.showinfo("Characters", friend_info.used_characters, parent=self)
+        else:
+            FriendInfoUpdaterWindow(self, friend_info, callback=lambda: (
+                self.update_friend_info_into_db(friend_info), self.update_table()))
 
     @staticmethod
     def update_friend_info_into_db(friend_info):

@@ -7,7 +7,7 @@ from Model import CharacterModel
 
 
 class FriendInfoUpdaterWindow(BasicWindow):
-    def __init__(self, master, friend_info, callback, width=347, height=283, **kwargs):
+    def __init__(self, master, friend_info, callback, width=347, height=285, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Friend Info')
         self.geometry('+750+260')
@@ -61,7 +61,7 @@ class FriendInfoUpdaterWindow(BasicWindow):
         offline_entry.bind('<Return>', self.submitting)
 
         # 送出、取消的按鈕
-        current_y += 46
+        current_y += 47
         Button(self, text="Submit", command=self.submitting, width=20, relief=RIDGE,
                font=(SCP, 11)).place(x=19, y=current_y)
         Button(self, text="Cancel", command=self.destroy, width=10, relief=RIDGE,

@@ -112,6 +112,8 @@ class CNJiYoMonthlyDroppedCanvas(Canvas):
         Label(self, textvariable=self.avg_fertilizer_var, width=6, font=(SCP, 11)).place(x=var_x, y=current_y)
         Label(self, textvariable=self.character_var, width=6, font=(SCP, 11)).place(x=var_x, y=current_y + 20)
 
+        self._init_buttons_state()
+
     def _init_fields(self):
         self.config_parser = configparser.ConfigParser()
         self.config_parser.read(self.RECORD_PATH, "utf8")
@@ -130,6 +132,11 @@ class CNJiYoMonthlyDroppedCanvas(Canvas):
         self.avg_fertilizer_var.set('%.2f' % (avg_count[0]))
         self.character_var.set('%.2f' % (avg_count[1]))
 
+    def _init_buttons_state(self):
+        self.box_12_button.set_is_selected(True)
+        self.box_3_button.set_is_selected(False)
+        self.box_4_button.set_is_selected(False)
+
     def submitting(self):
         self.statistic_tacker.record([int(self.box_12_button.is_selected) * 2 + self.box_3_button.is_selected,
                                       self.box_4_button.is_selected])
@@ -139,7 +146,5 @@ class CNJiYoMonthlyDroppedCanvas(Canvas):
         with codecs.open(self.RECORD_PATH, encoding="utf8", mode='wb') as data_file:
             self.config_parser.write(data_file)
 
-        self.box_12_button.set_is_selected(True)
-        self.box_3_button.set_is_selected(False)
-        self.box_4_button.set_is_selected(False)
+        self._init_buttons_state()
         self._update_statistics()
