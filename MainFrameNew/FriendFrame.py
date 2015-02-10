@@ -92,8 +92,8 @@ class FriendInfoFrame(MainFrameWithTable):
 
     def redisplay_table_by_order_rule(self):
         # 先根據目前的選擇設定排序方法
-        corresponding_column_names = \
-            dict(zip(self.ORDER_OPTIONS, ['LastProfession', 'Rank', 'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate']))
+        corresponding_column_names = dict(zip(
+            self.ORDER_OPTIONS, ['LastProfession', 'CurrentRank', 'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate']))
         self.table_model.setSortOrder(columnName=corresponding_column_names[self.order_selector.get()])
 
         self.redisplay_table()
