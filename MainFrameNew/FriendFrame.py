@@ -248,11 +248,16 @@ class FriendRecordFrame(MainFrameWithTable):
     def submitting(self):
         # 先確認資料的正確性
         if self.validate_before_submitting():
-            # 將已經登記的 record 逐一更新到 DB 內
+            # 將已經登記的 record 逐一更新到 DB 內，有衝突時則通知並略過該筆記錄
             for record in self.friend_records:
-                if record.status == RECORDED:
-                    DBAccessor.insert_friend_record_into_db(
-                        record, self.date.get(), commit_followed=False)
+                try:
+                    if record.status == RECORDED:
+                        DBAccessor.insert_friend_record_into_db(
+                            record, self.date.get(), commit_followed=False)
+                except StandardError as e:
+                    tkMessageBox.showinfo('Fail to record', '{0}\'s {1}.\n Already been skipped.'.format(
+                        record.used_names.encode('utf-8'), e), parent=self)
+                    continue
             DBAccessor.commit()
 
             # 更新 FriendInfo Table 中的資訊（RaisedIn3Weeks, LastCharacter 等）
