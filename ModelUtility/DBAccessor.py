@@ -27,17 +27,17 @@ class DBAccessor():
     def select_friend_info_list():
         return [FriendInfo(each) for each in
                 DBAccessor.execute('select {0} from FriendInfo{1} where UsedNames!=\'\''.format(
-                    ','.join(FriendInfo.DISPLAYED_COLUMNS), get_db_suffix()))]
+                    ','.join(FriendInfo.SELECTED_COLUMNS), get_db_suffix()))]
 
     @staticmethod
     def select_specific_friend_info(requested_id):
         return FriendInfo(DBAccessor.execute('select {0} from FriendInfo{1} where ID=={2}'.format(
-            ','.join(FriendInfo.DISPLAYED_COLUMNS), get_db_suffix(), requested_id)).fetchone())
+            ','.join(FriendInfo.SELECTED_COLUMNS), get_db_suffix(), requested_id)).fetchone())
 
     @staticmethod
     def select_unused_friend_info():
         return FriendInfo(DBAccessor.execute('select {0} from FriendInfo{1} where UsedNames==\'\''.format(
-            ','.join(FriendInfo.DISPLAYED_COLUMNS), get_db_suffix())).fetchone())
+            ','.join(FriendInfo.SELECTED_COLUMNS), get_db_suffix())).fetchone())
 
     @staticmethod
     def update_friend_info_into_db(friend_info, commit_followed):

@@ -10,13 +10,11 @@ from Model.FriendModel import take_statistic_to_update_friend_info
 
 
 class FriendInfoFrame(MainFrameWithTable):
-    ORDER_OPTIONS = ['Profession', 'Rank', 'In3Weeks', 'In2Months', 'AddedDate']
-
     def __init__(self, master):
         MainFrameWithTable.__init__(self, master)
         self.set_table_place(34, 29)
         self.table_model = TableModelAdvance()
-        self.table_model.set_columns(FriendInfo.DISPLAYED_COLUMNS, main_column='UsedNames')
+        self.table_model.set_columns(FriendInfo.TABLE_VIEW_COLUMNS, main_column='UsedNames')
         self.table_view.setModel(self.table_model)
         self.filter_manager = FilterRuleManager()
         self.filter_manager.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)
@@ -45,8 +43,8 @@ class FriendInfoFrame(MainFrameWithTable):
         basic_x = 153
         Label(self, text='Order:', font=(MS_JH, 12)).place(x=basic_x, y=basic_y)
         self.order_selector = ttk.Combobox(self, state='readonly', width=10, justify=CENTER)
-        self.order_selector.set(self.ORDER_OPTIONS[0])
-        self.order_selector['values'] = self.ORDER_OPTIONS
+        self.order_selector.set(FriendInfo.TABLE_VIEW_SORTABLE_COLUMNS[0])
+        self.order_selector['values'] = FriendInfo.TABLE_VIEW_SORTABLE_COLUMNS
         self.order_selector.place(x=basic_x + 55, y=basic_y + 1)
         self.order_selector.bind('<<ComboboxSelected>>', lambda x: self.redisplay_table_by_order_rule())
 
@@ -85,16 +83,14 @@ class FriendInfoFrame(MainFrameWithTable):
 
     def update_table(self):
         # 將符合名稱篩選的好友加入欲呈現表格中
-        self.table_model.set_rows([info.get_displayed_info()
+        self.table_model.set_rows([info.get_table_view_info()
                                    for info in self.filter_manager.filter(self.friend_infos, self.queried_name.get())])
 
         self.redisplay_table_by_order_rule()
 
     def redisplay_table_by_order_rule(self):
         # 先根據目前的選擇設定排序方法
-        corresponding_column_names = dict(zip(
-            self.ORDER_OPTIONS, ['LastProfession', 'CurrentRank', 'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate']))
-        self.table_model.setSortOrder(columnName=corresponding_column_names[self.order_selector.get()])
+        self.table_model.setSortOrder(columnName=self.order_selector.get())
 
         self.redisplay_table()
 
@@ -170,7 +166,7 @@ class FriendRecordFrame(MainFrameWithTable):
         self.set_table_place(34, 29)
         self.table_view.cellwidth = 85
         self.table_model = TableModelAdvance()
-        self.table_model.set_columns(FriendRecord.DISPLAYED_COLUMNS, main_column='UsedNames')
+        self.table_model.set_columns(FriendRecord.TABLE_VIEW_COLUMNS, main_column='UsedNames')
         self.table_view.setModel(self.table_model)
         self.filer_manager = FilterRuleManager()
         self.filer_manager.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)
@@ -236,7 +232,7 @@ class FriendRecordFrame(MainFrameWithTable):
         # 根據名稱要求篩選，同時篩選符合設定的已登記/未登記紀錄
         self.filer_manager.set_specific_condition(
             'status', RECORDED if self.is_show_recorded_friends.get() else UNRECORDED)
-        self.table_model.set_rows([record.get_displayed_info() for record in
+        self.table_model.set_rows([record.get_table_view_info() for record in
                                    self.filer_manager.filter(self.friend_records, self.queried_name.get())])
 
         self.table_model.setSortOrder(columnName='LastProfession')

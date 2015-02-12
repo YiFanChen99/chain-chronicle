@@ -14,7 +14,7 @@ class CharacterFrame(MainFrameWithTable):
         MainFrameWithTable.__init__(self, master, **kwargs)
         self.set_table_place(34, 38)
         self.table_model = TableModelAdvance()
-        self.table_model.set_columns(Character.DISPLAYED_COLUMNS, main_column='Nickname')
+        self.table_model.set_columns(Character.TABLE_VIEW_COLUMNS, main_column='Nickname')
         self.table_view.setModel(self.table_model)
         self.filter_manager = FilterRuleManager()
         self._init_filter_manager()
@@ -84,7 +84,7 @@ class CharacterFrame(MainFrameWithTable):
         results = self.filter_manager.filter(self.characters, self.request.get())
         self.character_count.set(len(results))
         # 將符合篩選條件的角色加入欲呈現表格中
-        self.table_model.set_rows([character.get_displayed_info() for character in results])
+        self.table_model.set_rows([character.get_table_view_info() for character in results])
 
         self.table_model.setSortOrder(columnName='Rank', reverse=1)
         self.table_model.setSortOrder(columnName='Profession')

@@ -73,9 +73,9 @@ class CGDTCharacterTest(unittest.TestCase):
 
 
 class FriendInfoTest(unittest.TestCase):
-    def test_get_updated_info(self):
+    def test_checking_when_get_updated_info(self):
         record = DBAccessor.execute('select {0} from FriendInfoJP where UsedNames!=\'\''.format(
-            ','.join(FriendInfo.DISPLAYED_COLUMNS))).fetchone()
+            ','.join(FriendInfo.SELECTED_COLUMNS))).fetchone()
 
         FriendInfo(record)  # Pass
 

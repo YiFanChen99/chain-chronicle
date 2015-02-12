@@ -10,7 +10,8 @@ class Character(object):
                 'Passive2', 'Passive2Lv', 'Attachment', 'WeaponType', 'ExpGrown', 'AttendanceCost', 'MaxAtk', 'MaxHP',
                 'AtkGrown', 'HPGrown', 'AtkSpeed', 'CriticalRate', 'Note', 'Belonged', 'AttachedCost']
     UPDATED_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 ID 外的所有欄位
-    DISPLAYED_COLUMNS = [DB_TABLE[0]] + DB_TABLE[2:11] + DB_TABLE[13:15] + DB_TABLE[19:21]
+    TABLE_VIEW_COLUMNS = ['ID', 'Nickname', 'Profession', 'Rank', 'Active', 'ActiveCost', 'Passive1', 'Passive2',
+                          'Attachment', 'WeaponType', 'MaxAtk', 'MaxHP', 'Note', 'Belonged']
 
     def __init__(self, infos):
         inputs = iter(infos)
@@ -66,7 +67,7 @@ class Character(object):
                 self.max_atk, self.max_hp, self.atk_grown, self.hp_grown, self.atk_speed, self.critical_rate,
                 self.note.encode('utf-8'), self.belonged.encode('utf-8'), self.attached_cost]
 
-    def get_displayed_info(self):
+    def get_table_view_info(self):
         return [self.c_id, self.nickname.encode('utf-8'), self.profession.encode('utf-8'), self.rank,
                 self.active.encode('utf-8'), self.active_cost, self.passive_1.encode('utf-8'),
                 self.passive_2.encode('utf-8'), self.attachment.encode('utf-8'), self.weapon_type.encode('utf-8'),
@@ -160,11 +161,18 @@ class CGDTCharacter(object):
             self.c_id, self.full_name.encode('utf-8'), self.nickname.encode('utf-8'))
 
 
+def calculate_grown(origin_max, max_after_broken):
+    return (max_after_broken - origin_max) / 4
+
+
 class FriendInfo(object):
     DB_TABLE = ['ID', 'UsedNames', 'Excellence', 'Defect', 'Relation', 'Offline', 'UsedCharacters', 'CurrentRank',
                 'RaisedIn3Weeks', 'RaisedIn2Months', 'AddedDate', 'LastProfession', 'LastCharacter']
     CLEANED_UP_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 ID 外的所有欄位
-    DISPLAYED_COLUMNS = DB_TABLE[0:12]
+    SELECTED_COLUMNS = DB_TABLE[0:12]  # 除了 LastCharacter 外的所有欄位
+    TABLE_VIEW_COLUMNS = ['ID', 'Names', 'Excellence', 'Defect', 'Relation', 'Offline', 'Characters', 'Rank',
+                          'R.In3Weeks', 'R.In2Months', 'AddedDate', 'LastProfession']
+    TABLE_VIEW_SORTABLE_COLUMNS = ['LastProfession', 'Rank', 'R.In3Weeks', 'R.In2Months', 'AddedDate']
     UPDATED_COLUMNS = DB_TABLE[1:6] + [DB_TABLE[10]]
 
     def __init__(self, infos):
@@ -195,7 +203,7 @@ class FriendInfo(object):
     def added_date(self, value):
         self._added_date = value
 
-    def get_displayed_info(self):
+    def get_table_view_info(self):
         return [self.f_id, self.used_names.encode('utf-8'), self.excellence.encode('utf-8'),
                 self.defect.encode('utf-8'), self.relation.encode('utf-8'), self.offline,
                 self.used_characters.encode('utf-8'), self.current_rank, self.raised_in_3_weeks,
@@ -217,7 +225,7 @@ class FriendInfo(object):
 class FriendRecord(object):
     DB_TABLE = ['FriendID', 'RecordedDate', 'Character', 'CharacterLevel', 'Rank']
     FRIEND_INFO_SELECTED_COLUMNS = ['ID', 'UsedNames', 'CurrentRank', 'LastProfession', 'LastCharacter']
-    DISPLAYED_COLUMNS = FRIEND_INFO_SELECTED_COLUMNS[0:2] + DB_TABLE[2:5] + FRIEND_INFO_SELECTED_COLUMNS[2:4]
+    TABLE_VIEW_COLUMNS = ['ID', 'Names', 'Character', 'C.Level', 'Rank', 'LastRank', 'LastProfession']
 
     def __init__(self, infos):
         self.f_id = infos[0]
@@ -269,7 +277,7 @@ class FriendRecord(object):
     def current_rank(self):
         return self.rank if self.rank is not None else ''
 
-    def get_displayed_info(self):
+    def get_table_view_info(self):
         return [self.f_id, self.used_names.encode('utf-8'), self.current_character.encode('utf-8'),
                 self.current_character_level, self.current_rank, self.last_rank, self.last_profession.encode('utf-8')]
 
@@ -284,7 +292,3 @@ class FriendRecord(object):
     def __str__(self):
         return 'FriendRecord: ID={0}, UsedNames={1}, Status={2}'.format(
             self.f_id, self.used_names.encode('utf-8'), self.status)
-
-
-def calculate_grown(origin_max, max_after_broken):
-    return (max_after_broken - origin_max) / 4
