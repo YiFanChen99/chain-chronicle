@@ -7,7 +7,7 @@ from ModelUtility.Utility import bind_check_box_and_label, convert_str_to_date
 from ModelUtility.CommonState import *
 from UIUtility.Combobox import FilteredCombobox, IntFilteredCombobox
 from ModelUtility.Filter import FilterRuleManager
-from datetime import timedelta
+from datetime import timedelta, date
 
 DB_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
 EVENT_DURATION_TOLERANCE = 2

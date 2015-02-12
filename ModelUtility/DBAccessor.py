@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import sqlite3
-from ModelUtility.DataObject import *
-from ModelUtility.CommonState import *
 
 
 class DBAccessor():
@@ -22,41 +20,6 @@ class DBAccessor():
     def commit_if_requested(requested):
         if requested:
             return DBAccessor.DATABASE.commit()
-
-    @staticmethod
-    def select_friend_info_list():
-        return [FriendInfo(each) for each in
-                DBAccessor.execute('select {0} from FriendInfo{1} where UsedNames!=\'\''.format(
-                    ','.join(FriendInfo.SELECTED_COLUMNS), get_db_suffix()))]
-
-    @staticmethod
-    def select_specific_friend_info(requested_id):
-        return FriendInfo(DBAccessor.execute('select {0} from FriendInfo{1} where ID=={2}'.format(
-            ','.join(FriendInfo.SELECTED_COLUMNS), get_db_suffix(), requested_id)).fetchone())
-
-    @staticmethod
-    def select_unused_friend_info():
-        return FriendInfo(DBAccessor.execute('select {0} from FriendInfo{1} where UsedNames==\'\''.format(
-            ','.join(FriendInfo.SELECTED_COLUMNS), get_db_suffix())).fetchone())
-
-    @staticmethod
-    def update_friend_info_into_db(friend_info, commit_followed):
-        DBAccessor.execute('update FriendInfo{0}{1} where ID={2}'.format(get_db_suffix(), convert_data_to_update_command(
-            FriendInfo.UPDATED_COLUMNS, friend_info.get_updated_info()), friend_info.f_id))
-        DBAccessor.commit_if_requested(commit_followed)
-
-    @staticmethod
-    def select_new_friend_record_list():
-        return [FriendRecord(each) for each in
-                DBAccessor.execute('select {0} from FriendInfo{1} where UsedNames!=\'\''.format(
-                    ','.join(FriendRecord.FRIEND_INFO_SELECTED_COLUMNS), get_db_suffix()))]
-
-    @staticmethod
-    def insert_friend_record_into_db(record, the_date, commit_followed):
-        DBAccessor.execute('insert into FriendRecord{0} ({1}){2}'.format(
-            get_db_suffix(), ','.join(FriendRecord.DB_TABLE),
-            convert_data_to_insert_command(*record.get_inserted_info(the_date))))
-        DBAccessor.commit_if_requested(commit_followed)
 
 
 # 組成「"values(x1,x2,...,xn)"」的字串回傳

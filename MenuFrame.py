@@ -42,10 +42,10 @@ class MenuFrame(Frame):
         if GROUPS[index] == GROUP_STATIC_INFO:
             return SubMenuFrame.StaticGroupFrame(self.master, height=height)
         elif GROUPS[index] == GROUP_ACCOUNT_JP:
-            set_db_suffix('JP')
+            set_account('Fuji')
             return SubMenuFrame.AccountGroupFrame(self.master, height=height)
         elif GROUPS[index] == GROUP_ACCOUNT_CN:
-            set_db_suffix('CN')
+            set_account('Yama')
             return SubMenuFrame.AccountGroupFrame(self.master, height=height)
         else:
             raise Exception("Wrong group selected!")

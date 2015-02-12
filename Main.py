@@ -53,6 +53,7 @@ class Main(Frame):
     def adjust_size_of_main_frame(self):
         self.main_frame.adjust_size(self.__current_width, self.calculate_main_frame_height())
 
+
 if __name__ == "__main__":
     root = Tk()
     init_size = str(MIN_WIDTH) + 'x' + str(MIN_HEIGHT)

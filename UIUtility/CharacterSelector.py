@@ -2,7 +2,6 @@
 from Window.CharacterWindow import *
 from UIUtility.Selector import ProfessionSelector, RankSelector
 from UIUtility.Combobox import FilteredCombobox
-from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
 from ModelUtility.Filter import FilterRuleManager
 from Model import CharacterModel
@@ -146,5 +145,4 @@ class CharacterSelectionWindow(BasicWindow):
             tkMessageBox.showwarning("Character haven't selected", '\"Character\" 未選\n', parent=self)
 
     def update_records(self):
-        self.records = DBAccessor.execute(
-            'select Nickname, FullName, Profession, Rank, Belonged from Character').fetchall()
+        self.records = CharacterModel.select_character_info_for_character_selector()

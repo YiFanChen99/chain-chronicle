@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-""" 責任包含檢查 DB 內容的正確性  """
 import unittest
 from ModelUtility.DBAccessor import *
 

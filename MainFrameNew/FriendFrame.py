@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from MainFrameNew.BaseFrame import *
 from ModelUtility.Filter import FilterRuleManager
-from ModelUtility.DBAccessor import *
-from ModelUtility.Utility import bind_check_box_and_label, convert_str_to_date
+from ModelUtility.DataObject import *
+from ModelUtility.Utility import bind_check_box_and_label
 from ModelUtility.Comparator import sub_match_request_or_japanese_character
-from ModelUtility.CommonState import *
 from Window.FriendWindow import FriendInfoUpdaterWindow, FriendRecordUpdaterWindow
-from Model.FriendModel import take_statistic_to_update_friend_info
+from Model import FriendModel
 
 
 class FriendInfoFrame(MainFrameWithTable):
@@ -27,9 +26,7 @@ class FriendInfoFrame(MainFrameWithTable):
         button["command"] = self.switching_to_friend_record
 
         self._init_upper_frame()
-
         self.friend_infos = []
-        self._init_since_last_record()
         self.update_all()
 
     def _init_upper_frame(self):
@@ -61,21 +58,12 @@ class FriendInfoFrame(MainFrameWithTable):
         Label(self, textvariable=self.friend_count_var, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
 
         basic_x = 565
-        self.since_last_record_var = StringVar()
-        Label(self, textvariable=self.since_last_record_var, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
-
-    def _init_since_last_record(self):
-        # 欲取得最後更新全體記錄的時間，但只用了效果類似的手段（抓不特定老朋友最後被更新的時間）
-        that_date = convert_str_to_date(
-            DBAccessor.execute(
-                'select max({2}) from {0} where {1} = (select {1} from {0} where {2} = (select min({2}) from {0}))'.format(
-                    'FriendRecord' + get_db_suffix(), 'FriendID', 'RecordedDate')).fetchone()[0])
-        if that_date is not None:
-            self.since_last_record_var.set('Since: %d days ago' % (date.today() - that_date).days)
+        since_last_record = 'Since: {0} days ago'.format(FriendModel.get_since_all_record_date())
+        Label(self, text=since_last_record, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
 
     def update_all(self):
         # 建立 FriendInfoObjects
-        self.friend_infos = DBAccessor.select_friend_info_list()
+        self.friend_infos = FriendModel.select_friend_info_list()
 
         self.friend_count_var.set('Friends: %02d' % len(self.friend_infos))  # 好友總數
 
@@ -111,7 +99,7 @@ class FriendInfoFrame(MainFrameWithTable):
     # 取得未使用的 ID，並將新好友指定到該 ID
     def adding_new_friend(self):
         try:
-            friend_info = DBAccessor.select_unused_friend_info()
+            friend_info = FriendModel.select_unused_friend_info()
         except ValueError:
             tkMessageBox.showwarning("Can not add any friend", '已達好友上限', parent=self)
             return
@@ -131,27 +119,18 @@ class FriendInfoFrame(MainFrameWithTable):
 
     @staticmethod
     def update_friend_info_into_db(friend_info):
-        DBAccessor.update_friend_info_into_db(friend_info, commit_followed=True)
+        FriendModel.update_friend_info_into_db(friend_info, commit_followed=True)
 
     def do_dragging_along_right(self, row_number):
         friend_info = self.get_corresponding_friend_info_in_row(row_number)
-        # 確認是否刪除
-        if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete friend 「{0}」？'.format(
-                friend_info.used_names.encode('utf-8')), parent=self):
-            self.remove_friend(friend_info)
-            self.friend_infos.remove(friend_info)  # 直接從 list 中拿掉，不用重撈
-            self.friend_count_var.set('Friends: %02d' % len(self.friend_infos))  # 好友總數更新
-            self.update_table()
+        FriendModel.delete_friend_with_conforming(self, friend_info,
+                                                  lambda: (self.callback_after_deleting_friend(friend_info)))
 
-    @staticmethod
-    def remove_friend(friend_info):
-        # 將 FriendInfo table 中該 ID 的其他欄位全數清空
-        columns = FriendInfo.CLEANED_UP_COLUMNS
-        DBAccessor.execute('update FriendInfo{0}{1} where ID={2}'.format(
-            get_db_suffix(), convert_data_to_update_command(columns, [''] * len(columns)), friend_info.f_id))
-        # 將 FriendRecord table 中對應其 ID 的記錄全數刪除
-        DBAccessor.execute('delete from FriendRecord{0} where FriendID={1}'.format(get_db_suffix(), friend_info.f_id))
-        DBAccessor.commit()
+    def callback_after_deleting_friend(self, friend_info):
+        self.friend_infos.remove(friend_info)  # 直接從 list 中拿掉，不用重撈
+        self.friend_count_var.set('Friends: %02d' % len(self.friend_infos))  # 好友總數更新
+        self.queried_name.set('')  # 此時大部分篩選都是為了找此人來刪除，故刪除後清空條件
+        self.update_table()
 
     def get_corresponding_friend_info_in_row(self, row_number):
         selected_id = self.table_model.getCellRecord(row_number, 0)
@@ -171,7 +150,9 @@ class FriendRecordFrame(MainFrameWithTable):
         self.filer_manager = FilterRuleManager()
         self.filer_manager.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)
         self.filer_manager.set_comparison_rule('current_character')
-        self.table_view.bind("<Button-2>", lambda event: self.opening_info_update_window(event))  # 滑鼠中鍵事件註冊
+        # 滑鼠中鍵事件註冊，設定為更新好友資訊，並選取該列
+        self.table_view.bind("<Button-2>", lambda event: (
+            self.opening_info_update_window(event), self.table_view.handle_left_click(event)))
 
         self._init_left_frame()
         self._init_upper_frame()
@@ -222,7 +203,7 @@ class FriendRecordFrame(MainFrameWithTable):
         self.date.set(date.today())  # 此次記錄的日期
 
         # 建立 FriendRecordObjects
-        self.friend_records = DBAccessor.select_new_friend_record_list()
+        self.friend_records = FriendModel.select_new_friend_record_list()
 
         self.friend_count_str.set('Friends: %02d' % len(self.friend_records))  # 好友總數
 
@@ -248,16 +229,15 @@ class FriendRecordFrame(MainFrameWithTable):
             for record in self.friend_records:
                 try:
                     if record.status == RECORDED:
-                        DBAccessor.insert_friend_record_into_db(
-                            record, self.date.get(), commit_followed=False)
+                        FriendModel.insert_friend_record_into_db(record, self.date.get(), commit_followed=False)
                 except StandardError as e:
                     tkMessageBox.showinfo('Fail to record', '{0}\'s {1}.\n Already been skipped.'.format(
                         record.used_names.encode('utf-8'), e), parent=self)
                     continue
-            DBAccessor.commit()
+            FriendModel.commit()
 
             # 更新 FriendInfo Table 中的資訊（RaisedIn3Weeks, LastCharacter 等）
-            take_statistic_to_update_friend_info()
+            FriendModel.take_statistic_to_update_friend_info()
 
             self.switching_to_friend_info()
 
@@ -276,9 +256,12 @@ class FriendRecordFrame(MainFrameWithTable):
         for record in self.friend_records:
             if record.f_id == the_friend_id:
                 FriendRecordUpdaterWindow(self, record, self.update_table)
+                break
+        self.queried_name.set('')  # 此時大部分篩選都是為了找此人來編輯刪除，故編輯後清空條件
 
     # 更改好友資訊
     def opening_info_update_window(self, event):
-        friend_info = DBAccessor.select_specific_friend_info(
+        friend_info = FriendModel.select_specific_friend_info(
             int(self.table_model.getCellRecord(self.table_view.get_row_clicked(event), 0)))
-        FriendInfoUpdaterWindow(self, friend_info, callback=lambda: FriendInfoFrame.update_friend_info_into_db(friend_info))
+        FriendInfoUpdaterWindow(self, friend_info,
+                                callback=lambda: FriendInfoFrame.update_friend_info_into_db(friend_info))

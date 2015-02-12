@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import json
 from Window.CharacterWindow import *
+from ModelUtility.DataObject import Character, CGDTCharacter
+from ModelUtility.DBAccessor import *
 from Model import CharacterModel
 
 CGDT_DEFAULT_PATH = 'data/CCGameDBTW.txt'
@@ -59,7 +61,6 @@ class MyDBInserter(object):
     # 插入該角色的資訊
     def _insert_new_character(self, character):
         CharacterModel.insert_character_into_db(character)
-
         self.inserted_count += 1
 
 

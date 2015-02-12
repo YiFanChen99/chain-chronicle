@@ -4,6 +4,7 @@ from UIUtility.CharacterSelector import CharacterSelectorCanvas
 from ModelUtility.DBAccessor import *
 from ModelUtility.CommonString import *
 from ModelUtility.CommonState import *
+from ModelUtility.DataObject import RecordOfDrawLots
 from Model import CharacterModel
 
 
@@ -22,12 +23,12 @@ class RecordWindow(BasicWindow):
     def _init_widgets(self, event_names):
         # 筆數
         current_y = 15
-        Label(self, text=DRAW_LOTS_DB_TABLE[0], width=6, font=("", 12)).place(x=4, y=current_y)
+        Label(self, text=RecordOfDrawLots.DB_TABLE[0], width=6, font=("", 12)).place(x=4, y=current_y)
         self.times = Variable()  # 下一次的筆數
         Label(self, textvariable=self.times, width=6, font=("", 12)).place(x=4, y=current_y + 27)
 
         # 酒廠
-        Label(self, text=DRAW_LOTS_DB_TABLE[1], width=14, font=("", 12)).place(x=57, y=current_y)
+        Label(self, text=RecordOfDrawLots.DB_TABLE[1], width=14, font=("", 12)).place(x=57, y=current_y)
         self.event_selector = ttk.Combobox(self, state='readonly', width=14, justify=CENTER)
         self.event_selector['values'] = event_names
         self.event_selector.place(x=64, y=current_y + 27)
@@ -37,7 +38,7 @@ class RecordWindow(BasicWindow):
         self.character_selector.place(x=201, y=current_y - 4)
 
         # 花費
-        Label(self, text=DRAW_LOTS_DB_TABLE[5], width=9, font=("", 12)).place(x=338, y=current_y)
+        Label(self, text=RecordOfDrawLots.DB_TABLE[5], width=9, font=("", 12)).place(x=338, y=current_y)
         self.cost_selector = ttk.Combobox(self, state='readonly', width=8, justify=CENTER)
         self.cost_selector['values'] = DRAW_LOTS_COST
         self.cost_selector.place(x=346, y=current_y + 27)
@@ -77,7 +78,7 @@ class AddRecordWindow(RecordWindow):
 
     def do_submitting(self):
         character = self.character_selector.get()
-        DBAccessor.execute('insert into {0}({1})'.format(self.table_name, ','.join(DRAW_LOTS_DB_TABLE)) +
+        DBAccessor.execute('insert into {0}({1})'.format(self.table_name, ','.join(RecordOfDrawLots.DB_TABLE)) +
                            convert_data_to_insert_command(
                                self.times.get(), self.event_selector.get(), character.profession,
                                character.rank, character.nickname, self.cost_selector.get()))
@@ -110,8 +111,8 @@ class UpdatingRecordWindow(RecordWindow):
     def do_submitting(self):
         character = self.character_selector.get()
         DBAccessor.execute('update {0}{1} where Times={2}'.format(self.table_name, convert_data_to_update_command(
-            DRAW_LOTS_DB_TABLE[1:6], [self.event_selector.get(), character.profession, character.rank,
-                                      character.nickname, self.cost_selector.get()]), self.times.get()))
+            RecordOfDrawLots.DB_TABLE[1:6], [self.event_selector.get(), character.profession, character.rank,
+                                             character.nickname, self.cost_selector.get()]), self.times.get()))
         DBAccessor.commit()
 
         self.callback()

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from BasicWindow import *
-from ModelUtility.DBAccessor import *
+from ModelUtility.DataObject import Character, calculate_grown
 from ModelUtility.CommonString import *
 
 
@@ -166,16 +166,16 @@ class CharacterWindow(BasicWindow):
         self.max_hp_after_break.set(self.character.max_hp_after_break)
         self.atk_grown.set(self.character.atk_grown)
         self.hp_grown.set(self.character.hp_grown)
-        self.note.set(convert_to_str(self.character.note))
-        self.active.set(convert_to_str(self.character.active))
+        self.note.set(self.character.note)
+        self.active.set(self.character.active)
         self.active_cost.set(self.character.active_cost)
         self.passive1_lv.set(self.character.passive_1_lv)
-        self.passive1.set(convert_to_str(self.character.passive_1))
+        self.passive1.set(self.character.passive_1)
         self.passive2_lv.set(self.character.passive_2_lv)
-        self.passive2.set(convert_to_str(self.character.passive_2))
+        self.passive2.set(self.character.passive_2)
         self.attached_cost.set(self.character.attached_cost)
-        self.belonged.set(convert_to_str(self.character.belonged))
-        self.attachment.set(convert_to_str(self.character.attachment))
+        self.belonged.set(self.character.belonged)
+        self.attachment.set(self.character.attachment)
 
     # 根據選擇職業，填入預設的對應資訊
     def fill_in_automatically_by_professions(self):

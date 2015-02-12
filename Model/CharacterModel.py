@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from ModelUtility.DBAccessor import *
-from Window.CharacterWindow import CharacterWindow
 import tkMessageBox
+from ModelUtility.DBAccessor import *
+from ModelUtility.DataObject import Character
+from Window.CharacterWindow import CharacterWindow
 
 
 def select_character_by_specific_column(column_name, key):
@@ -15,6 +16,10 @@ def select_character_by_specific_column(column_name, key):
 def select_character_list():
     return [Character(each) for each in
             DBAccessor.execute('select {0} from Character'.format(','.join(Character.DB_TABLE)))]
+
+
+def select_character_info_for_character_selector():
+    return DBAccessor.execute('select Nickname, FullName, Profession, Rank, Belonged from Character').fetchall()
 
 
 # CharacterWindow 確認新增要求後，才新增至 DB 並通知 caller

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
-
 from Model.CCGameDBTWModel import *
+from ModelUtility.DataObject import *
 
 
 class DBColumnsTest(unittest.TestCase):
@@ -20,31 +20,30 @@ class DBColumnsTest(unittest.TestCase):
 
     # Character.DB_TABLE 是否涵蓋所有 Character 表內的欄位
     def test_character_db_table_completed(self):
-        character = DBAccessor.execute('select * from Character').fetchone()
-        assert len(Character.DB_TABLE) == len(character),\
-            'Character.DB_TABLE lens {0}, but Character table has {1} columns.'.format(
-                len(Character.DB_TABLE), len(character))
+        self._assert_db_table_completed('Character', Character.DB_TABLE)
 
-    # DRAW_LOTS_DB_TABLE 是否涵蓋所有 RecordOfDrawLots 表內的欄位
+    # RecordOfDrawLots.DB_TABLE 是否涵蓋所有 RecordOfDrawLots 表內的欄位
     def test_draw_lots_db_table_completed(self):
-        draw_lots = DBAccessor.execute('select * from RecordOfDrawLotsJP').fetchone()
-        assert len(DRAW_LOTS_DB_TABLE) == len(draw_lots),\
-            'DRAW_LOTS_DB_TABLE lens {0}, but RecordOfDrawLots table has {1} columns.'.format(
-                len(DRAW_LOTS_DB_TABLE), len(draw_lots))
+        self._assert_db_table_completed('RecordOfDrawLotsJP', RecordOfDrawLots.DB_TABLE)
 
     # FriendInfo.DB_TABLE 是否涵蓋所有 FriendInfo 表內的欄位
     def test_friend_info_db_table_completed(self):
-        friend = DBAccessor.execute('select * from FriendInfoJP').fetchone()
-        assert len(FriendInfo.DB_TABLE) == len(friend),\
-            'FriendInfo.DB_TABLE lens {0}, but RecordOfDrawLots table has {1} columns.'.format(
-                len(FriendInfo.DB_TABLE), len(friend))
+        self._assert_db_table_completed('FriendInfoJP', FriendInfo.DB_TABLE)
 
     # FriendRecord.DB_TABLE 是否涵蓋所有 FriendRecord 表內的欄位
     def test_friend_record_db_table_completed(self):
-        friend_record = DBAccessor.execute('select * from FriendRecordJP').fetchone()
-        assert len(FriendRecord.DB_TABLE) == len(friend_record),\
-            'FriendRecord.DB_TABLE lens {0}, but RecordOfDrawLots table has {1} columns.'.format(
-                len(FriendRecord.DB_TABLE), len(friend_record))
+        self._assert_db_table_completed('FriendRecordJP', FriendRecord.DB_TABLE)
+
+    # CharacterPower.DB_TABLE 是否涵蓋所有 CharacterPower 表內的欄位
+    def test_character_power_db_table_completed(self):
+        self._assert_db_table_completed('CharacterPower', CharacterPower.DB_TABLE)
+
+    @staticmethod
+    def _assert_db_table_completed(table_name, table_columns):
+        actual_columns = DBAccessor.execute('select * from ' + table_name + ' limit 1').fetchone()
+        assert len(table_columns) == len(actual_columns),\
+            '{0} table: DB_TABLE lens {1}, but actual DB has {2} columns.'.format(
+                table_name, len(table_columns), len(actual_columns))
 
 
 class CharacterTest(unittest.TestCase):

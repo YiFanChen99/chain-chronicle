@@ -1,13 +1,23 @@
 # -*- coding: utf-8 -*-
-_db_suffix = 'JP'
+_ACCOUNTS = ['Fuji', 'Yama']
+_CORRESPONDING_SERVERS = ['JP', 'CN']
+_account = _ACCOUNTS[0]
+_db_suffix = _CORRESPONDING_SERVERS[0]
 
 
-def set_db_suffix(db_suffix):
-    if not db_suffix in ['JP', 'CN']:
-        raise ValueError('Wrong db suffix!')
+def set_account(account):
+    if not account in _ACCOUNTS:
+        raise ValueError('Wrong account name!')
 
+    global _account
     global _db_suffix
-    _db_suffix = db_suffix
+    _account = account
+    _db_suffix = _CORRESPONDING_SERVERS[_ACCOUNTS.index(account)]
+
+
+def get_account():
+    global _account
+    return _account
 
 
 def get_db_suffix():

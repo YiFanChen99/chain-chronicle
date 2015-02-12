@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from BaseFrame import *
-from Window.CharacterWindow import CharacterWindow
 from ModelUtility.Filter import FilterRuleManager
-from ModelUtility.DBAccessor import *
 from ModelUtility.Comparator import *
+from ModelUtility.DataObject import Character
 from UIUtility.Combobox import FilteredCombobox
 from UIUtility.Selector import ProfessionSelector, RankSelector
 from Model import CharacterModel

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from Tkinter import *
-from Window.FriendWindow import *
+from MainFrameNew.MyCharacterFrame import *
 from MainFrameNew.FriendFrame import FriendRecordFrame
 from MainFrameNew.BaseFrame import TableModelAdvance, TableView
 from ModelUtility.CommonState import *
@@ -14,7 +14,14 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        CharacterModel.open_adding_new_character_window(self, lambda x: self.the_print())
+        print get_account()
+        print get_db_suffix()
+        set_account('Yama')
+        print get_account()
+        print get_db_suffix()
+        set_account('Yama1')
+        print get_account()
+        print get_db_suffix()
 
     def the_print(self):
         print 1, 2, 5

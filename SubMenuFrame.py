@@ -8,6 +8,7 @@ from MainFrameNew.CharacterFrame import CharacterFrame
 from MainFrameNew.RecordFrame import RecordFrame
 from MainFrameNew.RecordOfDrawLotsFrame import RecordOfDrawLotsFrame
 from MainFrameNew.FriendFrame import FriendInfoFrame
+from MainFrameNew.MyCharacterFrame import MyCharacterFrame
 
 
 class SubMenuFrame(Frame):
@@ -67,8 +68,7 @@ class AccountGroupFrame(SubMenuFrame):
     def create_main_frame(self, index):
         frame_name = self.Frames[index]
         if frame_name == 'MyCharacter':
-             # TODO MyCharacter
-            return MainFrame(self.master, width=100, height=100, background='blue')
+            return MyCharacterFrame(self.master,)
         elif frame_name == 'Resource':
              # TODO Resource
             return MainFrame(self.master, width=100, height=100, background='red')
