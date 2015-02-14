@@ -23,7 +23,7 @@ RECORD_TABLE = ['Total', 'Item1', 'Item2', 'Item3', 'Item4']
 
 class Frequent(MainFrame):
     def __init__(self, master, **kwargs):
-        MainFrame.__init__(self, master, **kwargs)
+        MainFrame.__init__(self, master, width=MIN_WIDTH, height=MIN_HEIGHT, **kwargs)
 
         parser_of_power_converter = configparser.ConfigParser()
         parser_of_power_converter.read(AP_FILE_NAME, "utf8")

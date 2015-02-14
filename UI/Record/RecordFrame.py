@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from configparser3 import configparser
 import codecs
-from BaseFrame import *
-from UIUtility.Button import ToggleButton
+from configparser3 import configparser
+from UI.Utility.BasicMainFrame import *
+from UI.Utility.Button import ToggleButton
 from ModelUtility.StatisticTacker import DroppedStatisticTacker
 
 

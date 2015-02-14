@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """ 暫訂維持 DB 的設計，不改成只存 c_id 後 join 的方式取得資料（簡單方便） """
-from BaseFrame import *
-from Window.RecordOfDrawLotsWindow import AddRecordWindow, UpdatingRecordWindow
+from datetime import timedelta, date
+from UI.Utility.BasicMainFrame import *
+from UI.Utility.Combobox import FilteredCombobox, IntFilteredCombobox
+from UI.RecordOfDrawLots.RecordOfDrawLotsWindow import AddRecordWindow, UpdatingRecordWindow
 from ModelUtility.DBAccessor import *
 from ModelUtility.Utility import bind_check_box_and_label, convert_str_to_date
 from ModelUtility.CommonState import *
-from UIUtility.Combobox import FilteredCombobox, IntFilteredCombobox
 from ModelUtility.Filter import FilterRuleManager
-from datetime import timedelta, date
+
 
 DB_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
 EVENT_DURATION_TOLERANCE = 2

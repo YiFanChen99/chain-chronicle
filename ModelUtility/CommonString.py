@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # Conditions
+MIN_WIDTH = 760
+MIN_HEIGHT = 500
 CONDITIONLESS = '**'
 PROFESSIONS = [u'戰士', u'騎士', u'弓手', u'法師', u'僧侶']
 BELONGEDS = [u'副都', u'聖都', u'賢塔', u'山脈', u'湖都', u'精靈島', u'九領', u'義勇軍', u'旅人', u'魔神',

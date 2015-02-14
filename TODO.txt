@@ -6,7 +6,7 @@ RecordOfDraw 改成用 date object ，包含 window 與 Frame 不使用 DBAccessor，以及改
 	改為例如雙擊可加舊記錄，不再需打勾
 	「新增酒廠」的功能。
 
-FrequentPage 搬移。移除MainFrame.py
+FrequentPage 搬移。移除 MainFrame.py
 
 記錄每週帳號相關資訊，含等級與道具（圖表）
 	可用 plotly https://plot.ly/python/getting-started/

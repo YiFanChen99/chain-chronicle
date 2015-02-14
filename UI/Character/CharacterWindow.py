@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from BasicWindow import *
+from UI.Utility.BasicWindow import *
 from ModelUtility.DataObject import Character, calculate_grown
 from ModelUtility.CommonString import *
 

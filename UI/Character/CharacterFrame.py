@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from BaseFrame import *
+from UI.Utility.BasicMainFrame import *
+from UI.Utility.Combobox import FilteredCombobox
+from UI.Utility.Selector import ProfessionSelector, RankSelector
 from ModelUtility.Filter import FilterRuleManager
 from ModelUtility.Comparator import *
 from ModelUtility.DataObject import Character
-from UIUtility.Combobox import FilteredCombobox
-from UIUtility.Selector import ProfessionSelector, RankSelector
 from Model import CharacterModel
 
 

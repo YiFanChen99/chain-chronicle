@@ -3,9 +3,11 @@ __author__ = 'Ricky Chen'
 ''' 根據 CCGameDBTW 進行處理 '''
 
 import os
+
 from configparser3 import configparser
-from MainFrameNew.BaseFrame import *
+from UI.Utility.BasicMainFrame import *
 from Model.CCGameDBTWModel import *
+
 
 README_PATH = 'data\CCGameDBTW_Readme.txt'
 

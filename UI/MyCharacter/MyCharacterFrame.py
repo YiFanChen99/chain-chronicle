@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from BaseFrame import *
-from ModelUtility.DBAccessor import *
+from UI.Utility.BasicMainFrame import *
+from ModelUtility.DataObject import CharacterPower
 
 # from Window.CharacterWindow import CharacterWindow TODO
 # from ModelUtility.Filter import FilterRuleManager

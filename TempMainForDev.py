@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
-from Tkinter import *
-from MainFrameNew.MyCharacterFrame import *
-from MainFrameNew.FriendFrame import FriendRecordFrame
-from MainFrameNew.BaseFrame import TableModelAdvance, TableView
-from ModelUtility.CommonState import *
-from ModelUtility.Filter import FilterRuleManager
-
+from UI.MenuFrame import *
 
 
 class Main(Frame):
@@ -14,14 +8,24 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        print get_account()
-        print get_db_suffix()
-        set_account('Yama')
-        print get_account()
-        print get_db_suffix()
-        set_account('Yama1')
-        print get_account()
-        print get_db_suffix()
+        self.sub_menu_frame = None
+        self.main_frame = None
+        s = MenuFrame(self)
+        s.place(x=0, y=1)
+
+    def change_sub_menu_frame(self, frame):
+        if self.sub_menu_frame is not None:
+            self.sub_menu_frame.destroy()
+
+        self.sub_menu_frame = frame
+        self.sub_menu_frame.place(x=0, y=34)
+
+    def change_main_frame(self, frame):
+        if self.main_frame is not None:
+            self.main_frame.destroy()
+
+        self.main_frame = frame
+        self.main_frame.place(x=0, y=68)
 
     def the_print(self):
         print 1, 2, 5
@@ -37,7 +41,7 @@ class Main(Frame):
 
 if __name__ == "__main__":
     root = Tk()
-    init_size = str(800) + 'x' + str(500)
+    init_size = str(760) + 'x' + str(460)
     root.geometry(init_size + '+800+350')
     app = Main(root)
     app.mainloop()

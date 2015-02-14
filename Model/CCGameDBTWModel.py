@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import json
-from Window.CharacterWindow import *
+
+from UI.Character.CharacterWindow import *
 from ModelUtility.DataObject import Character, CGDTCharacter
 from ModelUtility.DBAccessor import *
 from Model import CharacterModel
+
 
 CGDT_DEFAULT_PATH = 'data/CCGameDBTW.txt'
 

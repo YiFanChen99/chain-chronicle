@@ -6,9 +6,6 @@ from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
 from ModelUtility.CommonString import *
 
-MIN_WIDTH = 760
-MIN_HEIGHT = 460
-
 
 class MainFrame(Frame):
     def __init__(self, master, width=MIN_WIDTH, height=MIN_HEIGHT, **kwargs):

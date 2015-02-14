@@ -23,10 +23,10 @@ class ProfessionSelector(BaseSelector):
         BaseSelector.__init__(self, master, callback, width=width, height=height, **kwargs)
 
         self.radio_group = RadioGroupController(self.notify, zero_selectionable=True)
-        self.__init_images()
-        self.__init_widgets()
+        self._init_images()
+        self._init_widgets()
 
-    def __init_widgets(self):
+    def _init_widgets(self):
         y_position = (self.height - 31) / 2
         distance = 37
 
@@ -52,7 +52,7 @@ class ProfessionSelector(BaseSelector):
         self.radio_group.group_button(button)
 
     # 必須宣告 self 由 instance 存起來，否則會無法顯示
-    def __init_images(self):
+    def _init_images(self):
         self.image_profession_warrior = ImageTk.PhotoImage(file=IMAGE_FOLDER + 'profession_1_30x.png')
         self.image_profession_knight = ImageTk.PhotoImage(file=IMAGE_FOLDER + 'profession_2_30x.png')
         self.image_profession_archer = ImageTk.PhotoImage(file=IMAGE_FOLDER + 'profession_3_30x.png')
@@ -82,10 +82,10 @@ class RankSelector(BaseSelector):
         BaseSelector.__init__(self, master, callback, width=width, height=height, **kwargs)
 
         self.radio_group = RadioGroupController(self.notify, zero_selectionable=True)
-        self.__init_images()
-        self.__init_widgets()
+        self._init_images()
+        self._init_widgets()
 
-    def __init_widgets(self):
+    def _init_widgets(self):
         y_position = (self.height - 33) / 2
         distance = 37
 
@@ -111,7 +111,7 @@ class RankSelector(BaseSelector):
         self.radio_group.group_button(button)
 
     # 必須宣告 self 由 instance 存起來，否則會無法顯示
-    def __init_images(self):
+    def _init_images(self):
         self.image_rank_star = ImageTk.PhotoImage(file=IMAGE_FOLDER + 'rank_star_32x.png')
         self.image_rank_5 = ImageTk.PhotoImage(file=IMAGE_FOLDER + 'rank_5_32x.png')
         self.image_rank_4 = ImageTk.PhotoImage(file=IMAGE_FOLDER + 'rank_4_32x.png')

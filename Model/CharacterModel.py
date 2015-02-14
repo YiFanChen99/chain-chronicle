@@ -2,7 +2,7 @@
 import tkMessageBox
 from ModelUtility.DBAccessor import *
 from ModelUtility.DataObject import Character
-from Window.CharacterWindow import CharacterWindow
+from UI.Character.CharacterWindow import CharacterWindow
 
 
 def select_character_by_specific_column(column_name, key):

@@ -322,10 +322,9 @@ class CharacterPower(object):
 
         self._update_damages()
 
-    # TODO
     def _update_damages(self):
-        self.dps = self.atk * 0.1 * self.atk_raised
-        self.dpm = 50
+        self.dps = self.atk * 0.1 * self.atk_raised / self.hit_rate * (1 + self.critical_ratio * (self.critical_factor - 1))
+        self.dpm = self.atk * 0.1 * self.atk_raised * self.active_factor / self.active_cost
 
     def get_table_view_full_info(self):
         return [self.c_id, self.nickname.encode('utf-8'), self.level, self.atk, self.atk_raised, self.hit_rate,
