@@ -15,8 +15,6 @@ class CharacterSelectorCanvas(Canvas):
         Canvas.__init__(self, master, width=width, height=height, bg=self.BG, **kwargs)
         self.pack(fill=BOTH, expand=0)
 
-        self.character_selected = character_selected
-
         Label(self, text='Character', width=10, font=(SCP, 12), bg=self.BG).place(x=10, y=2)
         self.selected_nickname = StringVar()
         entry = Entry(self, textvariable=self.selected_nickname, width=11, font=(MS_JH, 13),
@@ -26,9 +24,12 @@ class CharacterSelectorCanvas(Canvas):
         entry.bind('<ButtonRelease-1>', lambda x: (CharacterSelectionWindow(self, self.set, self.character_selected),
                                                    self.focus_set()))
 
+        self.set(character_selected)
+
     def get(self):
         return self.character_selected
 
+    # noinspection PyAttributeOutsideInit
     def set(self, character):
         self.character_selected = character
         if character is not None:

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from UI.MenuFrame import *
+from Model.CharacterPowerModel import *
 
 
 class Main(Frame):
@@ -8,24 +9,7 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        self.sub_menu_frame = None
-        self.main_frame = None
-        s = MenuFrame(self)
-        s.place(x=0, y=1)
-
-    def change_sub_menu_frame(self, frame):
-        if self.sub_menu_frame is not None:
-            self.sub_menu_frame.destroy()
-
-        self.sub_menu_frame = frame
-        self.sub_menu_frame.place(x=0, y=34)
-
-    def change_main_frame(self, frame):
-        if self.main_frame is not None:
-            self.main_frame.destroy()
-
-        self.main_frame = frame
-        self.main_frame.place(x=0, y=68)
+        open_adding_new_character_power_window(self, self.the_print)
 
     def the_print(self):
         print 1, 2, 5

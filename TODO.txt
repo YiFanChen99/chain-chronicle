@@ -1,6 +1,4 @@
 
-DPS 計算 與一珠傷害計算之表。
-
 RecordOfDraw 改成用 date object ，包含 window 與 Frame 不使用 DBAccessor，以及改為以 CharID 為記錄方式
 	抽卡記錄與酒廠的DB改成以ID與 EventName連結。並在 EventCombobox 加上 enter 可以跳出其說明與號稱機率。（新增編輯酒廠功能）
 	改為例如雙擊可加舊記錄，不再需打勾

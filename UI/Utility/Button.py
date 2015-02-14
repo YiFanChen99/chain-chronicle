@@ -9,10 +9,9 @@ class ToggleButton(Button):
         self.default_unselected_color = '#%02x%02x%02x' % (240, 240, 240)
         self.is_selected = False
         self.set_is_selected(selected)
-        Button.bind(self, '<Button-1>', self.toggling)
+        Button.bind(self, '<Button-1>', lambda event: self.toggling())
 
-    # noinspection PyUnusedLocal
-    def toggling(self, event):
+    def toggling(self):
         self.is_selected = not self.is_selected
         self._update_color()
 

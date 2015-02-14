@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from UI.Utility.BasicWindow import *
 from UI.Utility.CharacterSelector import CharacterSelectorCanvas
-from ModelUtility.CommonString import *
+from ModelUtility.DataObject import *
 from Model import CharacterModel
 
 

@@ -49,6 +49,10 @@ class Character(object):
         else:
             raise TypeError('Input object types {0}, not CGDTCharacter.'.format(type(obj)))
 
+    @staticmethod
+    def create_empty_character():
+        return Character([''] * len(Character.DB_TABLE))
+
     @property
     def max_atk_after_break(self):
         return self.max_atk + self.atk_grown * 4
@@ -298,17 +302,17 @@ class FriendRecord(object):
 
 class CharacterPower(object):
     DB_TABLE = ['Account', 'CharacterID', 'Level', 'Atk', 'AtkRaisedRatio', 'HitRate', 'CriticalRatio',
-                'CriticalFactor', 'ActiveFactor', 'ActiveCost', 'Addition', 'Note']
+                'CriticalFactor', 'ActiveFactor', 'ActiveCost', 'Addition']
+    SELECTED_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 Account 外的所有欄位
+    UPDATED_COLUMNS = ['CharacterID', 'Level', 'Atk', 'AtkRaisedRatio', 'HitRate', 'CriticalRatio',
+                       'CriticalFactor', 'ActiveFactor', 'ActiveCost', 'Addition']
     TABLE_VIEW_FULL_COLUMNS = ['ID', 'Character', 'Lv', 'Atk', 'AtkRaised', 'HitRate', 'Cri.Ratio', 'Cri.Factor',
-                               'DPS', 'Act.Factor', 'Act.Cost', 'DPM', 'Addition', 'Note']
+                               'DPS', 'Act.Factor', 'Act.Cost', 'DPM', 'Addition']
     TABLE_VIEW_SIMPLE_COLUMNS = ['ID', 'Character', 'Lv', 'Atk', 'AtkRaised', 'DPS',
-                                 'Act.Factor', 'DPM', 'Addition', 'Note']
+                                 'Act.Factor', 'DPM', 'Addition']
 
-    def __init__(self, record):
+    def __init__(self, record, character):
         properties = iter(record)
-
-        self.c_id = next(properties)
-        self.nickname = next(properties)
         self.level = next(properties)
         self.atk = next(properties)
         self.atk_raised = next(properties)
@@ -318,19 +322,45 @@ class CharacterPower(object):
         self.active_factor = next(properties)
         self.active_cost = next(properties)
         self.addition = next(properties)
-        self.note = next(properties)
+        self.character = character
 
         self._update_damages()
 
+    @staticmethod
+    def create_empty_character_power():
+        return CharacterPower([''] * (len(CharacterPower.SELECTED_COLUMNS) - 1), None)
+
     def _update_damages(self):
-        self.dps = self.atk * 0.1 * self.atk_raised / self.hit_rate * (1 + self.critical_ratio * (self.critical_factor - 1))
-        self.dpm = self.atk * 0.1 * self.atk_raised * self.active_factor / self.active_cost
+        try:
+            self.dps = '%.1f' % (self.atk * 0.1 * self.atk_raised / self.hit_rate * (
+                1 + self.critical_ratio * (self.critical_factor - 1)))
+        except StandardError:
+            self.dps = 'Unknown'
+
+        try:
+            self.dpm = '%.1f' % (self.atk * 0.1 * self.atk_raised * self.active_factor / self.active_cost)
+        except StandardError:
+            self.dpm = 'Unknown'
+
+    @property
+    def c_id(self):
+        return self.character.c_id
+
+    @property
+    def nickname(self):
+        return self.character.nickname
+
+    def get_updated_info(self):
+        if self.character is None:
+            raise ValueError('Character is empty!')
+        return [self.c_id, self.level, self.atk, self.atk_raised, self.hit_rate, self.critical_ratio,
+                self.critical_factor, self.active_factor, self.active_cost, self.addition.encode('utf-8')]
 
     def get_table_view_full_info(self):
         return [self.c_id, self.nickname.encode('utf-8'), self.level, self.atk, self.atk_raised, self.hit_rate,
                 self.critical_ratio, self.critical_factor, self.dps, self.active_factor, self.active_cost,
-                self.dpm, self.addition.encode('utf-8'), self.note.encode('utf-8')]
+                self.dpm, self.addition.encode('utf-8')]
 
     def get_table_view_simple_info(self):
         return [self.c_id, self.nickname.encode('utf-8'), self.level, self.atk, self.atk_raised, self.dps,
-                self.active_factor, self.dpm, self.addition.encode('utf-8'), self.note.encode('utf-8')]
+                self.active_factor, self.dpm, self.addition.encode('utf-8')]
