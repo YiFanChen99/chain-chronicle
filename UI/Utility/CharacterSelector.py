@@ -92,7 +92,7 @@ class CharacterSelectionWindow(BasicWindow):
         # 新增角色的按鈕
         button = Button(self, text="新增角色", width=9, borderwidth=3)
         button.place(x=225, y=y_position)
-        button["command"] = lambda: CharacterModel.open_adding_new_character_window(
+        button["command"] = lambda: CharacterModel.open_adding_new_jp_character_window(
             self, lambda: (self.update_records(), self.updating_character_selector()))
 
         # 取消並結束的按鈕

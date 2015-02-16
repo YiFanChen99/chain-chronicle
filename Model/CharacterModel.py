@@ -22,12 +22,20 @@ def select_character_info_for_character_selector():
     return DBAccessor.execute('select Nickname, FullName, Profession, Rank, Belonged from Character').fetchall()
 
 
-# CharacterWindow 確認新增要求後，才新增至 DB 並通知 caller
-def open_adding_new_character_window(master, callback):
-    empty_character = Character.create_empty_character()
+# 確認新增要求後，才新增至 DB 並通知 caller
+def open_adding_new_jp_character_window(master, callback):
+    new_character = Character.create_empty_character()
     min_id = DBAccessor.execute('select min(ID) from Character').fetchone()[0]
-    empty_character.c_id = 900 if min_id > 999 else min_id - 1
-    CharacterWindow(master, empty_character, lambda: (insert_character_into_db(empty_character), callback()))
+    new_character.c_id = 900 if min_id > 999 else min_id - 1
+    CharacterWindow(master, new_character, lambda: (insert_character_into_db(new_character), callback(new_character)))
+
+
+# 確認新增要求後，才新增至 DB 並通知 caller
+def open_adding_new_cn_character_window(master, callback):
+    new_character = Character.create_empty_character()
+    max_id = DBAccessor.execute('select max(ID) from Character').fetchone()[0]
+    new_character.c_id = max_id + 1
+    CharacterWindow(master, new_character, lambda: (insert_character_into_db(new_character), callback(new_character)))
 
 
 # CharacterWindow 確認更新要求後，才更新至 DB 並通知 caller

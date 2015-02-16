@@ -34,12 +34,17 @@ class CharacterFrame(MainFrameWithTable):
 
     def _init_left_frame(self):
         self.character_count = IntVar()
-        Label(self, textvariable=self.character_count, width=3, font=(SCP, 9, 'bold')).place(x=4, y=7)
+        Label(self, textvariable=self.character_count, width=3, font=(SCP, 9, 'bold')).place(x=5, y=10)
 
-        # 新增記錄的按鈕
-        button = Button(self, text="新增角色資訊", width=2, height=16, wraplength=1, font=(MS_JH, 12))
-        button.place(x=4, y=30)
-        button["command"] = lambda: CharacterModel.open_adding_new_character_window(self, lambda: self.update_all())
+        # 新增記錄的按鈕，分別是日、國服
+        button = Button(self, text="新增日服角色", width=2, height=9, wraplength=1, font=(MS_JH, 12))
+        button.place(x=4, y=50)
+        button["command"] = lambda: CharacterModel.open_adding_new_jp_character_window(
+            self, lambda character: self.callback_after_adding_character(character))
+        button = Button(self, text="國服角色", width=2, height=5, wraplength=1, font=(MS_JH, 11))
+        button.place(x=5, y=260)
+        button["command"] = lambda: CharacterModel.open_adding_new_cn_character_window(
+            self, lambda character: self.callback_after_adding_character(character))
 
     def _init_upper_frame(self):
         filter_frame = Frame(self, width=self['width'], height=40)
@@ -90,6 +95,10 @@ class CharacterFrame(MainFrameWithTable):
 
         self.redisplay_table()
         self.table_view.hide_column('ID')
+
+    def callback_after_adding_character(self, character):
+        self.characters.append(character)
+        self.update_table()
 
     def updating_profession(self, request):
         self.filter_manager.set_specific_condition('profession', request)
