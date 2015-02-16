@@ -3,6 +3,7 @@ _ACCOUNTS = ['Fuji', 'Yama']
 _CORRESPONDING_SERVERS = ['JP', 'CN']
 _account = _ACCOUNTS[0]
 _db_suffix = _CORRESPONDING_SERVERS[0]
+_account_page_index = 0
 
 
 def set_account(account):
@@ -23,3 +24,13 @@ def get_account():
 def get_db_suffix():
     global _db_suffix
     return _db_suffix
+
+
+def get_account_page_index():
+    global _account_page_index
+    return _account_page_index
+
+
+def set_account_page_index(index):
+    global _account_page_index
+    _account_page_index = index
