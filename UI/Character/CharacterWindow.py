@@ -3,6 +3,9 @@ from UI.Utility.BasicWindow import *
 from ModelUtility.DataObject import Character, calculate_grown
 from ModelUtility.CommonString import *
 
+WEAPONS = [u'斬', u'打', u'突', u'弓', u'魔', u'聖', u'拳', u'銃', u'狙']
+EXP_GROWN = [u'1250', u'1000', u'900', u'750', u'500', u'300', u'LH', u'鍊金SSR', u'鍊金SR']
+
 
 class CharacterWindow(BasicWindow):
     def __init__(self, master, character, callback, width=558, height=287, **kwargs):
@@ -39,7 +42,7 @@ class CharacterWindow(BasicWindow):
         current_x += 70
         Label(self, width=4, text='等級').place(x=current_x, y=current_y)
         self.rank = ttk.Combobox(self, state='readonly', width=3, justify=CENTER)
-        self.rank['values'] = RANKS
+        self.rank['values'] = [5, 4, 3, 2, 1]
         self.rank.place(x=current_x, y=current_y + label_space - 2)
 
         current_x += 54

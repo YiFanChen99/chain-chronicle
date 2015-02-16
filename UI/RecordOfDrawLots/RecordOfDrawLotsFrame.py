@@ -68,7 +68,7 @@ class RecordOfDrawLotsFrame(MainFrameWithTable):
         basic_x += 91
         Label(self, text='R:', font=(MS_JH, 12)).place(x=basic_x, y=3)
         self.rank_filter = IntFilteredCombobox(self, width=4, justify=CENTER)
-        self.rank_filter['values'] = RANKS_WHEN_DRAW_LOTS
+        self.rank_filter['values'] = [5, 4, 3]
         self.rank_filter.place(x=basic_x + 20, y=3)
         self.rank_filter.bind('<<ComboboxSelected>>',
                               lambda x: (self.filter_manager.set_specific_condition(3, self.rank_filter.get()),

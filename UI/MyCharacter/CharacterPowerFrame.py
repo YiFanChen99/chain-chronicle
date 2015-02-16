@@ -74,6 +74,7 @@ class CharacterPowerFrame(MainFrameWithTable):
 
     def get_corresponding_character_power_in_row(self, row_number):
         selected_id = self.table_model.getCellRecord(row_number, 0)
+        selected_level = self.table_model.getCellRecord(row_number, 2)
         for character in self.characters:
-            if character.c_id == selected_id:
+            if character.c_id == selected_id and character.level == selected_level:
                 return character
