@@ -408,23 +408,9 @@ class CharacterPower(object):
         self.addition = next(properties)
         self.character = character
 
-        self._update_damages()
-
     @staticmethod
     def create_empty_character_power():
         return CharacterPower([''] * (len(CharacterPower.SELECTED_COLUMNS) - 1), None)
-
-    def _update_damages(self):
-        try:
-            self.dps = '%.1f' % (self.atk * 0.1 * self.atk_raised / self.hit_rate * (
-                1 + self.critical_ratio * (self.critical_factor - 1)))
-        except StandardError:
-            self.dps = 'Unknown'
-
-        try:
-            self.dpm = '%.1f' % (self.atk * 0.1 * self.atk_raised * self.active_factor / self.active_cost)
-        except StandardError:
-            self.dpm = 'Unknown'
 
     @property
     def c_id(self):
@@ -433,6 +419,21 @@ class CharacterPower(object):
     @property
     def nickname(self):
         return self.character.nickname
+
+    @property
+    def dps(self):
+        try:
+            return '%.1f' % (self.atk * 0.1 * self.atk_raised / self.hit_rate * (
+                1 + self.critical_ratio * (self.critical_factor - 1)))
+        except StandardError as e:
+            return 'Unknown'
+
+    @property
+    def dpm(self):
+        try:
+            return '%.1f' % (self.atk * 0.1 * self.atk_raised * self.active_factor / self.active_cost)
+        except StandardError:
+            return 'Unknown'
 
     def get_updated_info(self):
         if self.character is None:

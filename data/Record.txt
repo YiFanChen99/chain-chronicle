@@ -3,7 +3,7 @@ total = 167
 dropped = 192
 
 [CN JiYo Monthly]
-total = 66
-fertilizer = 147
+total = 67
+fertilizer = 149
 character = 2
 

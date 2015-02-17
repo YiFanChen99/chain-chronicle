@@ -17,6 +17,7 @@ class FriendInfoFrame(MainFrameWithTable):
         self.table_view.setModel(self.table_model)
         self.filter_manager = FilterRuleManager()
         self.filter_manager.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)
+        self.filter_manager.set_comparison_rule('defect')
         self.filter_manager.set_comparison_rule('relation')
         self.filter_manager.set_comparison_rule('used_characters')
 
@@ -147,9 +148,9 @@ class FriendRecordFrame(MainFrameWithTable):
         self.table_model = TableModelAdvance()
         self.table_model.set_columns(FriendRecord.TABLE_VIEW_COLUMNS, main_column='Names')
         self.table_view.setModel(self.table_model)
-        self.filer_manager = FilterRuleManager()
-        self.filer_manager.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)
-        self.filer_manager.set_comparison_rule('current_character')
+        self.filter_manager = FilterRuleManager()
+        self.filter_manager.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)
+        self.filter_manager.set_comparison_rule('current_character')
         # 滑鼠中鍵事件註冊，設定為更新好友資訊，並選取該列
         self.table_view.bind("<Button-2>", lambda event: (
             self.opening_info_update_window(event), self.table_view.handle_left_click(event)))
@@ -211,10 +212,10 @@ class FriendRecordFrame(MainFrameWithTable):
 
     def update_table(self):
         # 根據名稱要求篩選，同時篩選符合設定的已登記/未登記紀錄
-        self.filer_manager.set_specific_condition(
+        self.filter_manager.set_specific_condition(
             'status', RECORDED if self.is_show_recorded_friends.get() else UNRECORDED)
         self.table_model.set_rows([record.get_table_view_info() for record in
-                                   self.filer_manager.filter(self.friend_records, self.queried_name.get())])
+                                   self.filter_manager.filter(self.friend_records, self.queried_name.get())])
 
         self.table_model.setSortOrder(columnName='LastProfession')
 

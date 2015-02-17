@@ -76,7 +76,9 @@ class PowerConverter(Frame):
         current_y += 36
         Label(self, width=8, text='Max AP', font=FONT).place(x=left_x, y=current_y)
         self.max_ap = StringVar(value='')
-        Entry(self, width=6, textvariable=self.max_ap, font=FONT).place(x=middle_x, y=current_y)
+        max_ap_entry = Entry(self, width=6, textvariable=self.max_ap, font=FONT)
+        max_ap_entry.place(x=middle_x, y=current_y)
+        max_ap_entry.bind('<Return>', self.calculating_for_max_ap)
 
         current_y += 36
         Label(self, width=8, text='Adjustment', font=FONT).place(x=left_x, y=current_y)
