@@ -23,8 +23,12 @@ class DBColumnsTest(unittest.TestCase):
         self._assert_db_table_completed('Character', Character.DB_TABLE)
 
     # RecordOfDrawLots.DB_TABLE 是否涵蓋所有 RecordOfDrawLots 表內的欄位
-    def test_draw_lots_db_table_completed(self):
-        self._assert_db_table_completed('RecordOfDrawLotsJP', RecordOfDrawLots.DB_TABLE)
+    def test_record_of_draw_lots_db_table_completed(self):
+        self._assert_db_table_completed('RecordOfDrawLots', RecordOfDrawLots.DB_TABLE_NEW)
+
+    # EventOfDrawLots.DB_TABLE 是否涵蓋所有 EventOfDrawLots 表內的欄位
+    def test_event_of_draw_lots_db_table_completed(self):
+        self._assert_db_table_completed('EventOfDrawLots', EventOfDrawLots.DB_TABLE)
 
     # FriendInfo.DB_TABLE 是否涵蓋所有 FriendInfo 表內的欄位
     def test_friend_info_db_table_completed(self):

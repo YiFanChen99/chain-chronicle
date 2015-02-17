@@ -2,7 +2,7 @@
 _ACCOUNTS = ['Fuji', 'Yama']
 _CORRESPONDING_SERVERS = ['JP', 'CN']
 _account = _ACCOUNTS[0]
-_db_suffix = _CORRESPONDING_SERVERS[0]
+_server = _CORRESPONDING_SERVERS[0]
 _account_page_index = 0
 
 
@@ -11,9 +11,9 @@ def set_account(account):
         raise ValueError('Wrong account name!')
 
     global _account
-    global _db_suffix
+    global _server
     _account = account
-    _db_suffix = _CORRESPONDING_SERVERS[_ACCOUNTS.index(account)]
+    _server = _CORRESPONDING_SERVERS[_ACCOUNTS.index(account)]
 
 
 def get_account():
@@ -21,9 +21,9 @@ def get_account():
     return _account
 
 
-def get_db_suffix():
-    global _db_suffix
-    return _db_suffix
+def get_server():
+    global _server
+    return _server
 
 
 def get_account_page_index():

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import date
 from CommonString import *
+from ModelUtility.Utility import convert_str_to_date
 
 
 class Character(object):
@@ -169,6 +170,89 @@ def calculate_grown(origin_max, max_after_broken):
 
 class RecordOfDrawLots(object):
     DB_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
+    DB_TABLE_NEW = ['Account', 'Times', 'EventID', 'CharacterID', 'Cost']
+    SELECTED_COLUMNS = UPDATED_COLUMNS = DB_TABLE_NEW[1:len(DB_TABLE_NEW)]  # 除了 Account 外的所有欄位
+    TABLE_VIEW_COLUMNS = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
+
+    def __init__(self, record, event, character):
+        properties = iter(record)
+        self.times = next(properties)
+        self.cost = next(properties)
+        self.event = event
+        self.character = character
+
+    @staticmethod
+    def create_new_record_by_last_one(last_record):
+        if isinstance(last_record, RecordOfDrawLots):
+            return RecordOfDrawLots([last_record.times + 1, last_record.cost], last_record.event, None)
+        else:
+            raise TypeError('Input object types {0}, not RecordOfDrawLots.'.format(type(last_record)))
+
+    @property
+    def event_id(self):
+        return self.event.e_id
+
+    @property
+    def rank(self):
+        return self.character.rank
+
+    @property
+    def visual_character_rank(self):
+        if self.rank == 5:
+            return '★★★★★'
+        elif self.rank == 4:
+            return '★★★★'
+        elif self.rank == 3:
+            return '★★★'
+        else:
+            raise ValueError('Character rank is not 3/4/5.')
+
+    def get_updated_info(self):
+        if self.event is None:
+            raise ValueError('Event is empty!')
+        if self.character is None:
+            raise ValueError('Character is empty!')
+        return [self.times, self.event.e_id, self.character.c_id, self.cost.encode('utf-8')]
+
+    def get_table_view_info(self):
+        return [self.times, self.event.name.encode('utf-8'), self.character.profession.encode('utf-8'),
+                self.visual_character_rank, self.character.nickname.encode('utf-8'), self.cost.encode('utf-8')]
+
+    def take_statistic(self, statistic):
+        statistic[0] += 1
+        if self.rank == 5:
+            statistic[1] += 1
+        elif self.rank == 4:
+            statistic[2] += 1
+        elif self.rank == 3:
+            statistic[3] += 1
+
+    def __getitem__(*args, **kwargs):
+        return getattr(*args, **kwargs)
+
+
+#TODO
+class EventOfDrawLots(object):
+    DB_TABLE = ['Server', 'ID', 'Name', 'StartedDay', 'EndDay', 'Type', 'Description', 'SSRRate', 'SRRate', 'RRate']
+    SELECTED_COLUMNS = UPDATED_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 Server 外的所有欄位
+
+    def __init__(self, record):
+        properties = iter(record)
+        self.e_id = next(properties)
+        self.name = next(properties)
+        self.started_day = next(properties)
+        self.end_day = next(properties)
+        self.type = next(properties)
+        self.description = next(properties)
+        self.ssr_rate = next(properties)
+        self.sr_rate = next(properties)
+        self.r_rate = next(properties)
+
+    def is_suitable_duration(self, time):
+        return convert_str_to_date(self.end_day) > time
+
+    def __str__(self):
+        return self.name
 
 
 class FriendInfo(object):

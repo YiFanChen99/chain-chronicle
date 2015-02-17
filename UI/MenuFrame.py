@@ -7,7 +7,7 @@ from UI.Character.CharacterFrame import CharacterFrame
 from UI.Record.RecordFrame import RecordFrame
 from UI.Friend.FriendFrame import FriendInfoFrame
 from UI.MyCharacter.MyCharacterFrame import MyCharacterFrame
-from UI.RecordOfDrawLots.RecordOfDrawLotsFrame import RecordOfDrawLotsFrame
+from UI.DrawLots.DrawLotsFrame import DrawLotsFrame
 from FrequentPage import *
 
 FILE_NAME = 'data\OtherInfo.txt'
@@ -42,7 +42,7 @@ class MenuFrame(BasicMenuFrame):
         self.buttons.append(Button(self, text='Yama Account', width=14, font=(SCP, 11)))
 
         for index, button in enumerate(self.buttons):
-            button.place(x=115 + 165 * index, y=-1)
+            button.place(x=114 + 168 * index, y=-1)
             self.radio_group.group_button(button)
 
         # 預設選擇第一個
@@ -126,7 +126,7 @@ class AccountGroupFrame(BasicMenuFrame):
         if frame_index == 0:
             new_main_frame = FriendInfoFrame(self.master)
         elif frame_index == 1:
-            new_main_frame = RecordOfDrawLotsFrame(self.master)
+            new_main_frame = DrawLotsFrame(self.master)
         elif frame_index == 2:
             new_main_frame = MyCharacterFrame(self.master)
         elif frame_index == 3:

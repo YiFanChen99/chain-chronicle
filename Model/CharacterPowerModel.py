@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+import tkMessageBox
 from ModelUtility.CommonState import *
 from ModelUtility.DataObject import CharacterPower
 from UI.MyCharacter.CharacterPowerWindow import CharacterPowerWindow
-from CharacterModel import *
+from ModelUtility.DBAccessor import *
+from CharacterModel import select_character_by_specific_column
 
 
 def select_character_power_list():
@@ -26,15 +28,14 @@ def _insert_character_power_into_db(cp):
 
 # 確認更新要求後，才更新至 DB 並通知 caller
 def open_updating_character_power_window(master, character_power, callback):
-    condition = 'where {0} and CharacterID={1} and Level={2}'.format(
-        _get_condition(), character_power.c_id, character_power.level)
     CharacterPowerWindow(master, character_power, lambda: (
-        _update_character_power_into_db(character_power, condition), callback()))
+        _update_character_power_into_db(character_power), callback()))
 
 
-def _update_character_power_into_db(character_power, condition):
-    DBAccessor.execute('update CharacterPower{0} {1}'.format(
-        convert_data_to_update_command(CharacterPower.UPDATED_COLUMNS, character_power.get_updated_info()), condition))
+def _update_character_power_into_db(character_power):
+    DBAccessor.execute('update CharacterPower{0} where {1} and CharacterID={2} and Level={3}'.format(
+        convert_data_to_update_command(CharacterPower.UPDATED_COLUMNS, character_power.get_updated_info()),
+        _get_condition(), character_power.c_id, character_power.level))
     DBAccessor.commit()
 
 

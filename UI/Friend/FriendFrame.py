@@ -145,7 +145,7 @@ class FriendRecordFrame(MainFrameWithTable):
         self.set_table_place(34, 29)
         self.table_view.cellwidth = 85
         self.table_model = TableModelAdvance()
-        self.table_model.set_columns(FriendRecord.TABLE_VIEW_COLUMNS, main_column='UsedNames')
+        self.table_model.set_columns(FriendRecord.TABLE_VIEW_COLUMNS, main_column='Names')
         self.table_view.setModel(self.table_model)
         self.filer_manager = FilterRuleManager()
         self.filer_manager.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)

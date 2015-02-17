@@ -1,12 +1,7 @@
 
 RecordOfDraw
-	改成用 date object
-	抽卡記錄與角色改為以 CharID 為記錄方式
-	抽卡記錄與酒廠的DB改成以ID與 EventName連結。
-	改為例如雙擊可加舊記錄，不再需打勾
 	「新增酒廠」的功能，連帶能編輯/檢視酒廠資訊（說明、機率）。
 		事件可能加在 EventCombobox 上（enter）
-	Window 與 Frame 不使用 DBAccessor，改透過 Model 處理。
 
 FrequentPage 搬移。移除 MainFrame.py
 
