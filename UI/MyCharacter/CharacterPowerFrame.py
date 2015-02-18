@@ -22,10 +22,10 @@ class CharacterPowerFrame(MainFrameWithTable):
         self.state_str = StringVar(value='ToFull')
         self.state = ToggleButton(self, textvariable=self.state_str, width=8, font=(SCP, 10), relief=RIDGE)
         self.state.bind('<Button-1>', lambda event: (self.state.toggling(), self._updating_status()))
-        self.state.place(x=MIN_WIDTH - 120, y=1)
+        self.state.place(x=640, y=1)
 
         button = Button(self, text='新增', width=8, font=(MS_JH, 10))
-        button.place(x=MIN_WIDTH - 210, y=1)
+        button.place(x=550, y=1)
         button["command"] = lambda: open_adding_new_character_power_window(
             self, lambda cp: self.callback_after_adding_character_power(cp))
 

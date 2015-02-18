@@ -10,7 +10,6 @@ class FriendInfoWindow(BasicWindow):
     def __init__(self, master, friend_info, callback, width=347, height=285, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Friend Info')
-        self.geometry('+750+260')
 
         self._init_widget()
         self._init_info(friend_info)
@@ -106,7 +105,6 @@ class FriendRecordWindow(BasicWindow):
     def __init__(self, master, record, callback, width=309, height=198, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Friend Record')
-        self.geometry('+760+230')
 
         self._init_widget()
         self._init_record(record)

@@ -2,7 +2,7 @@
 from Tkinter import *
 from PIL import ImageTk
 from ModelUtility.GroupController import RadioGroupController
-from ModelUtility.CommonString import *
+from ModelUtility.CommonValue import *
 
 
 class BaseSelector(Canvas):

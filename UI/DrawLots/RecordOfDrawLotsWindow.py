@@ -2,7 +2,7 @@
 from UI.Utility.BasicWindow import *
 from UI.Utility.CharacterSelector import CharacterSelectorCanvas
 from UI.Utility.Combobox import ObjectCombobox
-from ModelUtility.CommonString import *
+from ModelUtility.CommonValue import *
 from ModelUtility.DataObject import RecordOfDrawLots
 from Model import DrawLotsModel
 
@@ -10,7 +10,6 @@ from Model import DrawLotsModel
 class RecordWindow(BasicWindow):
     def __init__(self, master, record, events, callback, width=445, height=131, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
-        self.geometry('+880+300')
 
         self.callback = callback
         self._init_widgets(events)

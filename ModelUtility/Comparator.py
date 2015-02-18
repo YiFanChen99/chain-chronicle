@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from CommonString import *
+from CommonValue import *
 from Utility import is_any_japanese_character_contain
 
 def match_request(source, request):

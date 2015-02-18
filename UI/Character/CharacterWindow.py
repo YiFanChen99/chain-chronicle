@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from UI.Utility.BasicWindow import *
 from ModelUtility.DataObject import Character, calculate_grown
-from ModelUtility.CommonString import *
+from ModelUtility.CommonValue import *
 from Model import CharacterModel
 
 WEAPONS = [u'斬', u'打', u'突', u'弓', u'魔', u'聖', u'拳', u'銃', u'狙']
@@ -11,7 +11,6 @@ EXP_GROWN = [u'1250', u'1000', u'900', u'750', u'500', u'300', u'LH', u'鍊金SS
 class CharacterWindow(BasicWindow):
     def __init__(self, master, character, callback, width=558, height=287, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
-        self.geometry('+840+300')
 
         self._init_widget()
         self._init_character(character)

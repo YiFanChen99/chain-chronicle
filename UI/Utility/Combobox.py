@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from ttk import Combobox
-from ModelUtility.CommonString import CONDITIONLESS
+from ModelUtility.CommonValue import CONDITIONLESS
 
 
 class ComboboxWithEmptyOptions(Combobox):

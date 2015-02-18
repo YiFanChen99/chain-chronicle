@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from UI.Utility.BasicWindow import *
 from UI.Utility.CharacterSelector import CharacterSelectorCanvas
-from ModelUtility.CommonString import *
+from ModelUtility.CommonValue import *
 from ModelUtility.DataObject import CharacterPower
 from Model import CharacterPowerModel
 
@@ -10,7 +10,6 @@ class CharacterPowerWindow(BasicWindow):
     def __init__(self, master, character_power, callback, width=558, height=226, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('CharacterPower')
-        self.geometry('+840+300')
         self.character_power = character_power
         self.callback = callback
         self._init_widget()

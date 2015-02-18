@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 # Conditions
-MIN_WIDTH = 760
-MIN_HEIGHT = 500
 CONDITIONLESS = '**'
 RECORDED = ''
 UNRECORDED = '未登記'
@@ -12,6 +10,8 @@ BELONGEDS = [u'副都', u'聖都', u'賢塔', u'山脈', u'湖都', u'精靈島'
 DRAW_LOTS_COST = [u'石抽', u'券抽', u'九連抽', u'未記錄']
 
 # UI
+MIN_WIDTH = 760
+MIN_HEIGHT = 500
 MS_JH = 'Microsoft JhengHei'  # 微軟正黑體
 SCP = 'Source Code Pro'  # Monokai 所用字型
 

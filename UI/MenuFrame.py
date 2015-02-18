@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-from ModelUtility.CommonString import *
+from ModelUtility.CommonValue import *
 from ModelUtility.CommonState import *
 from ModelUtility.GroupController import *
 from UI.Character.CharacterFrame import CharacterFrame

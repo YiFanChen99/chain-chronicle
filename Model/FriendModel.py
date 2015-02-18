@@ -2,7 +2,7 @@
 from datetime import timedelta, date
 from ModelUtility.CommonState import *
 from ModelUtility.DBAccessor import *
-from ModelUtility.CommonString import *
+from ModelUtility.CommonValue import *
 from ModelUtility.Utility import convert_str_to_date
 from ModelUtility.DataObject import FriendInfo, FriendRecord
 

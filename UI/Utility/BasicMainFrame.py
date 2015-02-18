@@ -4,7 +4,7 @@ import ttk
 import tkMessageBox
 from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
-from ModelUtility.CommonString import *
+from ModelUtility.CommonValue import *
 
 
 class MainFrame(Frame):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import date
-from CommonString import *
+from CommonValue import *
 from ModelUtility.Utility import convert_str_to_date
 
 
