@@ -2,6 +2,7 @@
 from UI.Utility.BasicWindow import *
 from ModelUtility.DataObject import Character, calculate_grown
 from ModelUtility.CommonString import *
+from Model import CharacterModel
 
 WEAPONS = [u'斬', u'打', u'突', u'弓', u'魔', u'聖', u'拳', u'銃', u'狙']
 EXP_GROWN = [u'1250', u'1000', u'900', u'750', u'500', u'300', u'LH', u'鍊金SSR', u'鍊金SR']
@@ -246,3 +247,24 @@ class CharacterWindow(BasicWindow):
 
         self.callback()
         self.destroy()
+
+
+# 確認新增要求後，才新增至 DB 並通知 caller
+def open_adding_new_jp_character_window(master, callback):
+    new_character = CharacterModel.create_new_jp_character()
+    CharacterWindow(master, new_character, lambda: (
+        CharacterModel.insert_character_into_db(new_character), callback(new_character)))
+
+
+# 確認新增要求後，才新增至 DB 並通知 caller
+def open_adding_new_cn_character_window(master, callback):
+    new_character = CharacterModel.create_new_cn_character()
+    popup = CharacterWindow(master, new_character, lambda: (
+        CharacterModel.insert_character_into_db(new_character), callback(new_character)))
+    master.wait_window(popup)
+
+
+# 確認更新要求後，才更新至 DB 並通知 caller
+def open_updating_character_window(master, character, callback):
+    popup = CharacterWindow(master, character, lambda: (CharacterModel.update_character_into_db(character), callback()))
+    master.wait_window(popup)

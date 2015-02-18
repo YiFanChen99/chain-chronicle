@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from UI.Utility.BasicMainFrame import *
 from UI.Utility.Button import ToggleButton
+from UI.Character.CharacterWindow import open_updating_character_window
+from UI.MyCharacter.CharacterPowerWindow import *
 from ModelUtility.DataObject import CharacterPower
 from Model import CharacterPowerModel
-from Model import CharacterModel
 
 
 class CharacterPowerFrame(MainFrameWithTable):
@@ -25,7 +26,7 @@ class CharacterPowerFrame(MainFrameWithTable):
 
         button = Button(self, text='新增', width=8, font=(MS_JH, 10))
         button.place(x=MIN_WIDTH - 210, y=1)
-        button["command"] = lambda: CharacterPowerModel.open_adding_new_character_power_window(
+        button["command"] = lambda: open_adding_new_character_power_window(
             self, lambda cp: self.callback_after_adding_character_power(cp))
 
     def _updating_status(self):
@@ -59,18 +60,18 @@ class CharacterPowerFrame(MainFrameWithTable):
     # 編輯角色傷害
     def do_double_clicking(self, event):
         character_power = self.get_corresponding_character_power_in_row(self.table_view.get_row_clicked(event))
-        CharacterPowerModel.open_updating_character_power_window(self, character_power, self.update_table)
+        open_updating_character_power_window(self, character_power, self.update_table)
 
     def do_dragging_along_right(self, row_number):
         character = self.get_corresponding_character_power_in_row(row_number)
-        CharacterPowerModel.delete_character_power_with_conforming(self, character, lambda: (
+        delete_character_power_with_conforming(self, character, lambda: (
             self.characters.remove(character), self.update_table()))  # 直接從 list 中拿掉，不用重撈
 
     # 更改角色資訊
     def opening_character_update_window(self, event):
-        character = self.get_corresponding_character_power_in_row(self.table_view.get_row_clicked(event)).character
-        CharacterModel.open_updating_character_window(self, character, lambda: None)
         self.table_view.handle_left_click(event)
+        character = self.get_corresponding_character_power_in_row(self.table_view.get_row_clicked(event)).character
+        open_updating_character_window(self, character, lambda: None)
 
     def get_corresponding_character_power_in_row(self, row_number):
         selected_id = self.table_model.getCellRecord(row_number, 0)
@@ -78,3 +79,11 @@ class CharacterPowerFrame(MainFrameWithTable):
         for character in self.characters:
             if character.c_id == selected_id and character.level == selected_level:
                 return character
+
+
+# 確認刪除後，才從 DB 刪除並通知 caller
+def delete_character_power_with_conforming(master, character_power, callback):
+    if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete character 「{0}」？'.format(
+            character_power.nickname.encode('utf-8')), parent=master):
+        CharacterPowerModel.delete_character_power_from_db(character_power)
+        callback()

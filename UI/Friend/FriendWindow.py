@@ -2,10 +2,11 @@
 from UI.Utility.BasicWindow import *
 from UI.Utility.CharacterSelector import CharacterSelectorCanvas
 from ModelUtility.DataObject import *
+from Model import FriendModel
 from Model import CharacterModel
 
 
-class FriendInfoUpdaterWindow(BasicWindow):
+class FriendInfoWindow(BasicWindow):
     def __init__(self, master, friend_info, callback, width=347, height=285, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Friend Info')
@@ -94,7 +95,14 @@ class FriendInfoUpdaterWindow(BasicWindow):
         self.callback()
 
 
-class FriendRecordUpdaterWindow(BasicWindow):
+# 確認更新要求後，才更新至 DB 並通知 caller
+def open_updating_friend_info_window(master, friend_info, callback):
+    popup = FriendInfoWindow(master, friend_info, lambda: (
+        FriendModel.update_friend_info_into_db(friend_info), callback()))
+    master.wait_window(popup)
+
+
+class FriendRecordWindow(BasicWindow):
     def __init__(self, master, record, callback, width=309, height=198, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Friend Record')
@@ -139,7 +147,7 @@ class FriendRecordUpdaterWindow(BasicWindow):
             self.character_level_var.set(record.current_character_level)
             self.rank_var.set(record.current_rank)
         else:
-            raise TypeError('In FriendRecordUpdaterWindow, arg: \"record\"')
+            raise TypeError('In FriendRecordWindow, arg: \"record\"')
 
     def submitting(self):
         # 確認 rank 沒有異常

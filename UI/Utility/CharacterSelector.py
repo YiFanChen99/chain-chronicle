@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from UI.Utility.BasicWindow import *
+from UI.Character.CharacterWindow import *
 from UI.Utility.Selector import ProfessionSelector, RankSelector
 from UI.Utility.Combobox import FilteredCombobox
 from ModelUtility.Comparator import *
@@ -92,7 +92,7 @@ class CharacterSelectionWindow(BasicWindow):
         # 新增角色的按鈕
         button = Button(self, text="新增角色", width=9, borderwidth=3)
         button.place(x=225, y=y_position)
-        button["command"] = lambda: CharacterModel.open_adding_new_jp_character_window(
+        button["command"] = lambda: open_adding_new_jp_character_window(
             self, lambda: (self.update_records(), self.updating_character_selector()))
 
         # 取消並結束的按鈕
@@ -130,8 +130,7 @@ class CharacterSelectionWindow(BasicWindow):
         self.character_selector.focus_set()
 
     # 清除原本的選擇，並更新可選擇的角色
-    # noinspection PyUnusedLocal
-    def updating_character_selector(self, event=None):
+    def updating_character_selector(self):
         self.character_selector.set('')
         character_matched = []
         for character_infos in self.filter_manager.filter(self.records, self.name_request.get()):

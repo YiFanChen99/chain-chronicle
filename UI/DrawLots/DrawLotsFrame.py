@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from UI.Utility.BasicMainFrame import *
 from UI.Utility.Combobox import FilteredCombobox, IntFilteredCombobox, FilteredObjectCombobox
+from UI.DrawLots.RecordOfDrawLotsWindow import *
 from ModelUtility.DataObject import RecordOfDrawLots, EventOfDrawLots
 from ModelUtility.Filter import FilterRuleManager
 from Model import DrawLotsModel
@@ -33,7 +34,7 @@ class DrawLotsFrame(MainFrameWithTable):
         # 新增記錄的按鈕
         button = Button(self, text="新增記錄", width=2, height=11, wraplength=1, font=(MS_JH, 12))
         button.place(x=5, y=134)
-        button.bind('<Button-1>', lambda event: self.adding_record())
+        button['command'] = self.adding_record
         button.bind('<Button-3>', lambda event: self.adding_record(limitation=False))
 
     def _init_filter_frame(self):
@@ -144,24 +145,27 @@ class DrawLotsFrame(MainFrameWithTable):
         self.update_table()
 
     def adding_record(self, limitation=True):
-        DrawLotsModel.open_adding_new_record_window(
-            self, self.events, limitation, self.callback_after_adding_record)
-
-    def callback_after_adding_record(self, record):
-        self.records.append(record)
-        self.update_table()
+        open_adding_new_record_window(self, DrawLotsModel.get_suitable_events(self.events, limitation), lambda record: (
+            self.records.append(record), self.update_table()))
 
     def do_double_clicking(self, event):
         record = self.get_record_by_times(self.table_model.getCellRecord(self.table_view.get_row_clicked(event), 0))
-        DrawLotsModel.open_updating_record_window(
-            self, record, self.events, callback=self.update_table)
+        open_updating_record_window(self, record, self.events, callback=self.update_table)
 
     def do_dragging_along_right(self, row_number):
         record = self.get_record_by_times(self.table_model.getCellRecord(row_number, 0))
-        DrawLotsModel.delete_record_with_conforming(
+        delete_record_with_conforming(
             self, record, lambda: (self.records.remove(record), self.update_table()))  # 直接從 list 中拿掉，不用重撈)
 
     def get_record_by_times(self, times):
         for each_record in self.records:
             if each_record.times == times:
                 return each_record
+
+
+# 確認刪除後，才從 DB 刪除並通知 caller
+def delete_record_with_conforming(master, record, callback):
+    if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete record times 「{0}」？'.format(
+            record.times), parent=master):
+        DrawLotsModel.delete_record_from_db(record)
+        callback()

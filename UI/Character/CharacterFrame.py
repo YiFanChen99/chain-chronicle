@@ -2,6 +2,7 @@
 from UI.Utility.BasicMainFrame import *
 from UI.Utility.Combobox import FilteredCombobox
 from UI.Utility.Selector import ProfessionSelector, RankSelector
+from UI.Character.CharacterWindow import *
 from ModelUtility.Filter import FilterRuleManager
 from ModelUtility.Comparator import *
 from ModelUtility.DataObject import Character
@@ -39,11 +40,11 @@ class CharacterFrame(MainFrameWithTable):
         # 新增記錄的按鈕，分別是日、國服
         button = Button(self, text="新增日服角色", width=2, height=9, wraplength=1, font=(MS_JH, 12))
         button.place(x=4, y=50)
-        button["command"] = lambda: CharacterModel.open_adding_new_jp_character_window(
+        button["command"] = lambda: open_adding_new_jp_character_window(
             self, lambda character: self.callback_after_adding_character(character))
         button = Button(self, text="國服角色", width=2, height=5, wraplength=1, font=(MS_JH, 11))
         button.place(x=5, y=260)
-        button["command"] = lambda: CharacterModel.open_adding_new_cn_character_window(
+        button["command"] = lambda: open_adding_new_cn_character_window(
             self, lambda character: self.callback_after_adding_character(character))
 
     def _init_upper_frame(self):
@@ -122,12 +123,12 @@ class CharacterFrame(MainFrameWithTable):
 
     def do_double_clicking(self, event):
         character = self.get_corresponding_character_in_row(self.table_view.get_row_clicked(event))
-        CharacterModel.open_updating_character_window(self, character, lambda: self.update_table())
+        open_updating_character_window(self, character, lambda: self.update_table())
 
     # 主要供方便刪除測試或誤加的角色用，未檢查其他 table 中使用到的該角色
     def do_dragging_along_right(self, row_number):
         character = self.get_corresponding_character_in_row(row_number)
-        CharacterModel.delete_character_with_conforming(self, character, lambda: (
+        delete_character_with_conforming(self, character, lambda: (
             self.characters.remove(character), self.update_table()))  # 直接從 list 中拿掉，不用重撈
 
     def get_corresponding_character_in_row(self, row_number):
@@ -135,3 +136,11 @@ class CharacterFrame(MainFrameWithTable):
         for character in self.characters:
             if character.c_id == selected_id:
                 return character
+
+
+# 確認刪除後，才從 DB 刪除並通知 caller
+def delete_character_with_conforming(master, character, callback):
+    if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete character 「{0}」？'.format(
+            character.nickname.encode('utf-8')), parent=master):
+        CharacterModel.delete_character_from_db(character)
+        callback()

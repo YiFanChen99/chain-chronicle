@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from UI.Utility.BasicMainFrame import *
-from UI.Friend.FriendWindow import FriendInfoUpdaterWindow, FriendRecordUpdaterWindow
+from UI.Friend.FriendWindow import *
 from ModelUtility.Filter import FilterRuleManager
 from ModelUtility.DataObject import *
 from ModelUtility.Utility import bind_check_box_and_label
@@ -105,8 +105,7 @@ class FriendInfoFrame(MainFrameWithTable):
             tkMessageBox.showwarning("Can not add any friend", '已達好友上限', parent=self)
             return
 
-        FriendInfoUpdaterWindow(self, friend_info, callback=lambda: (
-            self.update_friend_info_into_db(friend_info), self.update_all()))
+        open_updating_friend_info_window(self, friend_info, self.update_all)
 
     # 更改好友資訊，或顯示其歷史角色訊息
     def do_double_clicking(self, event):
@@ -115,17 +114,12 @@ class FriendInfoFrame(MainFrameWithTable):
         if self.table_view.get_col_clicked(event) == 6:
             tkMessageBox.showinfo("Characters", friend_info.used_characters, parent=self)
         else:
-            FriendInfoUpdaterWindow(self, friend_info, callback=lambda: (
-                self.update_friend_info_into_db(friend_info), self.update_table()))
-
-    @staticmethod
-    def update_friend_info_into_db(friend_info):
-        FriendModel.update_friend_info_into_db(friend_info, commit_followed=True)
+            open_updating_friend_info_window(self, friend_info, self.update_table)
 
     def do_dragging_along_right(self, row_number):
         friend_info = self.get_corresponding_friend_info_in_row(row_number)
-        FriendModel.delete_friend_with_conforming(self, friend_info,
-                                                  lambda: (self.callback_after_deleting_friend(friend_info)))
+        delete_friend_with_conforming(self, friend_info,
+                                      lambda: (self.callback_after_deleting_friend(friend_info)))
 
     def callback_after_deleting_friend(self, friend_info):
         self.friend_infos.remove(friend_info)  # 直接從 list 中拿掉，不用重撈
@@ -256,7 +250,7 @@ class FriendRecordFrame(MainFrameWithTable):
         the_friend_id = int(self.table_model.getCellRecord(self.table_view.get_row_clicked(event), 0))
         for record in self.friend_records:
             if record.f_id == the_friend_id:
-                FriendRecordUpdaterWindow(self, record, self.update_table)
+                FriendRecordWindow(self, record, self.update_table)
                 break
         self.queried_name.set('')  # 此時大部分篩選都是為了找此人來編輯刪除，故編輯後清空條件
 
@@ -264,5 +258,12 @@ class FriendRecordFrame(MainFrameWithTable):
     def opening_info_update_window(self, event):
         friend_info = FriendModel.select_specific_friend_info(
             int(self.table_model.getCellRecord(self.table_view.get_row_clicked(event), 0)))
-        FriendInfoUpdaterWindow(self, friend_info,
-                                callback=lambda: FriendInfoFrame.update_friend_info_into_db(friend_info))
+        open_updating_friend_info_window(self, friend_info, lambda: None)
+
+
+# 確認刪除後，才從 DB 刪除並通知 caller
+def delete_friend_with_conforming(master, friend_info, callback):
+    if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete friend 「{0}」？'.format(
+            friend_info.used_names.encode('utf-8')), parent=master):
+        FriendModel.delete_friend_from_db(friend_info)
+        callback()

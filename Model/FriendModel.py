@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import tkMessageBox
 from datetime import timedelta, date
 from ModelUtility.CommonState import *
 from ModelUtility.DBAccessor import *
@@ -28,7 +27,7 @@ def select_unused_friend_info():
         ','.join(FriendInfo.SELECTED_COLUMNS), get_server())).fetchone())
 
 
-def update_friend_info_into_db(friend_info, commit_followed):
+def update_friend_info_into_db(friend_info, commit_followed=True):
     DBAccessor.execute('update FriendInfo{0}{1} where ID={2}'.format(get_server(), convert_data_to_update_command(
         FriendInfo.UPDATED_COLUMNS, friend_info.get_updated_info()), friend_info.f_id))
     DBAccessor.commit_if_requested(commit_followed)
@@ -47,15 +46,7 @@ def insert_friend_record_into_db(record, the_date, commit_followed):
     DBAccessor.commit_if_requested(commit_followed)
 
 
-# 確認刪除後，才從 DB 刪除並通知 caller
-def delete_friend_with_conforming(master, friend_info, callback):
-    if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete friend 「{0}」？'.format(
-            friend_info.used_names.encode('utf-8')), parent=master):
-        _delete_friend_from_db(friend_info)
-        callback()
-
-
-def _delete_friend_from_db(friend_info):
+def delete_friend_from_db(friend_info):
     # 將 FriendInfo table 中該 ID 的其他欄位全數清空
     columns = FriendInfo.CLEANED_UP_COLUMNS
     DBAccessor.execute('update FriendInfo{0}{1} where ID={2}'.format(

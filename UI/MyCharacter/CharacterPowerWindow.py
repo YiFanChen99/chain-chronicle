@@ -2,6 +2,8 @@
 from UI.Utility.BasicWindow import *
 from UI.Utility.CharacterSelector import CharacterSelectorCanvas
 from ModelUtility.CommonString import *
+from ModelUtility.DataObject import CharacterPower
+from Model import CharacterPowerModel
 
 
 class CharacterPowerWindow(BasicWindow):
@@ -124,3 +126,18 @@ class CharacterPowerWindow(BasicWindow):
         self.hit_rate.set(character.atk_speed)
         self.critical_ratio.set(character.critical_rate)
         self.active_cost.set(character.active_cost)
+
+
+# 確認新增要求後，才新增至 DB 並通知 caller
+def open_adding_new_character_power_window(master, callback):
+    cp = CharacterPower.create_empty_character_power()
+    popup = CharacterPowerWindow(master, cp, lambda: (
+        CharacterPowerModel.insert_character_power_into_db(cp), callback(cp)))
+    master.wait_window(popup)
+
+
+# 確認更新要求後，才更新至 DB 並通知 caller
+def open_updating_character_power_window(master, character_power, callback):
+    popup = CharacterPowerWindow(master, character_power, lambda: (
+        CharacterPowerModel.update_character_power_into_db(character_power), callback()))
+    master.wait_window(popup)

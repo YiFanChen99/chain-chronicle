@@ -1,6 +1,6 @@
 [JP Advanced Daily]
-total = 167
-dropped = 192
+total = 169
+dropped = 193
 
 [CN JiYo Monthly]
 total = 67

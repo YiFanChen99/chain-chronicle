@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-import tkMessageBox
 from datetime import timedelta, date
 from ModelUtility.CommonState import *
 from ModelUtility.DBAccessor import *
 from ModelUtility.DataObject import RecordOfDrawLots, EventOfDrawLots
-from UI.DrawLots.RecordOfDrawLotsWindow import AddingRecordWindow, UpdatingRecordWindow
 from CharacterModel import select_character_by_specific_column
 
 
@@ -14,7 +12,7 @@ def select_record_list():
                 ','.join(RecordOfDrawLots.SELECTED_COLUMNS), _get_account_condition())).fetchall()]
 
 
-def _select_last_record():
+def select_last_record():
     return _convert_selected_columns_to_record(DBAccessor.execute(
         'select {0} from RecordOfDrawLots where {1} and Times=(select max(Times) from RecordOfDrawLots where {1})'.
         format(','.join(RecordOfDrawLots.SELECTED_COLUMNS), _get_account_condition())).fetchone())
@@ -25,40 +23,24 @@ def _convert_selected_columns_to_record(columns):
                             select_character_by_specific_column('ID', columns[2]))
 
 
-# 確認新增要求後，才新增至 DB 並通知 caller
-def open_adding_new_record_window(master, events, limitation, callback):
-    next_record = RecordOfDrawLots.create_new_record_by_last_one(_select_last_record())
-    AddingRecordWindow(master, next_record, get_suitable_events(events, limitation), lambda added_record: (
-        _insert_record_into_db(added_record), callback(added_record)))
-
-
-def _insert_record_into_db(record):
+def insert_record_into_db(record):
     DBAccessor.execute('insert into RecordOfDrawLots({0}){1}'.format(
         ','.join(['Account'] + RecordOfDrawLots.UPDATED_COLUMNS),
         convert_data_to_insert_command(get_account(), *record.get_updated_info())))
     DBAccessor.commit()
 
 
-# 確認更新要求後，才更新至 DB 並通知 caller
-def open_updating_record_window(master, record, events, callback):
-    UpdatingRecordWindow(master, record, events, lambda: (_update_record_into_db(record), callback()))
-
-
-def _update_record_into_db(record):
+def update_record_into_db(record):
     DBAccessor.execute('update RecordOfDrawLots{0} where {1} and Times={2}'.format(
         convert_data_to_update_command(
             RecordOfDrawLots.UPDATED_COLUMNS, record.get_updated_info()), _get_account_condition(), record.times))
     DBAccessor.commit()
 
 
-# 確認刪除後，才從 DB 刪除並通知 caller
-def delete_record_with_conforming(master, record, callback):
-    if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete record times 「{0}」？'.format(
-            record.times), parent=master):
-        DBAccessor.execute('delete from RecordOfDrawLots where {0} and Times={1}'.format(
-            _get_account_condition(), record.times))
-        DBAccessor.commit()
-        callback()
+def delete_record_from_db(record):
+    DBAccessor.execute('delete from RecordOfDrawLots where {0} and Times={1}'.format(
+        _get_account_condition(), record.times))
+    DBAccessor.commit()
 
 
 def select_event_list():

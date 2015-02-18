@@ -4,6 +4,7 @@ from UI.Utility.CharacterSelector import CharacterSelectorCanvas
 from UI.Utility.Combobox import ObjectCombobox
 from ModelUtility.CommonString import *
 from ModelUtility.DataObject import RecordOfDrawLots
+from Model import DrawLotsModel
 
 
 class RecordWindow(BasicWindow):
@@ -96,3 +97,18 @@ class UpdatingRecordWindow(RecordWindow):
     def _post_submitting(self):
         self.callback()
         self.destroy()
+
+
+# 確認新增要求後，才新增至 DB 並通知 caller
+def open_adding_new_record_window(master, events, callback):
+    next_record = RecordOfDrawLots.create_new_record_by_last_one(DrawLotsModel.select_last_record())
+    popup = AddingRecordWindow(master, next_record, events, lambda added_record: (
+        DrawLotsModel.insert_record_into_db(added_record), callback(added_record)))
+    master.wait_window(popup)
+
+
+# 確認更新要求後，才更新至 DB 並通知 caller
+def open_updating_record_window(master, record, events, callback):
+    popup = UpdatingRecordWindow(master, record, events, lambda: (
+        DrawLotsModel.update_record_into_db(record), callback()))
+    master.wait_window(popup)

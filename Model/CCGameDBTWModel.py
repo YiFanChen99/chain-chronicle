@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-
 from UI.Character.CharacterWindow import *
 from ModelUtility.DataObject import Character, CGDTCharacter
 from ModelUtility.DBAccessor import *
