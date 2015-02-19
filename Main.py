@@ -5,9 +5,11 @@ from UI.MenuFrame import *
 class Main(Frame):
     MAIN_FRAME_POS_Y = 68
 
-    def __init__(self, master=None, width=MIN_WIDTH, height=MIN_HEIGHT, **kwargs):
+    def __init__(self, master, width=MIN_WIDTH, height=MIN_HEIGHT, **kwargs):
         Frame.__init__(self, master, width=width, height=height, **kwargs)
         master.title("ChainChronicle")
+        master.geometry('+%d+%d' % (  # Location
+            root.winfo_screenwidth() - MIN_WIDTH - 21, root.winfo_screenheight() - MIN_HEIGHT - 80))
         self.pack(fill=BOTH, expand=1)
 
         self._current_width = MIN_WIDTH
@@ -53,8 +55,5 @@ class Main(Frame):
 
 if __name__ == "__main__":
     root = Tk()
-    root.geometry('%dx%d' % (MIN_WIDTH, MIN_HEIGHT))  # Size
-    root.geometry('+%d+%d' % (  # Location
-        root.winfo_screenwidth() - MIN_WIDTH - 21, root.winfo_screenheight() - MIN_HEIGHT - 80))
     app = Main(master=root)
     app.mainloop()

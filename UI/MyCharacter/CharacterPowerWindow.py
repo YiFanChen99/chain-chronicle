@@ -137,6 +137,8 @@ def open_adding_new_character_power_window(master, callback):
 
 # 確認更新要求後，才更新至 DB 並通知 caller
 def open_updating_character_power_window(master, character_power, callback):
+    original_c_id = character_power.c_id
+    original_level = character_power.level
     popup = CharacterPowerWindow(master, character_power, lambda: (
-        CharacterPowerModel.update_character_power_into_db(character_power), callback()))
+        CharacterPowerModel.update_character_power_into_db(character_power, original_c_id, original_level), callback()))
     master.wait_window(popup)

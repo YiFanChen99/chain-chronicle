@@ -19,15 +19,22 @@ class CharacterPowerFrame(MainFrameWithTable):
         self._updating_status()
 
     def _init_upper_frame(self):
-        self.state_str = StringVar(value='ToFull')
-        self.state = ToggleButton(self, textvariable=self.state_str, width=8, font=(SCP, 10), relief=RIDGE)
-        self.state.bind('<Button-1>', lambda event: (self.state.toggling(), self._updating_status()))
-        self.state.place(x=640, y=1)
+        Label(self, text='Order:', width=5, font=(MS_JH, 11)).place(x=401, y=2)
+        self.order_selector = ttk.Combobox(self, width=8, font=(MS_JH, 9), justify=CENTER, state='readonly')
+        self.order_selector['values'] = ['DPS', 'Character']
+        self.order_selector.set('DPS')
+        self.order_selector.place(x=452, y=4)
+        self.order_selector.bind('<<ComboboxSelected>>', lambda event: self.update_table())
 
         button = Button(self, text='新增', width=8, font=(MS_JH, 10))
         button.place(x=550, y=1)
         button["command"] = lambda: open_adding_new_character_power_window(
             self, lambda cp: self.callback_after_adding_character_power(cp))
+
+        self.state_str = StringVar(value='ToFull')
+        self.state = ToggleButton(self, textvariable=self.state_str, width=8, font=(SCP, 10), relief=RIDGE)
+        self.state.bind('<Button-1>', lambda event: (self.state.toggling(), self._updating_status()))
+        self.state.place(x=640, y=1)
 
     def _updating_status(self):
         if self.state.is_selected:
@@ -49,7 +56,12 @@ class CharacterPowerFrame(MainFrameWithTable):
 
     def update_table(self):
         self.table_model.set_rows(self.get_infos_by_state())
-        self.table_model.setSortOrder(columnName='DPS', reverse=1)
+        # 先根據目前的選擇設定排序方法
+        if self.order_selector.get() == 'DPS':
+            self.table_model.setSortOrder(columnName='DPS', reverse=1)
+        else:
+            self.table_model.setSortOrder(columnName='Lv', reverse=1)
+            self.table_model.setSortOrder(columnName='Character')
         self.redisplay_table()
         self.table_view.hide_column('ID')
 

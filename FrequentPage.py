@@ -23,14 +23,14 @@ RECORD_TABLE = ['Total', 'Item1', 'Item2', 'Item3', 'Item4']
 
 class Frequent(MainFrame):
     def __init__(self, master, **kwargs):
-        MainFrame.__init__(self, master, width=MIN_WIDTH, height=MIN_HEIGHT, **kwargs)
+        MainFrame.__init__(self, master, width=OLD_MIN_WIDTH, height=OLD_MIN_HEIGHT, **kwargs)
 
         parser_of_power_converter = configparser.ConfigParser()
         parser_of_power_converter.read(AP_FILE_NAME, "utf8")
-        PowerConverter(self, 'Fuji Account', parser_of_power_converter, width=280, height=MIN_HEIGHT).place(x=5, y=0)
-        PowerConverter(self, 'Yama Account', parser_of_power_converter, width=280, height=MIN_HEIGHT).place(x=289, y=0)
+        PowerConverter(self, 'Fuji Account', parser_of_power_converter, width=280, height=OLD_MIN_HEIGHT).place(x=5, y=0)
+        PowerConverter(self, 'Yama Account', parser_of_power_converter, width=280, height=OLD_MIN_HEIGHT).place(x=289, y=0)
 
-        DailyDroppedRecorder(self, width=180, height=MIN_HEIGHT).place(x=576, y=0)
+        DailyDroppedRecorder(self, width=180, height=OLD_MIN_HEIGHT).place(x=576, y=0)
 
 
 class PowerConverter(Frame):

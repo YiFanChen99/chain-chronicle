@@ -38,12 +38,12 @@ class CharacterFrame(MainFrameWithTable):
         Label(self, textvariable=self.character_count, width=3, font=(SCP, 9, 'bold')).place(x=5, y=10)
 
         # 新增記錄的按鈕，分別是日、國服
-        button = Button(self, text="新增日服角色", width=2, height=9, wraplength=1, font=(MS_JH, 12))
+        button = Button(self, text="新增日服角色", width=2, height=10, wraplength=1, font=(MS_JH, 12))
         button.place(x=4, y=50)
         button["command"] = lambda: open_adding_new_jp_character_window(
             self, lambda character: self.callback_after_adding_character(character))
-        button = Button(self, text="國服角色", width=2, height=5, wraplength=1, font=(MS_JH, 11))
-        button.place(x=5, y=260)
+        button = Button(self, text="國服角色", width=2, height=6, wraplength=1, font=(MS_JH, 11))
+        button.place(x=5, y=280)
         button["command"] = lambda: open_adding_new_cn_character_window(
             self, lambda character: self.callback_after_adding_character(character))
 

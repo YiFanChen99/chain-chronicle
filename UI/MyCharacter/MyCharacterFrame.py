@@ -17,8 +17,9 @@ class MyCharacterFrame(MainFrame):
         self.page_selector_frame = Frame(self, width=154, height=30)
         self.page_selector_frame.place(x=0, y=0)
 
-        # 所屬篩選
-        self.page_selector = ttk.Combobox(self.page_selector_frame, width=14, font=(MS_JH, 10), justify=CENTER)
+        # 換頁選單
+        self.page_selector = ttk.Combobox(
+            self.page_selector_frame, width=14, font=(MS_JH, 10), state='readonly', justify=CENTER)
         self.page_selector['values'] = self.PAGES
         self.page_selector.set(self.PAGES[0])
         self.page_selector.place(x=16, y=4)

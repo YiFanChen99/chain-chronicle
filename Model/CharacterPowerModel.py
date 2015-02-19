@@ -18,10 +18,10 @@ def insert_character_power_into_db(cp):
     DBAccessor.commit()
 
 
-def update_character_power_into_db(character_power):
+def update_character_power_into_db(character_power, original_c_id, original_level):
     DBAccessor.execute('update CharacterPower{0} where {1} and CharacterID={2} and Level={3}'.format(
         convert_data_to_update_command(CharacterPower.UPDATED_COLUMNS, character_power.get_updated_info()),
-        _get_condition(), character_power.c_id, character_power.level))
+        _get_condition(), original_c_id, original_level))
     DBAccessor.commit()
 
 

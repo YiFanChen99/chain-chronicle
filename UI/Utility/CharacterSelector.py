@@ -42,7 +42,6 @@ class CharacterSelectionWindow(BasicWindow):
     def __init__(self, master, callback, character_selected, width=422, height=155, **kwargs):
         BasicWindow.__init__(self, master, width=width, height=height, **kwargs)
         self.title('Character selection')
-        self.geometry('+780+270')
 
         self.records = None
         self.update_records()
@@ -93,7 +92,7 @@ class CharacterSelectionWindow(BasicWindow):
         button = Button(self, text="新增角色", width=9, borderwidth=3)
         button.place(x=225, y=y_position)
         button["command"] = lambda: open_adding_new_jp_character_window(
-            self, lambda: (self.update_records(), self.updating_character_selector()))
+            self, lambda new_character: (self.update_records(), self.updating_character_selector()))
 
         # 取消並結束的按鈕
         button = Button(self, text="放棄選擇", width=9, borderwidth=3)

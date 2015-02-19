@@ -59,7 +59,8 @@ class MainFrameWithTable(MainFrame):
 
 class TableView(TableCanvas):
     def __init__(self, master, **kwargs):
-        TableCanvas.__init__(self, master, editable=False, rowheaderwidth=0, cellwidth=60, **kwargs)
+        TableCanvas.__init__(self, master, editable=False, rowheaderwidth=0, cellwidth=60, cellbackgr='#CCCC99',
+                             **kwargs)
         # 取消其預設的事件
         self.unbind_all("<Delete>")
         self.unbind_all('<Return>')

@@ -83,7 +83,7 @@ class StaticGroupFrame(BasicMenuFrame):
         self.buttons.append(Button(self, text='RecordFrame', width=15, font=(SCP, 10)))
 
         for index, button in enumerate(self.buttons):
-            button.place(x=8 + 145 * index, y=1)
+            button.place(x=15 + 145 * index, y=1)
             self.radio_group.group_button(button)
 
         # 預設選擇第一個
@@ -115,7 +115,7 @@ class AccountGroupFrame(BasicMenuFrame):
         self.buttons.append(Button(self, text='Resource', width=16, font=(SCP, 10)))
 
         for index, button in enumerate(self.buttons):
-            button.place(x=8 + 152 * index, y=1)
+            button.place(x=15 + 152 * index, y=1)
             self.radio_group.group_button(button)
 
         # 預設選擇之前的分頁

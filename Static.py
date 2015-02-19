@@ -2,8 +2,8 @@
 import sqlite3
 from datetime import datetime
 
-MIN_WIDTH = 760
-MIN_HEIGHT = 460
+OLD_MIN_WIDTH = 760
+OLD_MIN_HEIGHT = 460
 
 PROFESSIONS = [u'戰士', u'騎士', u'弓手', u'法師', u'僧侶']
 RANKS = [5, 4, 3, 2, 1]

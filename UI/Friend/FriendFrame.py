@@ -23,7 +23,7 @@ class FriendInfoFrame(MainFrameWithTable):
 
         # Left frame: 切換到記錄好友現況的按鈕
         button = Button(self, text="記錄好友現況", width=2, height=17, wraplength=1, font=(MS_JH, 12))
-        button.place(x=4, y=23)
+        button.place(x=4, y=44)
         button["command"] = self.switching_to_friend_record
 
         self._init_upper_frame()
@@ -156,11 +156,11 @@ class FriendRecordFrame(MainFrameWithTable):
 
     def _init_left_frame(self):
         button = Button(self, text="送出並返回", width=2, height=8, wraplength=1, font=(MS_JH, 12), borderwidth=2)
-        button.place(x=4, y=23)
+        button.place(x=4, y=44)
         button["command"] = self.submitting
 
         button = Button(self, text="取消並返回", width=2, height=8, wraplength=1, font=(MS_JH, 12), borderwidth=2)
-        button.place(x=4, y=203)
+        button.place(x=4, y=224)
         button["command"] = self.switching_to_friend_info
 
     def _init_upper_frame(self):
