@@ -54,6 +54,22 @@ def select_specific_event(e_id):
         ','.join(EventOfDrawLots.SELECTED_COLUMNS), e_id, _get_server_condition())).fetchone())
 
 
+def insert_event_into_db(event):
+    event.e_id = DBAccessor.execute('select max(ID) from EventOfDrawLots where {0}'.format(
+        _get_server_condition())).fetchone()[0] + 1
+    DBAccessor.execute('insert into EventOfDrawLots({0}){1}'.format(
+        ','.join(['Server'] + EventOfDrawLots.UPDATED_COLUMNS),
+        convert_data_to_insert_command(get_server(), *event.get_updated_info())))
+    DBAccessor.commit()
+
+
+def update_event_into_db(event):
+    DBAccessor.execute('update EventOfDrawLots{0} where {1} and ID={2}'.format(
+        convert_data_to_update_command(
+            EventOfDrawLots.UPDATED_COLUMNS, event.get_updated_info()), _get_server_condition(), event.e_id))
+    DBAccessor.commit()
+
+
 # 若有要求只顯示恰當的酒廠，則會計算結束日期滿足條件才會加入
 def get_suitable_events(events, limitation):
     event_duration_tolerance = 2

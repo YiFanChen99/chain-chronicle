@@ -231,7 +231,6 @@ class RecordOfDrawLots(object):
         return getattr(*args, **kwargs)
 
 
-#TODO
 class EventOfDrawLots(object):
     DB_TABLE = ['Server', 'ID', 'Name', 'StartedDay', 'EndDay', 'Type', 'Description', 'SSRRate', 'SRRate', 'RRate']
     SELECTED_COLUMNS = UPDATED_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 Server 外的所有欄位
@@ -248,8 +247,20 @@ class EventOfDrawLots(object):
         self.sr_rate = next(properties)
         self.r_rate = next(properties)
 
+    @staticmethod
+    def create_empty_event():
+        return EventOfDrawLots([1, '', '', '', '', '', 7.0, 20.0, 73.0])
+
     def is_suitable_duration(self, time):
         return convert_str_to_date(self.end_day) > time
+
+    def get_updated_info(self):
+        if self.e_id is '':
+            raise ValueError('ID is empty!')
+        if self.name is '':
+            raise ValueError('Name is empty!')
+        return [self.e_id, self.name.encode('utf-8'), self.started_day, self.end_day, self.type.encode('utf-8'),
+                self.description.encode('utf-8'), self.ssr_rate, self.sr_rate, self.r_rate]
 
     def __str__(self):
         return self.name
@@ -425,7 +436,7 @@ class CharacterPower(object):
         try:
             return '%.1f' % (self.atk * 0.1 * self.atk_raised / self.hit_rate * (
                 1 + self.critical_ratio * (self.critical_factor - 1)))
-        except StandardError as e:
+        except StandardError:
             return 'Unknown'
 
     @property

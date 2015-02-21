@@ -130,7 +130,7 @@ class CNJiYoMonthlyDroppedCanvas(Canvas):
         self.fertilizer_var.set(self.statistic_tacker.drops[0])
         avg_count = self.statistic_tacker.get_statistics_count()
         self.avg_fertilizer_var.set('%.2f' % (avg_count[0]))
-        self.character_var.set('%.2f' % (avg_count[1]))
+        self.character_var.set(' %.1f %%' % ((avg_count[1]) * 100))
 
     def _init_buttons_state(self):
         self.box_12_button.set_is_selected(True)

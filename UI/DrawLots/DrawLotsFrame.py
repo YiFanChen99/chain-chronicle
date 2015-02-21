@@ -2,7 +2,8 @@
 from UI.Utility.BasicMainFrame import *
 from UI.Utility.Combobox import FilteredCombobox, IntFilteredCombobox, FilteredObjectCombobox
 from UI.DrawLots.RecordOfDrawLotsWindow import *
-from ModelUtility.DataObject import RecordOfDrawLots, EventOfDrawLots
+from UI.DrawLots.EventOfDrawLotsWindow import *
+from ModelUtility.DataObject import RecordOfDrawLots
 from ModelUtility.Filter import FilterRuleManager
 from Model import DrawLotsModel
 
@@ -27,26 +28,28 @@ class DrawLotsFrame(MainFrameWithTable):
 
     def _init_adding_frame(self):
         # 新增酒廠的按鈕
-        button = Button(self, text="新增酒廠", width=2, height=4, wraplength=1, font=(MS_JH, 11))
-        button.place(x=7, y=37)
-        # button["command"] = self.adding_record TODO
+        button = Button(self, text="新增酒廠", width=2, height=5, wraplength=1, font=(MS_JH, 11))
+        button.place(x=7, y=41)
+        button["command"] = lambda: open_adding_event_window(self, lambda event: (
+            self.events.insert(0, event), self.event_filter.set_objects(self.events)))
 
         # 新增記錄的按鈕
-        button = Button(self, text="新增記錄", width=2, height=11, wraplength=1, font=(MS_JH, 12))
-        button.place(x=5, y=134)
+        button = Button(self, text="新增記錄", width=2, height=12, wraplength=1, font=(MS_JH, 12))
+        button.place(x=5, y=155)
         button['command'] = self.adding_record
         button.bind('<Button-3>', lambda event: self.adding_record(limitation=False))
 
     def _init_filter_frame(self):
         basic_x = 20
         Label(self, text='E:', font=(MS_JH, 12)).place(x=basic_x, y=3)
-        self.event_filter = FilteredObjectCombobox(
-            self, setter=lambda obj: obj.name, getter=lambda obj: obj.e_id, width=16, justify=CENTER)
+        self.event_filter = FilteredObjectCombobox(self, setter=lambda obj: obj.name, width=16, justify=CENTER)
         self.event_filter.set_objects(self.events)
         self.event_filter.place(x=basic_x + 18, y=3)
         self.event_filter.bind('<<ComboboxSelected>>',
                                lambda x: (self.filter_manager.set_specific_condition(
-                                   'event_id', self.event_filter.get()), self.update_table()), add='+')
+                                   'event_id', self.event_filter.get().e_id), self.update_table()), add='+')
+        self.event_filter.bind('<Button-2>', lambda event: (open_updating_event_window(
+            self, self.event_filter.get(), lambda: self.event_filter.set_objects(self.events))))
 
         basic_x += 158
         Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=3)
