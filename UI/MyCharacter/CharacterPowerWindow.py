@@ -122,8 +122,10 @@ class CharacterPowerWindow(BasicWindow):
         self.destroy()
 
     def fill_in_automatically_by_character(self, character):
+        self.atk_raised.set(1.0)
         self.hit_rate.set(character.atk_speed)
         self.critical_ratio.set(character.critical_rate)
+        self.critical_factor.set(1.5)
         self.active_cost.set(character.active_cost)
 
 

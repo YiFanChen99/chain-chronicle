@@ -1,9 +1,9 @@
 [JP Advanced Daily]
-total = 169
-dropped = 193
+total = 171
+dropped = 195
 
 [CN JiYo Monthly]
-total = 67
-fertilizer = 149
-character = 2
+total = 149
+fertilizer = 334
+character = 5
 
