@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from UI.Utility.BasicWindow import *
+from UI.Character.CharacterWindow import open_updating_character_window
 from UI.Utility.CharacterSelector import CharacterSelectorCanvas
 from ModelUtility.CommonValue import *
 from ModelUtility.DataObject import CharacterPower
@@ -23,7 +24,10 @@ class CharacterPowerWindow(BasicWindow):
         self.character_selector = CharacterSelectorCanvas(self, self.character_power.character)
         self.character_selector.place(x=current_x, y=current_y - 3)
         self.character_selector.bind('<Return>', lambda event: (
-            self.fill_in_automatically_by_character(self.character_selector.get()), level_entry.focus_set()))
+            self.fill_in_automatically_by_character(), level_entry.focus_set()))
+        self.character_selector.bind('<Key-+>', lambda event: (
+            self.fill_in_automatically_by_character(), level_entry.focus_set(),
+            open_updating_character_window(self.master, self.character_selector.get(), position_y_shift=-300)))
 
         current_x += 145
         Label(self, width=5, text='Level', font=(SCP, 12)).place(x=current_x, y=current_y)
@@ -37,7 +41,7 @@ class CharacterPowerWindow(BasicWindow):
         self.atk = StringVar()
         atk_entry = Entry(self, width=5, textvariable=self.atk, font=(SCP, 12), justify=CENTER)
         atk_entry.place(x=current_x + 3, y=current_y + current_y_diff)
-        atk_entry.bind('<Return>', lambda x: atk_raised_entry.focus_set())
+        atk_entry.bind('<Return>', lambda x: active_factor_entry.focus_set())
 
         current_x += 70
         Label(self, width=25, text='Addition', font=(SCP, 12)).place(x=current_x, y=current_y)
@@ -52,21 +56,21 @@ class CharacterPowerWindow(BasicWindow):
         self.atk_raised = StringVar()
         atk_raised_entry = Entry(self, width=7, textvariable=self.atk_raised, font=(SCP, 12), justify=CENTER)
         atk_raised_entry.place(x=current_x, y=current_y + current_y_diff)
-        atk_raised_entry.bind('<Return>', lambda x: hit_rate_entry.focus_set())
+        atk_raised_entry.bind('<Return>', lambda x: active_factor_entry.focus_set())
 
         current_x += 90
         Label(self, width=7, text='HitRate', font=(SCP, 11)).place(x=current_x, y=current_y)
         self.hit_rate = StringVar()
         hit_rate_entry = Entry(self, width=6, textvariable=self.hit_rate, font=(SCP, 12), justify=CENTER)
         hit_rate_entry.place(x=current_x + 2, y=current_y + current_y_diff)
-        hit_rate_entry.bind('<Return>', lambda x: critical_ratio_entry.focus_set())
+        hit_rate_entry.bind('<Return>', lambda x: active_factor_entry.focus_set())
 
         current_x += 83
         Label(self, width=8, text='Cri.Ratio', font=(SCP, 10)).place(x=current_x, y=current_y + 3)
         self.critical_ratio = StringVar()
         critical_ratio_entry = Entry(self, width=6, textvariable=self.critical_ratio, font=(SCP, 12), justify=CENTER)
         critical_ratio_entry.place(x=current_x + 3, y=current_y + current_y_diff)
-        critical_ratio_entry.bind('<Return>', lambda x: critical_factor_entry.focus_set())
+        critical_ratio_entry.bind('<Return>', lambda x: active_factor_entry.focus_set())
 
         current_x += 85
         Label(self, width=9, text='Cri.Factor', font=(SCP, 9)).place(x=current_x, y=current_y + 4)
@@ -80,7 +84,7 @@ class CharacterPowerWindow(BasicWindow):
         self.active_factor = StringVar()
         active_factor_entry = Entry(self, width=6, textvariable=self.active_factor, font=(SCP, 12), justify=CENTER)
         active_factor_entry.place(x=current_x + 4, y=current_y + current_y_diff)
-        active_factor_entry.bind('<Return>', lambda x: active_cost_entry.focus_set())
+        active_factor_entry.bind('<Return>', lambda x: addition_entry.focus_set())
 
         current_x += 86
         Label(self, width=8, text='Act.Cost', font=(SCP, 11)).place(x=current_x, y=current_y + 3)
@@ -121,7 +125,9 @@ class CharacterPowerWindow(BasicWindow):
         self.callback()
         self.destroy()
 
-    def fill_in_automatically_by_character(self, character):
+    def fill_in_automatically_by_character(self):
+        character = self.character_selector.get()
+        # 自動填入角色的相關資訊
         self.atk_raised.set(1.0)
         self.hit_rate.set(character.atk_speed)
         self.critical_ratio.set(character.critical_rate)

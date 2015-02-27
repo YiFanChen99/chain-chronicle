@@ -264,6 +264,7 @@ def open_adding_new_cn_character_window(master, callback):
 
 
 # 確認更新要求後，才更新至 DB 並通知 caller
-def open_updating_character_window(master, character, callback):
-    popup = CharacterWindow(master, character, lambda: (CharacterModel.update_character_into_db(character), callback()))
+def open_updating_character_window(master, character, callback=lambda: None, **kwargs):
+    popup = CharacterWindow(master, character, lambda: (CharacterModel.update_character_into_db(character), callback()),
+                            **kwargs)
     master.wait_window(popup)
