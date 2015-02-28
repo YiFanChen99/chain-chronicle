@@ -5,6 +5,7 @@ from ModelUtility.CommonState import *
 from ModelUtility.GroupController import *
 from UI.Character.CharacterFrame import CharacterFrame
 from UI.Record.RecordFrame import RecordFrame
+from UI.Event.EventFrame import EventFrame
 from UI.Friend.FriendFrame import FriendInfoFrame
 from UI.MyCharacter.MyCharacterFrame import MyCharacterFrame
 from UI.DrawLots.DrawLotsFrame import DrawLotsFrame
@@ -81,6 +82,7 @@ class StaticGroupFrame(BasicMenuFrame):
         self.buttons.append(Button(self, text='Frequent', width=15, font=(SCP, 10)))
         self.buttons.append(Button(self, text='CharacterTable', width=15, font=(SCP, 10)))
         self.buttons.append(Button(self, text='RecordFrame', width=15, font=(SCP, 10)))
+        self.buttons.append(Button(self, text='EventFrame', width=15, font=(SCP, 10)))
 
         for index, button in enumerate(self.buttons):
             button.place(x=15 + 145 * index, y=1)
@@ -97,6 +99,8 @@ class StaticGroupFrame(BasicMenuFrame):
             new_main_frame = CharacterFrame(self.master)
         elif frame_index == 2:
             new_main_frame = RecordFrame(self.master)
+        elif frame_index == 3:
+            new_main_frame = EventFrame(self.master)
         else:
             raise IndexError('Wrong index for changing frame.')
 
