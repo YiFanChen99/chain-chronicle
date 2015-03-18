@@ -423,6 +423,13 @@ class CharacterPower(object):
     def create_empty_character_power():
         return CharacterPower([''] * (len(CharacterPower.SELECTED_COLUMNS) - 1), None)
 
+    def copy(self):
+        import copy
+        new_copy = copy.copy(self)
+        new_copy.level += 5
+        new_copy.atk = ''
+        return new_copy
+
     @property
     def c_id(self):
         return self.character.c_id

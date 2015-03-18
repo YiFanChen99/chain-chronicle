@@ -11,7 +11,7 @@ class CharacterPowerFrame(MainFrameWithTable):
     def __init__(self, master, **kwargs):
         MainFrameWithTable.__init__(self, master, **kwargs)
         self.set_table_place(6, 31)
-        # 滑鼠中鍵事件註冊，設定為更新好友資訊，並選取該列
+        # 滑鼠中鍵事件註冊，設定為更改角色詳細資訊，並選取該列
         self.table_view.bind("<Button-2>", lambda event: self.opening_character_update_window(event))
 
         self.characters = CharacterPowerModel.select_character_power_list()
@@ -29,7 +29,7 @@ class CharacterPowerFrame(MainFrameWithTable):
         button = Button(self, text='新增', width=8, font=(MS_JH, 10))
         button.place(x=550, y=1)
         button["command"] = lambda: open_adding_new_character_power_window(
-            self, lambda cp: self.callback_after_adding_character_power(cp))
+            self, callback=lambda cp: self.callback_after_adding_character_power(cp))
 
         self.state_str = StringVar(value='ToFull')
         self.state = ToggleButton(self, textvariable=self.state_str, width=8, font=(SCP, 10), relief=RIDGE)
@@ -78,6 +78,11 @@ class CharacterPowerFrame(MainFrameWithTable):
         character = self.get_corresponding_character_power_in_row(row_number)
         delete_character_power_with_conforming(self, character, lambda: (
             self.characters.remove(character), self.update_table()))  # 直接從 list 中拿掉，不用重撈
+
+    def do_dragging_along_left(self, row_number):
+        character = self.get_corresponding_character_power_in_row(row_number)
+        open_adding_new_character_power_window(
+            self, callback=lambda cp: self.callback_after_adding_character_power(cp), character=character)
 
     # 更改角色資訊
     def opening_character_update_window(self, event):

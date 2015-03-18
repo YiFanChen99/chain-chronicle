@@ -27,7 +27,8 @@ class MainFrameWithTable(MainFrame):
         self.table = Frame(self)
         self.table_view = TableView(self.table)
         self.table_view.bind("<Double-Button-1>", self.do_double_clicking)  # 雙擊事件註冊
-        self.table_view.handle_drag_along_right = self.do_dragging_along_right  # Mouse Release 事件註冊
+        self.table_view.handle_drag_along_right = self.do_dragging_along_right  # drag-along 事件註冊
+        self.table_view.handle_drag_along_left = self.do_dragging_along_left  # drag-along 事件註冊
         self.table_model = None
 
     # set table place, and record it for adjusting frame size
@@ -42,6 +43,10 @@ class MainFrameWithTable(MainFrame):
 
     # Template Method
     def do_dragging_along_right(self, row_number):
+        pass
+
+    # Template Method
+    def do_dragging_along_left(self, row_number):
         pass
 
     def redisplay_table(self, is_reset_model=False):
@@ -72,16 +77,22 @@ class TableView(TableCanvas):
     def drawSelectedRect(self, row, col, color=None):
         pass
 
-    # 判斷 Mouse Releasing 時是否為 drag-along right
+    # 判斷 Mouse Releasing 時是否觸發對應 drag-along 事件
     def handle_left_release(self, event):
         self.endrow = self.get_row_clicked(event)
         self.endcol = self.get_col_clicked(event)
 
         if self.startrow == self.endrow and self.startcol < self.endcol:
             self.handle_drag_along_right(self.endrow)
+        elif self.startrow == self.endrow and self.startcol > self.endcol:
+            self.handle_drag_along_left(self.endrow)
 
     # For overriding
     def handle_drag_along_right(self, row_number):
+        pass
+
+    # For overriding
+    def handle_drag_along_left(self, row_number):
         pass
 
     # 不知為何該 method 有更新 cols 的程式碼卻被註解掉，

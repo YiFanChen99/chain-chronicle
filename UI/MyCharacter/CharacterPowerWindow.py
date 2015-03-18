@@ -15,6 +15,8 @@ class CharacterPowerWindow(BasicWindow):
         self.callback = callback
         self._init_widget()
         self._init_content()
+        # 滑鼠中鍵事件註冊，設定為更改角色詳細資訊
+        self.bind("-", lambda event: self.open_updating_character_window())
 
     def _init_widget(self):
         current_y_diff = 28
@@ -23,11 +25,10 @@ class CharacterPowerWindow(BasicWindow):
         current_x = 23
         self.character_selector = CharacterSelectorCanvas(self, self.character_power.character)
         self.character_selector.place(x=current_x, y=current_y - 3)
-        self.character_selector.bind('<Return>', lambda event: (
-            self.fill_in_automatically_by_character(), level_entry.focus_set()))
-        self.character_selector.bind('<Key-+>', lambda event: (
-            self.fill_in_automatically_by_character(), level_entry.focus_set(),
-            open_updating_character_window(self.master, self.character_selector.get(), position_y_shift=-300)))
+        callback_after_selection = lambda event: (
+            self.fill_in_automatically_by_character(), level_entry.focus_set())
+        self.character_selector.bind('<Return>', callback_after_selection)
+        self.character_selector.bind('-', callback_after_selection)
 
         current_x += 145
         Label(self, width=5, text='Level', font=(SCP, 12)).place(x=current_x, y=current_y)
@@ -134,10 +135,13 @@ class CharacterPowerWindow(BasicWindow):
         self.critical_factor.set(1.5)
         self.active_cost.set(character.active_cost)
 
+    def open_updating_character_window(self):
+        open_updating_character_window(self.master, self.character_selector.get(), position_y_shift=-300)
+
 
 # 確認新增要求後，才新增至 DB 並通知 caller
-def open_adding_new_character_power_window(master, callback):
-    cp = CharacterPower.create_empty_character_power()
+def open_adding_new_character_power_window(master, callback, character=None):
+    cp = character.copy() if character else CharacterPower.create_empty_character_power()
     popup = CharacterPowerWindow(master, cp, lambda: (
         CharacterPowerModel.insert_character_power_into_db(cp), callback(cp)))
     master.wait_window(popup)
