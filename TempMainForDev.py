@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 from UI.MenuFrame import *
-from Model.CharacterPowerModel import *
+from ModelUtility.DBAccessor import *
+from ModelUtility.DataObject import *
+from ModelUtility.CommonState import *
+from UI.DrawLots.DrawLotsFrame import *
+from UI.DrawLots.EventOfDrawLotsWindow import *
+from Model import DrawLotsModel
 
 
 class Main(Frame):
@@ -9,7 +14,14 @@ class Main(Frame):
         master.title("ChainChronicle")
         self.pack(fill=BOTH, expand=1)
 
-        open_adding_new_character_power_window(self, self.the_print)
+        set_account('Fuji')
+        events = DrawLotsModel.select_event_list()
+        a = EventWindow(self, events[2], None)
+        a.geometry('+1000+500')
+        # set_account('Yama')
+        # a = DrawLotsFrame(self, bg='green')
+        # a.place(x=0, y=0)
+
 
     def the_print(self):
         print 1, 2, 5

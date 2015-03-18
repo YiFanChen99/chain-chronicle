@@ -42,14 +42,15 @@ class DrawLotsFrame(MainFrameWithTable):
     def _init_filter_frame(self):
         basic_x = 20
         Label(self, text='E:', font=(MS_JH, 12)).place(x=basic_x, y=3)
-        self.event_filter = FilteredObjectCombobox(self, setter=lambda obj: obj.name, width=16, justify=CENTER)
+        self.event_filter = FilteredObjectCombobox(
+            self, setter=lambda obj: obj.name, getter=lambda obj: obj.e_id, width=16, justify=CENTER)
         self.event_filter.set_objects(self.events)
         self.event_filter.place(x=basic_x + 18, y=3)
         self.event_filter.bind('<<ComboboxSelected>>',
                                lambda x: (self.filter_manager.set_specific_condition(
-                                   'event_id', self.event_filter.get().e_id), self.update_table()), add='+')
+                                   'event_id', self.event_filter.get()), self.update_table()), add='+')
         self.event_filter.bind('<Button-2>', lambda event: (open_updating_event_window(
-            self, self.event_filter.get(), lambda: self.event_filter.set_objects(self.events))))
+            self, self.event_filter.selected_object, lambda: self.event_filter.set_objects(self.events))))
 
         basic_x += 158
         Label(self, text='C:', font=(MS_JH, 12)).place(x=basic_x, y=3)

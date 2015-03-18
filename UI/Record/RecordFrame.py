@@ -13,8 +13,10 @@ class RecordFrame(MainFrame):
         self.jp_advanced_daily_dropped = JPAdvancedDailyDroppedCanvas(self)
         self.jp_advanced_daily_dropped.place(x=15, y=12)
 
-        self.cn_jiyo_monthly_dropped = CNJiYoMonthlyDroppedCanvas(self)
-        self.cn_jiyo_monthly_dropped.place(x=200, y=12)
+        self.cn_monthly_dropped = CNMonthlyDroppedCanvas(self)
+        self.cn_monthly_dropped.place(x=200, y=12)
+        self.cn_monthly_dropped_2 = CNMonthlyDropped2Canvas(self)
+        self.cn_monthly_dropped_2.place(x=390, y=12)
 
 
 class JPAdvancedDailyDroppedCanvas(Canvas):
@@ -72,9 +74,10 @@ class JPAdvancedDailyDroppedCanvas(Canvas):
         self._update_statistics()
 
 
-class CNJiYoMonthlyDroppedCanvas(Canvas):
+class CNMonthlyDroppedCanvas(Canvas):
     RECORD_PATH = 'data\Record.txt'
-    SECTION = 'CN JiYo Monthly'
+    SECTION = 'CN SM Monthly'
+    NAME = '山貓月間'
 
     def __init__(self, master, **kwargs):
         Canvas.__init__(self, master, **kwargs)
@@ -82,7 +85,7 @@ class CNJiYoMonthlyDroppedCanvas(Canvas):
         self._init_fields()
 
     def _init_frame(self):
-        Label(self, text='自由月間', width=8, font=(MS_JH, 14)).place(x=43, y=5)
+        Label(self, text=self.NAME, width=8, font=(MS_JH, 14)).place(x=43, y=5)
         self.box_12_button = ToggleButton(self, text='1&2', width=4, font=(SCP, 11), relief=RIDGE)
         self.box_12_button.place(x=18 + 51 * 0, y=39)
         self.box_3_button = ToggleButton(self, text='3', width=4, font=(SCP, 11), relief=RIDGE)
@@ -148,3 +151,14 @@ class CNJiYoMonthlyDroppedCanvas(Canvas):
 
         self._init_buttons_state()
         self._update_statistics()
+
+
+class CNMonthlyDropped2Canvas(CNMonthlyDroppedCanvas):
+    RECORD_PATH = 'data\Record.txt'
+    SECTION = 'CN JJ Monthly'
+    NAME = '執著月間'
+
+    def __init__(self, master, **kwargs):
+        CNMonthlyDroppedCanvas.__init__(self, master, **kwargs)
+        self._init_frame()
+        self._init_fields()

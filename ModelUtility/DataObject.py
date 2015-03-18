@@ -151,7 +151,7 @@ class CGDTCharacter(object):
     # 除了將其命名轉成我的格式以外，也檢查不可有我預期外的名稱出現
     def _init_belonged(self, name):
         replaced_name = name.replace(u'海風之港', u'海風').replace(u'賢者之塔', u'賢塔'). \
-            replace(u'迷宮山脈', u'山脈').replace(u'獸里', u'獸之里')
+            replace(u'迷宮山脈', u'山脈').replace(u'獸里', u'獸之里').replace(u'罪之大陸', u'罪大陸')
 
         if replaced_name in BELONGEDS:
             self.belonged = replaced_name
