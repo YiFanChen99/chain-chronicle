@@ -397,13 +397,13 @@ class FriendRecord(object):
 
 class CharacterPower(object):
     DB_TABLE = ['Account', 'CharacterID', 'Level', 'Atk', 'AtkRaisedRatio', 'HitRate', 'CriticalRatio',
-                'CriticalFactor', 'ActiveFactor', 'ActiveCost', 'Addition']
+                'CriticalFactor', 'ActiveFactor', 'ActiveCost', 'Addition', 'Presently']
     SELECTED_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 Account 外的所有欄位
     UPDATED_COLUMNS = ['CharacterID', 'Level', 'Atk', 'AtkRaisedRatio', 'HitRate', 'CriticalRatio',
-                       'CriticalFactor', 'ActiveFactor', 'ActiveCost', 'Addition']
-    TABLE_VIEW_FULL_COLUMNS = ['ID', 'Character', 'Lv', 'Atk', 'AtkRaised', 'HitRate', 'Cri.Ratio', 'Cri.Factor',
-                               'DPS', 'Act.Factor', 'Act.Cost', 'DPM', 'Addition']
-    TABLE_VIEW_SIMPLE_COLUMNS = ['ID', 'Character', 'Lv', 'Atk', 'AtkRaised', 'DPS',
+                       'CriticalFactor', 'ActiveFactor', 'ActiveCost', 'Addition', 'Presently']
+    TABLE_VIEW_FULL_COLUMNS = ['ID', 'Presently', 'Character', 'Lv', 'Atk', 'AtkRaised', 'HitRate', 'Cri.Ratio',
+                               'Cri.Factor', 'DPS', 'Act.Factor', 'Act.Cost', 'DPM', 'Addition']
+    TABLE_VIEW_SIMPLE_COLUMNS = ['ID', 'Presently', 'Character', 'Lv', 'Atk', 'AtkRaised', 'DPS',
                                  'Act.Factor', 'DPM', 'Addition']
 
     def __init__(self, record, character):
@@ -417,6 +417,7 @@ class CharacterPower(object):
         self.active_factor = next(properties)
         self.active_cost = next(properties)
         self.addition = next(properties)
+        self.presently = bool(next(properties))
         self.character = character
 
     @staticmethod
@@ -457,13 +458,17 @@ class CharacterPower(object):
         if self.character is None:
             raise ValueError('Character is empty!')
         return [self.c_id, self.level, self.atk, self.atk_raised, self.hit_rate, self.critical_ratio,
-                self.critical_factor, self.active_factor, self.active_cost, self.addition.encode('utf-8')]
+                self.critical_factor, self.active_factor, self.active_cost,
+                self.addition.encode('utf-8'), int(self.presently)]
 
     def get_table_view_full_info(self):
-        return [self.c_id, self.nickname.encode('utf-8'), self.level, self.atk, self.atk_raised, self.hit_rate,
-                self.critical_ratio, self.critical_factor, self.dps, self.active_factor, self.active_cost,
-                self.dpm, self.addition.encode('utf-8')]
+        return [self.c_id, int(self.presently), self.nickname.encode('utf-8'), self.level, self.atk, self.atk_raised,
+                self.hit_rate, self.critical_ratio, self.critical_factor, self.dps, self.active_factor,
+                self.active_cost, self.dpm, self.addition.encode('utf-8')]
 
     def get_table_view_simple_info(self):
-        return [self.c_id, self.nickname.encode('utf-8'), self.level, self.atk, self.atk_raised, self.dps,
-                self.active_factor, self.dpm, self.addition.encode('utf-8')]
+        return [self.c_id, int(self.presently), self.nickname.encode('utf-8'), self.level, self.atk, self.atk_raised,
+                self.dps, self.active_factor, self.dpm, self.addition.encode('utf-8')]
+
+    def __getitem__(*args, **kwargs):
+        return getattr(*args, **kwargs)

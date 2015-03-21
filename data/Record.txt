@@ -1,6 +1,6 @@
 [JP Advanced Daily]
-total = 182
-dropped = 205
+total = 185
+dropped = 208
 
 [CN SM Monthly]
 total = 72
@@ -8,7 +8,7 @@ fertilizer = 154
 character = 1
 
 [CN JJ Monthly]
-total = 0
-fertilizer = 0
+total = 35
+fertilizer = 75
 character = 0
 

@@ -1,5 +1,6 @@
 
 FrequentPage 搬移。移除 MainFrame.py
+	改用 grid，新增給小號的紀錄。
 
 記錄每週帳號相關資訊，含等級與道具（圖表）
 	可用 plotly https://plot.ly/python/getting-started/
