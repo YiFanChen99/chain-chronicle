@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
+from datetime import datetime
 from UI.Utility.BasicMainFrame import *
+from ModelUtility import APTimeCalculator
 
 
 class EventFrame(MainFrame):
     def __init__(self, master, **kwargs):
         MainFrame.__init__(self, master, **kwargs)
 
-        apc = APCalculater(self)
+        apc = APLeft(self)
         apc.place(x=5, y=5)
 
 
-class APCalculater(Canvas):
-    RECORD_PATH = 'data\Event.txt'
-    SECTION = 'APCalculater'
-
+class APLeft(Canvas):
     def __init__(self, master, **kwargs):
         Canvas.__init__(self, master, **kwargs)
 
@@ -38,7 +36,7 @@ class APCalculater(Canvas):
     def calculate_ap_left(self):
         current = datetime.now()
         self.current_time_desc.set('At : ' + self.get_datetime_str(current))
-        self.ap_left_desc.set('AP Left: %3d' % ((self.end_time - current).total_seconds() / 60 / 8))
+        self.ap_left_desc.set('AP Left: %3d' % (APTimeCalculator.convert_timedelta_to_ap(self.end_time - current)))
 
     @staticmethod
     def get_datetime_str(the_datetime):
