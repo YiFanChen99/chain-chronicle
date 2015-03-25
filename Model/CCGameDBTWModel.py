@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
-import json
 from UI.Character.CharacterWindow import *
 from ModelUtility.DataObject import Character, CGDTCharacter
 from ModelUtility.DBAccessor import *
+from ModelUtility.Utility import load_json
 from Model import CharacterModel
 
-
-CGDT_DEFAULT_PATH = 'data/CCGameDBTW.txt'
+_CGDT_DEFAULT_PATH = 'data/CCGameDBTW.json'
 
 
 class CCGameDBTWDataOwner:
-    def __init__(self, file_path=CGDT_DEFAULT_PATH):
+    def __init__(self, file_path=_CGDT_DEFAULT_PATH):
         self.data = load_json(file_path)
 
     def find_character_by_id(self, the_id):
@@ -131,9 +130,3 @@ class MyDBUpdater(object):
             # 若資料取得發生問題，則記錄後就略過
             except StandardError as e:
                 print e
-
-
-# 取出該 DB 檔案中的資訊
-def load_json(filename):
-    with open('%s' % filename) as json_data:
-        return json.loads(json_data.read().decode('utf-8-sig'))

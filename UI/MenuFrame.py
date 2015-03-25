@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 import os
-from ModelUtility.CommonValue import *
 from ModelUtility.CommonState import *
 from ModelUtility.GroupController import *
+from UI.Utility.BasicMainFrame import *
 from UI.Character.CharacterFrame import CharacterFrame
+from UI.Index.IndexFrame import IndexFrame
 from UI.Record.RecordFrame import RecordFrame
 from UI.Event.EventFrame import EventFrame
 from UI.Friend.FriendFrame import FriendInfoFrame
 from UI.MyCharacter.MyCharacterFrame import MyCharacterFrame
 from UI.DrawLots.DrawLotsFrame import DrawLotsFrame
-from FrequentPage import *
 
-FILE_NAME = 'data\OtherInfo.txt'
+FILE_NAME = 'data/OtherInfo.txt'
 
 
 class BasicMenuFrame(Frame):
@@ -79,10 +79,10 @@ class StaticGroupFrame(BasicMenuFrame):
 
     def _do_init_button_group(self):
         self.buttons = []
-        self.buttons.append(Button(self, text='Frequent', width=15, font=(SCP, 10)))
-        self.buttons.append(Button(self, text='CharacterTable', width=15, font=(SCP, 10)))
-        self.buttons.append(Button(self, text='RecordFrame', width=15, font=(SCP, 10)))
-        self.buttons.append(Button(self, text='EventFrame', width=15, font=(SCP, 10)))
+        self.buttons.append(Button(self, text='Index', width=15, font=(SCP, 10)))
+        self.buttons.append(Button(self, text='Character', width=15, font=(SCP, 10)))
+        self.buttons.append(Button(self, text='Record', width=15, font=(SCP, 10)))
+        self.buttons.append(Button(self, text='Event', width=15, font=(SCP, 10)))
 
         for index, button in enumerate(self.buttons):
             button.place(x=15 + 145 * index, y=1)
@@ -94,7 +94,7 @@ class StaticGroupFrame(BasicMenuFrame):
     def _do_change_frame(self):
         frame_index = self.radio_group.current_selection
         if frame_index == 0:
-            new_main_frame = Frequent(self.master)
+            new_main_frame = IndexFrame(self.master)
         elif frame_index == 1:
             new_main_frame = CharacterFrame(self.master)
         elif frame_index == 2:

@@ -1,0 +1,34 @@
+{
+    "CN JJ Monthly": {
+        "character": 0,
+        "fertilizer": 182,
+        "total": 84
+    },
+    "CN SM Monthly": {
+        "character": 1,
+        "fertilizer": 154,
+        "total": 72
+    },
+    "Fuji Account": {
+        "difference": "05+84 AP --> 11 \u5c0f\u6642 12 \u5206",
+        "last_time": "Last Time :  03:14 PM",
+        "max_ap": "89",
+        "reached_time": "Reached Time :   02:26 AM"
+    },
+    "JP Advanced Daily": {
+        "dropped": 208,
+        "total": 185
+    },
+    "Shiki Account": {
+        "difference": "01+50 AP --> 06 \u5c0f\u6642 40 \u5206",
+        "last_time": "Last Time :  03:14 PM",
+        "max_ap": "53",
+        "reached_time": "Reached Time :   09:54 PM"
+    },
+    "Yama Account": {
+        "difference": "06+70 AP --> 09 \u5c0f\u6642 20 \u5206",
+        "last_time": "Last Time :  03:18 PM",
+        "max_ap": "77",
+        "reached_time": "Reached Time :   00:38 AM"
+    }
+}

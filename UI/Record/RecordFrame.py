@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-import codecs
-from configparser3 import configparser
 from UI.Utility.BasicMainFrame import *
 from UI.Utility.Button import ToggleButton
 from ModelUtility.StatisticTacker import DroppedStatisticTacker
+from ModelUtility.CommonState import *
 
 
 class RecordFrame(MainFrame):
@@ -13,15 +12,16 @@ class RecordFrame(MainFrame):
         self.jp_advanced_daily_dropped = JPAdvancedDailyDroppedCanvas(self)
         self.jp_advanced_daily_dropped.place(x=15, y=12)
 
-        self.cn_monthly_dropped = CNMonthlyDroppedCanvas(self)
-        self.cn_monthly_dropped.place(x=200, y=12)
-        self.cn_monthly_dropped_2 = CNMonthlyDropped2Canvas(self)
-        self.cn_monthly_dropped_2.place(x=390, y=12)
+        self.monthly_dropped = MonthlyDroppedCanvas(self, '山貓月間', 'CN SM Monthly')
+        self.monthly_dropped.place(x=200, y=12)
+        self.monthly_dropped_2 = MonthlyDroppedCanvas(self, '執著月間', 'CN JJ Monthly')
+        self.monthly_dropped_2.place(x=390, y=12)
 
 
 class JPAdvancedDailyDroppedCanvas(Canvas):
-    RECORD_PATH = 'data\Record.txt'
     SECTION = 'JP Advanced Daily'
+    KEY_TOTAL = 'total'
+    KEY_DROPPED = 'dropped'
 
     def __init__(self, master, **kwargs):
         Canvas.__init__(self, master, **kwargs)
@@ -48,12 +48,9 @@ class JPAdvancedDailyDroppedCanvas(Canvas):
         Label(self, textvariable=self.dropped_ratio_desc, width=16, font=(SCP, 11)).place(x=16, y=current_y + 40)
 
     def _init_fields(self):
-        self.config_parser = configparser.ConfigParser()
-        self.config_parser.read(self.RECORD_PATH, "utf8")
-
+        data_record = get_data_record(self.SECTION)
         self.statistic_tacker = DroppedStatisticTacker(1)
-        self.statistic_tacker.set(
-            self.config_parser.getint(self.SECTION, 'Total'), [self.config_parser.getint(self.SECTION, 'Dropped')])
+        self.statistic_tacker.set(data_record[self.KEY_TOTAL], [data_record[self.KEY_DROPPED]])
 
         self._update_statistics()
 
@@ -64,28 +61,31 @@ class JPAdvancedDailyDroppedCanvas(Canvas):
 
     def submitting(self):
         self.statistic_tacker.record([self.third_button.is_selected + self.fourth_button.is_selected])
-        self.config_parser.set(self.SECTION, 'Total', str(self.statistic_tacker.times))
-        self.config_parser.set(self.SECTION, 'Dropped', str(self.statistic_tacker.drops[0]))
-        with codecs.open(self.RECORD_PATH, encoding="utf8", mode='wb') as data_file:
-            self.config_parser.write(data_file)
+
+        data_record = get_data_record(self.SECTION)
+        data_record[self.KEY_TOTAL] = self.statistic_tacker.times
+        data_record[self.KEY_DROPPED] = self.statistic_tacker.drops[0]
+        save_data_record()
 
         self.third_button.set_is_selected(False)
         self.fourth_button.set_is_selected(False)
         self._update_statistics()
 
 
-class CNMonthlyDroppedCanvas(Canvas):
-    RECORD_PATH = 'data\Record.txt'
-    SECTION = 'CN SM Monthly'
-    NAME = '山貓月間'
+class MonthlyDroppedCanvas(Canvas):
+    KEY_TOTAL = 'total'
+    KEY_FERTILIZER = 'fertilizer'
+    KEY_CHARACTER = 'character'
 
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, title, section, **kwargs):
         Canvas.__init__(self, master, **kwargs)
+        self.title = title
+        self.section = section
         self._init_frame()
         self._init_fields()
 
     def _init_frame(self):
-        Label(self, text=self.NAME, width=8, font=(MS_JH, 14)).place(x=43, y=5)
+        Label(self, text=self.title, width=8, font=(MS_JH, 14)).place(x=43, y=5)
         self.box_12_button = ToggleButton(self, text='1&2', width=4, font=(SCP, 11), relief=RIDGE)
         self.box_12_button.place(x=18 + 51 * 0, y=39)
         self.box_3_button = ToggleButton(self, text='3', width=4, font=(SCP, 11), relief=RIDGE)
@@ -118,13 +118,10 @@ class CNMonthlyDroppedCanvas(Canvas):
         self._init_buttons_state()
 
     def _init_fields(self):
-        self.config_parser = configparser.ConfigParser()
-        self.config_parser.read(self.RECORD_PATH, "utf8")
-
+        data_record = get_data_record(self.section)
         self.statistic_tacker = DroppedStatisticTacker(2)
-        self.statistic_tacker.set(self.config_parser.getint(self.SECTION, 'total'),
-                                  [self.config_parser.getint(self.SECTION, 'fertilizer'),
-                                   self.config_parser.getint(self.SECTION, 'character')])
+        self.statistic_tacker.set(data_record[self.KEY_TOTAL],
+                                  [data_record[self.KEY_FERTILIZER], data_record[self.KEY_CHARACTER]])
 
         self._update_statistics()
 
@@ -143,22 +140,12 @@ class CNMonthlyDroppedCanvas(Canvas):
     def submitting(self):
         self.statistic_tacker.record([int(self.box_12_button.is_selected) * 2 + self.box_3_button.is_selected,
                                       self.box_4_button.is_selected])
-        self.config_parser.set(self.SECTION, 'total', str(self.statistic_tacker.times))
-        self.config_parser.set(self.SECTION, 'fertilizer', str(self.statistic_tacker.drops[0]))
-        self.config_parser.set(self.SECTION, 'character', str(self.statistic_tacker.drops[1]))
-        with codecs.open(self.RECORD_PATH, encoding="utf8", mode='wb') as data_file:
-            self.config_parser.write(data_file)
+
+        data_record = get_data_record(self.section)
+        data_record[self.KEY_TOTAL] = self.statistic_tacker.times
+        data_record[self.KEY_FERTILIZER] = self.statistic_tacker.drops[0]
+        data_record[self.KEY_CHARACTER] = self.statistic_tacker.drops[1]
+        save_data_record()
 
         self._init_buttons_state()
         self._update_statistics()
-
-
-class CNMonthlyDropped2Canvas(CNMonthlyDroppedCanvas):
-    RECORD_PATH = 'data\Record.txt'
-    SECTION = 'CN JJ Monthly'
-    NAME = '執著月間'
-
-    def __init__(self, master, **kwargs):
-        CNMonthlyDroppedCanvas.__init__(self, master, **kwargs)
-        self._init_frame()
-        self._init_fields()

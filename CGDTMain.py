@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Ricky Chen'
-''' 根據 CCGameDBTW 進行處理 '''
-
+""" 根據 CCGameDBTW 進行處理 """
 import os
-
 from configparser3 import configparser
 from UI.Utility.BasicMainFrame import *
 from Model.CCGameDBTWModel import *
 
-
-README_PATH = 'data\CCGameDBTW_Readme.txt'
+_README_PATH = 'data/CCGameDBTW_Readme.txt'
 
 
 class Main(MainFrameWithTable):
@@ -26,7 +22,7 @@ class Main(MainFrameWithTable):
         label = Label(self, textvariable=self.version, width=20, font=(MS_JH, 11), relief=RIDGE)
         label.place(x=370, y=5)
         label.bind('<ButtonRelease-1>', lambda event: self.update_version())
-        label.bind('<ButtonRelease-3>', lambda event: os.startfile(README_PATH))
+        label.bind('<ButtonRelease-3>', lambda event: os.startfile(_README_PATH))
         self.update_version()
 
         button = Button(self, text='Insert', width=15, font=(MS_JH, 12))
@@ -55,7 +51,7 @@ class Main(MainFrameWithTable):
 
     def update_version(self):
         config_parser = configparser.ConfigParser()
-        config_parser.read(README_PATH, "utf8")
+        config_parser.read(_README_PATH, "utf8")
         self.version.set('Ver. ' + config_parser.get('Version', u'目前版本'))
 
 

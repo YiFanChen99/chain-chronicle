@@ -1,6 +1,17 @@
 # -*- coding: utf-8 -*-
 """ 此 module 放置通用卻無明顯分類的小功能 """
+import json
 from datetime import datetime
+
+
+def save_json(file_path, data):
+    with open(file_path, 'w') as outfile:
+        json.dump(data, outfile, indent=4, separators=(',', ': '), sort_keys=True)
+
+
+def load_json(file_path):
+    with open(file_path) as json_data:
+        return json.loads(json_data.read().decode('utf-8-sig'))
 
 
 def convert_str_to_date(date_str):

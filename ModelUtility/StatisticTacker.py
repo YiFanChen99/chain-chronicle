@@ -7,13 +7,13 @@ class DroppedStatisticTacker(object):
         self.drops = [0] * length
 
     def set(self, times, drops):
-        self.verify_record_length(drops)
+        self._verify_record_length(drops)
 
         self.times = times
         self.drops = drops[:]
 
     def record(self, the_record):
-        self.verify_record_length(the_record)
+        self._verify_record_length(the_record)
 
         self.times += 1
         self.drops = [a + b for a, b in zip(self.drops, the_record)]
@@ -29,6 +29,6 @@ class DroppedStatisticTacker(object):
     def get_statistics_ratio(self):
         return [element * 100 for element in self.get_statistics_count()]
 
-    def verify_record_length(self, the_record):
+    def _verify_record_length(self, the_record):
         if len(the_record) != len(self.drops):
             raise Exception('Drops length {0}, and the record length {1}.'.format(len(self.drops), len(the_record)))

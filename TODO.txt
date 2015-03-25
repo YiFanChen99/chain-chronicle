@@ -1,7 +1,4 @@
 
-FrequentPage 搬移。移除 MainFrame.py
-	改用 grid，新增給小號的紀錄。
-
 記錄每週帳號相關資訊，含等級與道具（圖表）
 	可用 plotly https://plot.ly/python/getting-started/
 
@@ -20,3 +17,4 @@ ap效益maybe? 打幾場升級，關卡註記
 
 次要（有按順序）：
 CharacterPage 內的 CharacterInfoWindow 的職業與等級選擇用 Canvas。
+IndexFrame 改用 StatisticTacker 作業。

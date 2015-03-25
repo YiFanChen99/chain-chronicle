@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 import unittest
 from Model.CCGameDBTWModel import *
+from Model.CCGameDBTWModel import _CGDT_DEFAULT_PATH
 from ModelUtility.DataObject import *
+from ModelUtility.Utility import load_json
 
 
 class DBColumnsTest(unittest.TestCase):
     # CGDTCharacter.DB_TABLE 是否涵蓋所有 CCGameDBTW.txt 內的欄位
     def test_cgdt_columns_number(self):
-        loaded_data = load_json(CGDT_DEFAULT_PATH)[0]
+        loaded_data = load_json(_CGDT_DEFAULT_PATH)[0]
 
         try:
             assert len(loaded_data) == len(CGDTCharacter.DB_TABLE),\
