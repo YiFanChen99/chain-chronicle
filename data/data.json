@@ -1,8 +1,8 @@
 {
     "CN JJ Monthly": {
         "character": 0,
-        "fertilizer": 182,
-        "total": 84
+        "fertilizer": 240,
+        "total": 111
     },
     "CN SM Monthly": {
         "character": 1,
@@ -10,25 +10,25 @@
         "total": 72
     },
     "Fuji Account": {
-        "difference": "05+84 AP --> 11 \u5c0f\u6642 12 \u5206",
-        "last_time": "Last Time :  03:14 PM",
+        "difference": "44+45 AP --> 06 \u6642 00 \u5206",
+        "last_time": "Current :  09:37 AM",
         "max_ap": "89",
-        "reached_time": "Reached Time :   02:26 AM"
+        "reached_time": "Reached :  03:37 PM"
     },
     "JP Advanced Daily": {
         "dropped": 208,
         "total": 185
     },
     "Shiki Account": {
-        "difference": "01+50 AP --> 06 \u5c0f\u6642 40 \u5206",
-        "last_time": "Last Time :  03:14 PM",
+        "difference": "14+39 AP --> 05 \u6642 12 \u5206",
+        "last_time": "Current :  09:26 AM",
         "max_ap": "53",
-        "reached_time": "Reached Time :   09:54 PM"
+        "reached_time": "Reached :  02:38 PM"
     },
     "Yama Account": {
-        "difference": "06+70 AP --> 09 \u5c0f\u6642 20 \u5206",
-        "last_time": "Last Time :  03:18 PM",
+        "difference": "21+56 AP --> 07 \u6642 28 \u5206",
+        "last_time": "Current :  09:20 AM",
         "max_ap": "77",
-        "reached_time": "Reached Time :   00:38 AM"
+        "reached_time": "Reached :  04:48 PM"
     }
 }

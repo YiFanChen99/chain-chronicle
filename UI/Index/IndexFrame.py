@@ -78,7 +78,7 @@ class PowerConverterCanvas(Canvas):
 
         row += 1
         self.last_calculation = StringVar(value='')
-        Label(self, textvariable=self.last_calculation, font=(MS_JH, 10)).grid(row=row, pady=3, **span_config)
+        Label(self, textvariable=self.last_calculation, font=(MS_JH, 11)).grid(row=row, pady=5, **span_config)
 
         row += 1
         self.difference_for_max = StringVar(value='')
@@ -86,13 +86,14 @@ class PowerConverterCanvas(Canvas):
 
         row += 1
         self.time_reaching_max_ap = StringVar(value='')
-        Label(self, textvariable=self.time_reaching_max_ap, font=(MS_JH, 10)).grid(row=row, pady=1, **span_config)
+        Label(self, textvariable=self.time_reaching_max_ap, width=20, font=(MS_JH, 11)).\
+            grid(row=row, pady=3, **span_config)
 
         row += 1
         self._insert_separator(row, span_config)
 
         row += 1
-        Label(self, text='Goad AP', font=(MS_JH, 12)).grid(row=row, sticky=N+E+S+W)
+        Label(self, text='Goad AP', font=(MS_JH, 12)).grid(row=row, sticky=N+E+S+W, pady=3)
         self.goal = StringVar(value='')
         entry = Entry(self, width=4, textvariable=self.goal, font=(MS_JH, 12))
         entry.grid(row=row, **entry_config)
@@ -100,11 +101,11 @@ class PowerConverterCanvas(Canvas):
 
         row += 1
         self.difference_for_goal = StringVar(value='')
-        Label(self, textvariable=self.difference_for_goal, font=(MS_JH, 10)).grid(row=row, pady=1, **span_config)
+        Label(self, textvariable=self.difference_for_goal, font=(MS_JH, 10)).grid(row=row, pady=4, **span_config)
 
         row += 1
         self.time_reaching_goal_ap = StringVar(value='')
-        Label(self, textvariable=self.time_reaching_goal_ap, font=(MS_JH, 10)).grid(row=row, pady=1, **span_config)
+        Label(self, textvariable=self.time_reaching_goal_ap, font=(MS_JH, 11)).grid(row=row, **span_config)
 
     def _insert_separator(self, row, config):
         ttk.Separator(self, orient=HORIZONTAL).grid(row=row, pady=6, **config)
@@ -115,10 +116,10 @@ class PowerConverterCanvas(Canvas):
         adjustment_ap = int(self.adjustment.get()) if self.adjustment.get() else 0
         difference_ap = int(self.max_ap.get()) - current_ap - adjustment_ap
         difference_time = APTimeCalculator.convert_ap_to_timedelta(difference_ap)
-        self.last_calculation.set('Last Time :  ' + self.convert_time_to_str(datetime.now()))
+        self.last_calculation.set('Current :  ' + self.convert_time_to_str(datetime.now()))
         self.difference_for_max.set('%02d+%02d AP --> ' % (current_ap, difference_ap) +
                                     self.convert_timedelta_to_str(difference_time))
-        self.time_reaching_max_ap.set('Reached Time :   ' +
+        self.time_reaching_max_ap.set('Reached :  ' +
                                       self.convert_time_to_str(datetime.now() + difference_time))
 
         # Saving data
@@ -136,7 +137,7 @@ class PowerConverterCanvas(Canvas):
         difference_time = APTimeCalculator.convert_ap_to_timedelta(difference_ap)
         self.difference_for_goal.set('%02d+%02d AP --> ' % (current_ap, difference_ap) +
                                      self.convert_timedelta_to_str(difference_time))
-        self.time_reaching_goal_ap.set(self.KEY_REACHED_TIME + ' :  ' +
+        self.time_reaching_goal_ap.set('Reached :  ' +
                                        self.convert_time_to_str(datetime.now() + difference_time))
 
     @staticmethod
@@ -151,7 +152,7 @@ class PowerConverterCanvas(Canvas):
         total_minutes = the_timedelta.seconds / 60
         minute = total_minutes % 60
         hour = total_minutes / 60
-        return '%02d 小時 %02d 分' % (hour, minute)
+        return '%02d 時 %02d 分' % (hour, minute)
 
 
 class DailyDroppedRecorder(Frame):
@@ -242,9 +243,6 @@ class DailyDroppedRecorder(Frame):
 
     # 改變「掉箱情況」區塊的顯示，並重新抓出對應關卡的數據
     def change_stage(self):
-        print self.mission_group.current_selection
-        print self.difficulty_group.current_selection
-
         # 若選擇「週一～五」時，禁止新增記錄，統計方法改變
         if self.mission_group.current_selection == len(_DAILY_MISSIONS):
             self.dropped_or_not_frame.submit_button['state'] = DISABLED

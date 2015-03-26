@@ -1,20 +1,21 @@
+ï»¿
+CharacterWeapon: ['Account', 'CharacterID', 'MaxAtk', 'MaxWeaponCritical', 'MaxArmor', 'CurrentAtk', 'CurrentCritical', 'CurrentArmor']
+åŒæ™‚æ‹¿æ‰ CharacterPower ToSimple çš„ toggle é¡è‰²
 
-°O¿ı¨C¶g±b¸¹¬ÛÃö¸ê°T¡A§tµ¥¯Å»P¹D¨ã¡]¹Ïªí¡^
-	¥i¥Î plotly https://plot.ly/python/getting-started/
+è¨˜éŒ„æ¯é€±å¸³è™Ÿç›¸é—œè³‡è¨Šï¼Œå«ç­‰ç´šèˆ‡é“å…·ï¼ˆåœ–è¡¨ï¼‰
+	å¯ç”¨ plotly https://plot.ly/python/getting-started/
 
-©Ò¦³¨¤¦âªºµù°O«¬¯à¤O¯S½è
-	½T»{¸ê®Æ®wªº³s°ÊÃö«Y¡A¬O§_¯à«OÃÒ¥ª¦³¥k¦³
+æ‰€æœ‰è§’è‰²çš„è¨»è¨˜å‹èƒ½åŠ›ç‰¹è³ª
+	ç¢ºèªè³‡æ–™åº«çš„é€£å‹•é—œä¿‚ï¼Œæ˜¯å¦èƒ½ä¿è­‰å·¦æœ‰å³æœ‰
 
-±b¸¹¾Ö¦³ªº¨¤¦â»P¨äª¬ºA¤§¦Cªí
+å¸³è™Ÿæ“æœ‰çš„è§’è‰²èˆ‡å…¶ç‹€æ…‹ä¹‹åˆ—è¡¨
 
-­pºâAP»P½ñ¯}®Ä²vªº­¶­±
-
-CharacterWeapon: ['Account', 'CharacterID', 'MaxWeaponAtk', 'MaxWeaponCritical', 'MaxWeaponArmor', 'CurrentWeaponAtk', 'CurrentWeaponCritical', 'CurrentWeaponArmor', 'WeaponLeft']
+è¨ˆç®—APèˆ‡è¸ç ´æ•ˆç‡çš„é é¢
 
 MyCharacter(object): ['Account', 'CharacterID', 'Level', 'Promoted', 'Tag']
 
-ap®Ä¯qmaybe? ¥´´X³õ¤É¯Å¡AÃö¥dµù°O
+apæ•ˆç›Šmaybe? æ‰“å¹¾å ´å‡ç´šï¼Œé—œå¡è¨»è¨˜
 
-¦¸­n¡]¦³«ö¶¶§Ç¡^¡G
-CharacterPage ¤ºªº CharacterInfoWindow ªºÂ¾·~»Pµ¥¯Å¿ï¾Ü¥Î Canvas¡C
-IndexFrame §ï¥Î StatisticTacker §@·~¡C
+æ¬¡è¦ï¼ˆæœ‰æŒ‰é †åºï¼‰ï¼š
+CharacterPage å…§çš„ CharacterInfoWindow çš„è·æ¥­èˆ‡ç­‰ç´šé¸æ“‡ç”¨ Canvasã€‚
+IndexFrame æ”¹ç”¨ StatisticTacker ä½œæ¥­ã€‚
