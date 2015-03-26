@@ -27,7 +27,7 @@ class CharacterPowerWindow(BasicWindow):
         self.character_selector = CharacterSelectorCanvas(self, self.character_power.character)
         self.character_selector.place(x=current_x, y=current_y - 3)
         callback_after_selection = lambda event: (
-            self.fill_in_automatically_by_character(), level_entry.focus_set())
+            self.filling_in_entries_by_character(), level_entry.focus_set())
         self.character_selector.bind('<Return>', callback_after_selection)
         self.character_selector.bind('-', callback_after_selection)
 
@@ -36,7 +36,7 @@ class CharacterPowerWindow(BasicWindow):
         self.level = StringVar()
         level_entry = Entry(self, width=5, textvariable=self.level, font=(SCP, 12), justify=CENTER)
         level_entry.place(x=current_x + 2, y=current_y + current_y_diff)
-        level_entry.bind('<Return>', lambda x: atk_entry.focus_set())
+        level_entry.bind('<Return>', lambda x: (self.filling_in_atk_by_level(), atk_entry.focus_set()))
 
         current_x += 62
         Label(self, width=5, text='Atk', font=(SCP, 12)).place(x=current_x, y=current_y)
@@ -133,14 +133,19 @@ class CharacterPowerWindow(BasicWindow):
         self.callback()
         self.destroy()
 
-    def fill_in_automatically_by_character(self):
+    def filling_in_entries_by_character(self):
         character = self.character_selector.get()
-        # 自動填入角色的相關資訊
+
         self.atk_raised.set(1.0)
         self.hit_rate.set(character.atk_speed)
         self.critical_ratio.set(character.critical_rate)
         self.critical_factor.set(1.5)
         self.active_cost.set(character.active_cost)
+
+    def filling_in_atk_by_level(self):
+        atk = self.character_selector.get().estimate_atk_by_level(int(self.level.get()))
+        if atk:
+            self.atk.set(atk)
 
     def open_updating_character_window(self):
         open_updating_character_window(self.master, self.character_selector.get(), position_y_shift=-300)

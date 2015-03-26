@@ -62,6 +62,10 @@ class Character(object):
     def max_hp_after_break(self):
         return self.max_hp + self.hp_grown * 4
 
+    @property
+    def max_lv(self):
+        return 10 + self.rank * 10
+
     def get_updated_info(self):
         return [self.full_name.encode('utf-8'), self.nickname.encode('utf-8'), self.profession.encode('utf-8'),
                 self.rank, self.active.encode('utf-8'), self.active_cost, self.passive_1.encode('utf-8'),
@@ -75,6 +79,15 @@ class Character(object):
                 self.active.encode('utf-8'), self.active_cost, self.passive_1.encode('utf-8'),
                 self.passive_2.encode('utf-8'), self.attachment.encode('utf-8'), self.weapon_type.encode('utf-8'),
                 self.max_atk, self.max_hp, self.note.encode('utf-8'), self.belonged.encode('utf-8')]
+
+    def estimate_atk_by_level(self, level):
+        exceeded_lv = level - self.max_lv
+        if exceeded_lv >= 0:
+            break_times, remaining_lv = divmod(exceeded_lv, 5)
+            return self.max_atk + break_times * self.atk_grown + \
+                   (100 if remaining_lv > 0 else 0) + remaining_lv * (self.atk_grown - 100) / 5
+        else:
+            return None
 
     def __getitem__(*args, **kwargs):
         return getattr(*args, **kwargs)
