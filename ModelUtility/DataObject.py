@@ -22,9 +22,9 @@ class Character(object):
         self.active = next(inputs)
         self.active_cost = next(inputs)
         self.passive_1 = next(inputs)
-        self.passive_1_lv = next(inputs)
+        self.passive_1_lv = self.get_suitable_passive_lv(self.passive_1, next(inputs))
         self.passive_2 = next(inputs)
-        self.passive_2_lv = next(inputs)
+        self.passive_2_lv = self.get_suitable_passive_lv(self.passive_2, next(inputs))
         self.attachment = next(inputs)
         self.weapon_type = next(inputs)
         self.exp_grown = next(inputs)
@@ -66,6 +66,10 @@ class Character(object):
     def max_lv(self):
         return 10 + self.rank * 10
 
+    @staticmethod
+    def get_suitable_passive_lv(passive, original):
+        return original if original != '0' else ('X' if passive == 'X' else u'始')
+
     def get_updated_info(self):
         return [self.full_name.encode('utf-8'), self.nickname.encode('utf-8'), self.profession.encode('utf-8'),
                 self.rank, self.active.encode('utf-8'), self.active_cost, self.passive_1.encode('utf-8'),
@@ -85,7 +89,7 @@ class Character(object):
         if exceeded_lv >= 0:
             break_times, remaining_lv = divmod(exceeded_lv, 5)
             return self.max_atk + break_times * self.atk_grown + \
-                   (100 if remaining_lv > 0 else 0) + remaining_lv * (self.atk_grown - 100) / 5
+                (100 if remaining_lv > 0 else 0) + remaining_lv * (self.atk_grown - 100) / 5
         else:
             return None
 
