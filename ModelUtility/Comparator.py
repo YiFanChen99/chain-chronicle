@@ -2,11 +2,19 @@
 from CommonValue import *
 from Utility import is_any_japanese_character_contain
 
+
 def match_request(source, request):
     if request == CONDITIONLESS:
         return True
     else:
         return source == request
+
+
+def not_match_request(source, request):
+    if request == CONDITIONLESS:
+        return True
+    else:
+        return source != request
 
 
 def match_requested_rank(source, request):

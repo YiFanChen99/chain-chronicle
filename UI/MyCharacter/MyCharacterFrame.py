@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from UI.Utility.BasicMainFrame import *
 from UI.MyCharacter.CharacterPowerFrame import CharacterPowerFrame
+from UI.MyCharacter.CharacterWeaponFrame import CharacterWeaponFrame
 
 
 class MyCharacterFrame(MainFrame):
-    PAGES = ['CharacterPower']
+    PAGES = ['CharacterPower', 'CharacterWeapon']
 
     def __init__(self, master, **kwargs):
         MainFrame.__init__(self, master, **kwargs)
@@ -31,6 +32,8 @@ class MyCharacterFrame(MainFrame):
 
         if self.page_selector.get() == self.PAGES[0]:  # CharacterPower
             self.main_frame = CharacterPowerFrame(self, width=self['width'], height=self['height'])
+        elif self.page_selector.get() == self.PAGES[1]:  # CharacterWeapon
+            self.main_frame = CharacterWeaponFrame(self, width=self['width'], height=self['height'])
         else:
             raise Exception("Wrong page selected!")
 

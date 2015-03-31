@@ -6,41 +6,33 @@ from ModelUtility.CommonState import *
 from UI.DrawLots.DrawLotsFrame import *
 from UI.DrawLots.EventOfDrawLotsWindow import *
 from Model import DrawLotsModel
+from Model import CharacterWeaponModel
+from UI.MyCharacter.CharacterWeaponWindow import *
+
 
 
 class Main(Frame):
-    def __init__(self, master=None):
-        Frame.__init__(self, master)
+    def __init__(self, master=None, width=MIN_WIDTH, height=MIN_HEIGHT):
+        Frame.__init__(self, master, width=width, height=height)
         master.title("ChainChronicle")
+        master.geometry('+%d+%d' % (
+            root.winfo_screenwidth() - MIN_WIDTH - 21, root.winfo_screenheight() - MIN_HEIGHT - 80))
         self.pack(fill=BOTH, expand=1)
 
-        set_account('Fuji')
-        events = DrawLotsModel.select_event_list()
-        a = EventWindow(self, events[2], None)
-        a.geometry('+1000+500')
-        # set_account('Yama')
-        # a = DrawLotsFrame(self, bg='green')
-        # a.place(x=0, y=0)
+        set_account('Yama')
+        cw = CharacterWeapon.create_empty_character_weapon()
+        popup = CharacterWeaponWindow(self, cw, lambda: self.the_print(cw))
+        popup.geometry('+%d+%d' % (
+            root.winfo_screenwidth() - MIN_WIDTH - 21, root.winfo_screenheight() - MIN_HEIGHT - 80))
+        self.wait_window(popup)
 
-
-    def the_print(self):
-        print 1, 2, 5
-        # popup.mainloop()
-        # popup = BasicWindow1(self, width=30 , height=60)
-        # popup.transient(self)
-        # popup.focus()
-        #
-        # root.wait_window(popup)
-        # popup = BasicWindow1(self, width=30 , height=60)
-        # root.wait_window(popup)
+    def the_print(self, obj):
+        print obj.nickname
 
 
 if __name__ == "__main__":
     root = Tk()
-    init_size = str(760) + 'x' + str(460)
-    root.geometry(init_size + '+800+350')
+    root.rowconfigure(0, weight=1)
+    root.columnconfigure(0, weight=1)
     app = Main(root)
     app.mainloop()
-
-# popup = CharacterInfoWindow(1039)
-# root.wait_window(popup)

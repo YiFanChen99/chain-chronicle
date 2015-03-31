@@ -6,6 +6,7 @@ from ModelUtility.Filter import FilterRuleManager
 from Model import CharacterPowerModel
 
 
+# noinspection PyUnresolvedReferences
 class CharacterPowerFrame(MainFrameWithTable):
     def __init__(self, master, **kwargs):
         MainFrameWithTable.__init__(self, master, **kwargs)
@@ -23,11 +24,11 @@ class CharacterPowerFrame(MainFrameWithTable):
         self.presently.bind('<Button-1>', lambda event: self.update_table(), add='+')
         self.presently.place(x=318, y=3)
 
-        Label(self, text='Order:', width=5, font=(MS_JH, 11)).place(x=401, y=2)
+        Label(self, text='Order:', width=5, font=(MS_JH, 11)).place(x=401, y=3)
         self.order_selector = ttk.Combobox(self, width=8, font=(MS_JH, 9), justify=CENTER, state='readonly')
         self.order_selector['values'] = ['DPS', 'Character']
         self.order_selector.set('DPS')
-        self.order_selector.place(x=452, y=4)
+        self.order_selector.place(x=452, y=5)
         self.order_selector.bind('<<ComboboxSelected>>', lambda event: self.update_table())
 
         button = Button(self, text='新增', width=8, font=(MS_JH, 10))
@@ -36,12 +37,13 @@ class CharacterPowerFrame(MainFrameWithTable):
             self, callback=lambda cp: self.callback_after_adding_character_power(cp))
 
         self.state_str = StringVar(value='ToFull')
-        self.state = ToggleButton(self, textvariable=self.state_str, width=8, font=(SCP, 10), relief=RIDGE)
-        self.state.bind('<Button-1>', lambda event: self._updating_status(), add='+')
+        self.state = Button(self, textvariable=self.state_str, width=8, font=(SCP, 10), relief=RIDGE)
+        self.state.is_full = False
+        self.state['command'] = lambda : (self.toggle_state(), self._updating_status())
         self.state.place(x=640, y=1)
 
     def _updating_status(self):
-        if self.state.is_selected:
+        if self.state.is_full:
             self.table_model = TableModelAdvance()
             self.table_model.set_columns(CharacterPower.TABLE_VIEW_FULL_COLUMNS, main_column='Character')
             self.table_view.setModel(self.table_model)
@@ -53,6 +55,9 @@ class CharacterPowerFrame(MainFrameWithTable):
             self.state_str.set('ToFull')
 
         self.update_table()
+
+    def toggle_state(self):
+        self.state.is_full = not self.state.is_full
 
     def callback_after_adding_character_power(self, character_power):
         self.characters.append(character_power)
@@ -73,7 +78,7 @@ class CharacterPowerFrame(MainFrameWithTable):
     def get_infos_by_state(self):
         self.filter_manager.set_specific_condition('presently', True if self.presently.is_selected else CONDITIONLESS)
         results = self.filter_manager.filter(self.characters)
-        return [character.get_table_view_full_info() for character in results] if self.state.is_selected else \
+        return [character.get_table_view_full_info() for character in results] if self.state.is_full else \
             [character.get_table_view_simple_info() for character in results]
 
     # 編輯角色傷害

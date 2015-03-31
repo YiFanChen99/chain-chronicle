@@ -16,7 +16,7 @@ class CharacterPowerWindow(BasicWindow):
         self.callback = callback
         self._init_widget()
         self._init_content()
-        # 滑鼠中鍵事件註冊，設定為更改角色詳細資訊
+        # 事件註冊，設定為更改角色詳細資訊
         self.bind("-", lambda event: self.open_updating_character_window())
 
     def _init_widget(self):

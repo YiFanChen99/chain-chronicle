@@ -489,3 +489,66 @@ class CharacterPower(object):
 
     def __getitem__(*args, **kwargs):
         return getattr(*args, **kwargs)
+
+
+class CharacterWeapon(object):
+    DB_TABLE = ['Account', 'CharacterID', 'MaxAtk', 'MaxCritical', 'MaxArmor',
+                'CurrentAtk', 'CurrentCritical', 'CurrentArmor']
+    SELECTED_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 Account 外的所有欄位
+    UPDATED_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 Account 外的所有欄位
+    TABLE_VIEW_COLUMNS = ['Character', 'Weapon', 'Atk Left', 'Critical Left', 'Armor Left', 'Total Left']
+
+    def __init__(self, record, character):
+        properties = iter(record)
+        self.max_atk = next(properties)
+        self.max_critical = next(properties)
+        self.max_armor = next(properties)
+        self.current_atk = next(properties)
+        self.current_critical = next(properties)
+        self.current_armor = next(properties)
+        self.character = character
+
+    @staticmethod
+    def create_empty_character_weapon():
+        return CharacterWeapon([0] * (len(CharacterWeapon.SELECTED_COLUMNS) - 1), None)
+
+    @property
+    def unforged_atk(self):
+        return self.max_atk - self.current_atk
+
+    @property
+    def unforged_critical(self):
+        return self.max_critical - self.current_critical
+
+    @property
+    def unforged_armor(self):
+        return self.max_armor - self.current_armor
+
+    @property
+    def unforged(self):
+        return self.unforged_atk + self.unforged_critical + self.unforged_armor
+
+    @property
+    def c_id(self):
+        return self.character.c_id
+
+    @property
+    def nickname(self):
+        return self.character.nickname
+
+    @property
+    def weapon_type(self):
+        return self.character.weapon_type
+
+    def get_updated_info(self):
+        if not self.character:
+            raise ValueError('Character is empty!')
+        return [self.c_id, self.max_atk, self.max_critical, self.max_armor,
+                self.current_atk, self.current_critical, self.current_armor]
+
+    def get_table_view_info(self):
+        return [self.character.nickname.encode('utf-8'), self.weapon_type.encode('utf-8'),
+                self.unforged_atk, self.unforged_critical, self.unforged_armor, self.unforged]
+
+    def __getitem__(*args, **kwargs):
+        return getattr(*args, **kwargs)

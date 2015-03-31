@@ -1,7 +1,4 @@
 ﻿
-CharacterWeapon: ['Account', 'CharacterID', 'MaxAtk', 'MaxWeaponCritical', 'MaxArmor', 'CurrentAtk', 'CurrentCritical', 'CurrentArmor']
-同時拿掉 CharacterPower ToSimple 的 toggle 顏色
-
 記錄每週帳號相關資訊，含等級與道具（圖表）
 	可用 plotly https://plot.ly/python/getting-started/
 

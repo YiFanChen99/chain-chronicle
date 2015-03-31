@@ -4,7 +4,6 @@ from ModelUtility.DataObject import Character, calculate_grown
 from ModelUtility.CommonValue import *
 from Model import CharacterModel
 
-WEAPONS = [u'斬', u'打', u'突', u'弓', u'魔', u'聖', u'拳', u'銃', u'狙']
 EXP_GROWN = [u'1250', u'1000', u'900', u'750', u'500', u'300', u'LH', u'鍊金SSR', u'鍊金SR']
 
 
