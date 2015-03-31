@@ -41,6 +41,7 @@ class CharacterWeaponWindow(BasicWindow):
         self.max_armor = IntEntry(self, width=5, font=(SCP, 12))
         self.max_armor.place(x=current_x + 16, y=current_y + current_y_diff)
         self.max_armor.bind('<Return>', lambda event: self.current_atk.focus_set())
+        self.max_armor.bind('<Control-Return>', lambda event: self.auto_fill())
 
         current_y += 65
         current_x = 171
@@ -91,6 +92,12 @@ class CharacterWeaponWindow(BasicWindow):
         self.character_weapon.current_armor = self.current_armor.get()
         self.callback()
         self.destroy()
+
+    def auto_fill(self):
+        self.current_atk.set(self.max_atk.get())
+        self.current_critical.set(self.max_critical.get())
+        self.current_armor.set(self.max_armor.get())
+        self.current_armor.focus_set()
 
 
 # 確認新增要求後，才新增至 DB 並通知 caller
