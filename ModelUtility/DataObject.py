@@ -68,7 +68,7 @@ class Character(object):
 
     @staticmethod
     def get_suitable_passive_lv(passive, original):
-        return original if original != '0' else ('X' if passive == 'X' else u'始')
+        return original if original != '0' else ('X' if passive == 'X' or not passive else u'始')
 
     def get_updated_info(self):
         return [self.full_name.encode('utf-8'), self.nickname.encode('utf-8'), self.profession.encode('utf-8'),
@@ -186,22 +186,22 @@ def calculate_grown(origin_max, max_after_broken):
 
 
 class RecordOfDrawLots(object):
-    DB_TABLE = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
-    DB_TABLE_NEW = ['Account', 'Times', 'EventID', 'CharacterID', 'Cost']
-    SELECTED_COLUMNS = UPDATED_COLUMNS = DB_TABLE_NEW[1:len(DB_TABLE_NEW)]  # 除了 Account 外的所有欄位
-    TABLE_VIEW_COLUMNS = ['Times', 'Event', 'Profession', 'Rank', 'Character', 'Cost']
+    DB_TABLE = ['Account', 'DrawOrder', 'EventID', 'CharacterID', 'Cost', 'DateTime']
+    SELECTED_COLUMNS = UPDATED_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 Account 外的所有欄位
+    TABLE_VIEW_COLUMNS = ['Order', 'Event', 'Profession', 'Rank', 'Character', 'Cost', 'DateTime']
 
     def __init__(self, record, event, character):
         properties = iter(record)
-        self.times = next(properties)
+        self.order = next(properties)
         self.cost = next(properties)
         self.event = event
+        self.date_time = next(properties)
         self.character = character
 
     @staticmethod
-    def create_new_record_by_last_one(last_record):
+    def create_new_record_by_last_one(last_record, date_time):
         if isinstance(last_record, RecordOfDrawLots):
-            return RecordOfDrawLots([last_record.times + 1, last_record.cost], last_record.event, None)
+            return RecordOfDrawLots([last_record.order + 1, last_record.cost, date_time], last_record.event, None)
         else:
             raise TypeError('Input object types {0}, not RecordOfDrawLots.'.format(type(last_record)))
 
@@ -229,11 +229,12 @@ class RecordOfDrawLots(object):
             raise ValueError('Event is empty!')
         if self.character is None:
             raise ValueError('Character is empty!')
-        return [self.times, self.event.e_id, self.character.c_id, self.cost.encode('utf-8')]
+        return [self.order, self.event.e_id, self.character.c_id, self.cost.encode('utf-8'), self.date_time]
 
     def get_table_view_info(self):
-        return [self.times, self.event.name.encode('utf-8'), self.character.profession.encode('utf-8'),
-                self.visual_character_rank, self.character.nickname.encode('utf-8'), self.cost.encode('utf-8')]
+        return [self.order, self.event.name.encode('utf-8'), self.character.profession.encode('utf-8'),
+                self.visual_character_rank, self.character.nickname.encode('utf-8'), self.cost.encode('utf-8'),
+                self.date_time]
 
     def take_statistic(self, statistic):
         statistic[0] += 1

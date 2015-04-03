@@ -6,7 +6,7 @@ from Model.CCGameDBTWModel import *
 class CCGameDBTWTest(unittest.TestCase):
     # 確認角色個數與欄位正確性
     def test_total_count(self):
-        expected = 451
+        expected = 473
         actual = len(CCGameDBTWDataOwner().data)
         assert actual == expected, 'Total character count expect {0}, but actual {1}'.format(expected, actual)
 

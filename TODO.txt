@@ -1,7 +1,4 @@
 ﻿
-抽卡時間的記錄追加
- 法委 pm0425
-
 多帳號處理，menubutton 實作，改成 json 物件存帳號資料？
 	http://code.activestate.com/lists/python-tkinter-discuss/2982/
 

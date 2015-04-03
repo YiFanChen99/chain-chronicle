@@ -104,9 +104,11 @@ class DrawLotsFrame(MainFrameWithTable):
     def update_table(self):
         results = self.filter_manager.filter(self.records)
         self.table_model.set_rows([result.get_table_view_info() for result in results])
-        self.table_model.setSortOrder(columnName='Times', reverse=1)
+        self.table_model.setSortOrder(columnName='Order', reverse=1)
         self.redisplay_table()
-        self.table_view.resizeColumn(0, 70)  # Times，顯示無記錄時會太寬
+        self.table_view.resizeColumn(0, 55)  # DrawOrder
+        self.table_view.resizeColumn(1, 178)  # Event
+        self.table_view.resizeColumn(4, 120)  # Character
 
         # 就篩選結果更新統計資料
         self._update_statistic_by_specific_results(results)
@@ -153,23 +155,23 @@ class DrawLotsFrame(MainFrameWithTable):
             self.records.append(record), self.update_table()))
 
     def do_double_clicking(self, event):
-        record = self.get_record_by_times(self.table_model.getCellRecord(self.table_view.get_row_clicked(event), 0))
+        record = self.get_record_by_order(self.table_model.getCellRecord(self.table_view.get_row_clicked(event), 0))
         open_updating_record_window(self, record, self.events, callback=self.update_table)
 
     def do_dragging_along_right(self, row_number):
-        record = self.get_record_by_times(self.table_model.getCellRecord(row_number, 0))
+        record = self.get_record_by_order(self.table_model.getCellRecord(row_number, 0))
         delete_record_with_conforming(
             self, record, lambda: (self.records.remove(record), self.update_table()))  # 直接從 list 中拿掉，不用重撈)
 
-    def get_record_by_times(self, times):
+    def get_record_by_order(self, order):
         for each_record in self.records:
-            if each_record.times == times:
+            if each_record.order == order:
                 return each_record
 
 
 # 確認刪除後，才從 DB 刪除並通知 caller
 def delete_record_with_conforming(master, record, callback):
-    if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete record times 「{0}」？'.format(
+    if tkMessageBox.askyesno('Deleting', 'Are you sure you want to delete record order 「{0}」？'.format(
             record.times), parent=master):
         DrawLotsModel.delete_record_from_db(record)
         callback()

@@ -14,12 +14,12 @@ def select_record_list():
 
 def select_last_record():
     return _convert_selected_columns_to_record(DBAccessor.execute(
-        'select {0} from RecordOfDrawLots where {1} and Times=(select max(Times) from RecordOfDrawLots where {1})'.
-        format(','.join(RecordOfDrawLots.SELECTED_COLUMNS), _get_account_condition())).fetchone())
+        'select {1} from {0} where {2} and DrawOrder=(select max(DrawOrder) from {0} where {2})'.format(
+            'RecordOfDrawLots', ','.join(RecordOfDrawLots.SELECTED_COLUMNS), _get_account_condition())).fetchone())
 
 
 def _convert_selected_columns_to_record(columns):
-    return RecordOfDrawLots([columns[0], columns[3]], select_specific_event(columns[1]),
+    return RecordOfDrawLots([columns[0], columns[3], columns[4]], select_specific_event(columns[1]),
                             select_character_by_specific_column('ID', columns[2]))
 
 
@@ -31,15 +31,15 @@ def insert_record_into_db(record):
 
 
 def update_record_into_db(record):
-    DBAccessor.execute('update RecordOfDrawLots{0} where {1} and Times={2}'.format(
+    DBAccessor.execute('update RecordOfDrawLots{0} where {1} and DrawOrder={2}'.format(
         convert_data_to_update_command(
-            RecordOfDrawLots.UPDATED_COLUMNS, record.get_updated_info()), _get_account_condition(), record.times))
+            RecordOfDrawLots.UPDATED_COLUMNS, record.get_updated_info()), _get_account_condition(), record.order))
     DBAccessor.commit()
 
 
 def delete_record_from_db(record):
-    DBAccessor.execute('delete from RecordOfDrawLots where {0} and Times={1}'.format(
-        _get_account_condition(), record.times))
+    DBAccessor.execute('delete from RecordOfDrawLots where {0} and DrawOrder={1}'.format(
+        _get_account_condition(), record.order))
     DBAccessor.commit()
 
 
