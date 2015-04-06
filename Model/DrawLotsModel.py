@@ -26,7 +26,7 @@ def _convert_selected_columns_to_record(columns):
 def insert_record_into_db(record):
     DBAccessor.execute('insert into RecordOfDrawLots({0}){1}'.format(
         ','.join(['Account'] + RecordOfDrawLots.UPDATED_COLUMNS),
-        convert_data_to_insert_command(get_account(), *record.get_updated_info())))
+        convert_data_to_insert_command(get_account_name(), *record.get_updated_info())))
     DBAccessor.commit()
 
 
@@ -81,7 +81,7 @@ def get_suitable_events(events, limitation):
 
 
 def _get_account_condition():
-    return 'Account=' + convert_datum_to_command(get_account())
+    return 'Account=' + convert_datum_to_command(get_account_name())
 
 
 def _get_server_condition():

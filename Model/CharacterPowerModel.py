@@ -14,7 +14,7 @@ def select_character_power_list():
 def insert_character_power_into_db(cp):
     DBAccessor.execute('insert into CharacterPower({0}){1}'.format(
         ','.join(['Account'] + CharacterPower.UPDATED_COLUMNS),
-        convert_data_to_insert_command(get_account(), *cp.get_updated_info())))
+        convert_data_to_insert_command(get_account_name(), *cp.get_updated_info())))
     DBAccessor.commit()
 
 
@@ -32,4 +32,4 @@ def delete_character_power_from_db(character_power):
 
 
 def _get_condition():
-    return 'Account=' + convert_datum_to_command(get_account())
+    return 'Account=' + convert_datum_to_command(get_account_name())

@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 from ModelUtility.Utility import save_json, load_json
 
-_DATA_PATH = 'data/data.json'
-
 
 class Recorder(object):
-    def __init__(self, path=_DATA_PATH):
+    def __init__(self, path):
         self.path = path
         self.data = load_json(self.path)
 

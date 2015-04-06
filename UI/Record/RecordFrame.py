@@ -12,9 +12,9 @@ class RecordFrame(MainFrame):
         self.jp_advanced_daily_dropped = JPAdvancedDailyDroppedCanvas(self)
         self.jp_advanced_daily_dropped.place(x=15, y=12)
 
-        self.monthly_dropped = MonthlyDroppedCanvas(self, '山貓月間', 'CN SM Monthly')
+        self.monthly_dropped = MonthlyDroppedCanvas(self, '砂精月間', 'CN Monthly 1')
         self.monthly_dropped.place(x=200, y=12)
-        self.monthly_dropped_2 = MonthlyDroppedCanvas(self, '執著月間', 'CN JJ Monthly')
+        self.monthly_dropped_2 = MonthlyDroppedCanvas(self, '廚魔月間', 'CN Monthly 2')
         self.monthly_dropped_2.place(x=390, y=12)
 
 

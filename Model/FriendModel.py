@@ -14,21 +14,21 @@ def commit():
 def select_friend_info_list():
     return [FriendInfo(each) for each in
             DBAccessor.execute('select {0} from FriendInfo{1} where UsedNames!=\'\''.format(
-                ','.join(FriendInfo.SELECTED_COLUMNS), get_server()))]
+                ','.join(FriendInfo.SELECTED_COLUMNS), get_account_name()))]
 
 
 def select_specific_friend_info(requested_id):
     return FriendInfo(DBAccessor.execute('select {0} from FriendInfo{1} where ID=={2}'.format(
-        ','.join(FriendInfo.SELECTED_COLUMNS), get_server(), requested_id)).fetchone())
+        ','.join(FriendInfo.SELECTED_COLUMNS), get_account_name(), requested_id)).fetchone())
 
 
 def select_unused_friend_info():
     return FriendInfo(DBAccessor.execute('select {0} from FriendInfo{1} where UsedNames==\'\''.format(
-        ','.join(FriendInfo.SELECTED_COLUMNS), get_server())).fetchone())
+        ','.join(FriendInfo.SELECTED_COLUMNS), get_account_name())).fetchone())
 
 
 def update_friend_info_into_db(friend_info, commit_followed=True):
-    DBAccessor.execute('update FriendInfo{0}{1} where ID={2}'.format(get_server(), convert_data_to_update_command(
+    DBAccessor.execute('update FriendInfo{0}{1} where ID={2}'.format(get_account_name(), convert_data_to_update_command(
         FriendInfo.UPDATED_COLUMNS, friend_info.get_updated_info()), friend_info.f_id))
     DBAccessor.commit_if_requested(commit_followed)
 
@@ -36,12 +36,12 @@ def update_friend_info_into_db(friend_info, commit_followed=True):
 def select_new_friend_record_list():
     return [FriendRecord(each) for each in
             DBAccessor.execute('select {0} from FriendInfo{1} where UsedNames!=\'\''.format(
-                ','.join(FriendRecord.FRIEND_INFO_SELECTED_COLUMNS), get_server()))]
+                ','.join(FriendRecord.FRIEND_INFO_SELECTED_COLUMNS), get_account_name()))]
 
 
 def insert_friend_record_into_db(record, the_date, commit_followed):
     DBAccessor.execute('insert into FriendRecord{0} ({1}){2}'.format(
-        get_server(), ','.join(FriendRecord.DB_TABLE),
+        get_account_name(), ','.join(FriendRecord.DB_TABLE),
         convert_data_to_insert_command(*record.get_inserted_info(the_date))))
     DBAccessor.commit_if_requested(commit_followed)
 
@@ -50,31 +50,31 @@ def delete_friend_from_db(friend_info):
     # 將 FriendInfo table 中該 ID 的其他欄位全數清空
     columns = FriendInfo.CLEANED_UP_COLUMNS
     DBAccessor.execute('update FriendInfo{0}{1} where ID={2}'.format(
-        get_server(), convert_data_to_update_command(columns, [''] * len(columns)), friend_info.f_id))
+        get_account_name(), convert_data_to_update_command(columns, [''] * len(columns)), friend_info.f_id))
     # 將 FriendRecord table 中對應其 ID 的記錄全數刪除
-    DBAccessor.execute('delete from FriendRecord{0} where FriendID={1}'.format(get_server(), friend_info.f_id))
+    DBAccessor.execute('delete from FriendRecord{0} where FriendID={1}'.format(get_account_name(), friend_info.f_id))
     DBAccessor.commit()
 
 
 # 欲取得最後更新全體記錄的時間，但只用了效果類似的手段（抓倒數第 25 筆更新的時間）
 def get_since_all_record_date():
-    all_record_date = convert_str_to_date(DBAccessor.execute(
-        'select {1} from {0} order by {1} desc limit 1 offset 25'.format(
-            'FriendRecord' + get_server(), 'RecordedDate')).fetchone()[0])
-    return str((date.today() - all_record_date).days) if all_record_date is not None else '?'
+    specific_record = DBAccessor.execute('select {1} from {0} order by {1} desc limit 1 offset 25'.format(
+        'FriendRecord' + get_account_name(), 'RecordedDate')).fetchone()
+    specific_date = convert_str_to_date(specific_record[0] if specific_record else None)
+    return str((date.today() - specific_date).days) if specific_date is not None else '?'
 
 
 # 重新統計 FriendRecord 並寫入 FriendInfo 內
 def take_statistic_to_update_friend_info():
     # 對每個目前好友進行處理
     for friend in DBAccessor.execute('select ID from FriendInfo{0} where UsedNames!=\'\''.format(
-            get_server())).fetchall():
+            get_account_name())).fetchall():
         f_id = friend[0]
         statistic_taker = FriendStatisticTaker(f_id)
         # 取出該 ID 對應的所有記錄，從最近排序到最久以前
         records = DBAccessor.execute('select {0} from FriendRecord{1} where FriendID={2}'.format(
             ','.join(FriendStatisticTaker.FRIEND_RECORD_SELECTED_COLUMNS),
-            get_server(), f_id) + ' order by RecordedDate DESC').fetchall()
+            get_account_name(), f_id) + ' order by RecordedDate DESC').fetchall()
         # 最新的好友，尚無記錄，則不用處理
         if len(records) == 0:
             continue
@@ -134,7 +134,7 @@ class FriendStatisticTaker(object):
 
     def update_into_memory_db(self):
         DBAccessor.execute('update FriendInfo{0}{1} where ID={2}'.format(
-            get_server(), convert_data_to_update_command(
+            get_account_name(), convert_data_to_update_command(
                 self.FRIEND_INFO_UPDATED_COLUMNS, self.get_updated_info()), self.f_id))
 
     def get_updated_info(self):

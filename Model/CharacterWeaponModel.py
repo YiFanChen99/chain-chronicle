@@ -14,7 +14,7 @@ def select_character_weapon_list():
 def insert_character_weapon_into_db(cw):
     DBAccessor.execute('insert into CharacterWeapon({0}){1}'.format(
         ','.join(['Account'] + CharacterWeapon.UPDATED_COLUMNS),
-        convert_data_to_insert_command(get_account(), *cw.get_updated_info())))
+        convert_data_to_insert_command(get_account_name(), *cw.get_updated_info())))
     DBAccessor.commit()
 
 
@@ -32,4 +32,4 @@ def delete_character_weapon_from_db(character_weapon):
 
 
 def _get_condition():
-    return 'Account=' + convert_datum_to_command(get_account())
+    return 'Account=' + convert_datum_to_command(get_account_name())

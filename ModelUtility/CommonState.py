@@ -1,47 +1,51 @@
 # -*- coding: utf-8 -*-
 from ModelUtility.DataRecorder import Recorder
 
-_ACCOUNTS = ['Fuji', 'Yama']
-_CORRESPONDING_SERVERS = ['JP', 'CN']
-_account = _ACCOUNTS[0]
-_server = _CORRESPONDING_SERVERS[0]
-_account_page_index = 0
-_recorder = Recorder()
+_data_recorder = Recorder('data/data.json')
+_account_recorder = Recorder('data/account.json')
+_current_account = _account_recorder.get('Fuji')
 
 
-def set_account(account):
-    if not account in _ACCOUNTS:
-        raise ValueError('Wrong account name!')
+# 寫入記憶體，不寫回檔案
+def set_account(account_key):
+    global _account_recorder
+    global _current_account
+    _current_account = _account_recorder.get(account_key)
+    if not _current_account:
+        raise ValueError('Wrong account key!')
 
-    global _account
-    global _server
-    _account = account
-    _server = _CORRESPONDING_SERVERS[_ACCOUNTS.index(account)]
 
-
-def get_account():
-    global _account
-    return _account
+def get_account_name():
+    global _current_account
+    return _current_account['name']
 
 
 def get_server():
-    global _server
-    return _server
+    global _current_account
+    return _current_account['server']
 
 
-def get_account_page_index():
-    global _account_page_index
-    return _account_page_index
+def get_enabled_pages():
+    global _current_account
+    return _current_account['enabled_pages']
 
 
-def set_account_page_index(index):
-    global _account_page_index
-    _account_page_index = index
+def get_last_page_index():
+    global _current_account
+    return _current_account['last_page']
+
+
+# 寫入記憶體，不寫回檔案
+def set_last_page_index(index):
+    global _current_account
+    _current_account['last_page'] = index
 
 
 def get_data_record(key):
-    return _recorder.get(key)
+    global _data_recorder
+    return _data_recorder.get(key)
 
 
 def save_data_record():
-    return _recorder.save()
+    global _data_recorder
+    return _data_recorder.save()

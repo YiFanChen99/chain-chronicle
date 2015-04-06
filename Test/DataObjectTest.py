@@ -34,11 +34,11 @@ class DBColumnsTest(unittest.TestCase):
 
     # FriendInfo.DB_TABLE 是否涵蓋所有 FriendInfo 表內的欄位
     def test_friend_info_db_table_completed(self):
-        self._assert_db_table_completed('FriendInfoJP', FriendInfo.DB_TABLE)
+        self._assert_db_table_completed('FriendInfoFuji', FriendInfo.DB_TABLE)
 
     # FriendRecord.DB_TABLE 是否涵蓋所有 FriendRecord 表內的欄位
     def test_friend_record_db_table_completed(self):
-        self._assert_db_table_completed('FriendRecordJP', FriendRecord.DB_TABLE)
+        self._assert_db_table_completed('FriendRecordFuji', FriendRecord.DB_TABLE)
 
     # CharacterPower.DB_TABLE 是否涵蓋所有 CharacterPower 表內的欄位
     def test_character_power_db_table_completed(self):
@@ -79,7 +79,7 @@ class CGDTCharacterTest(unittest.TestCase):
 
 class FriendInfoTest(unittest.TestCase):
     def test_checking_when_get_updated_info(self):
-        record = DBAccessor.execute('select {0} from FriendInfoJP where UsedNames!=\'\''.format(
+        record = DBAccessor.execute('select {0} from FriendInfoFuji where UsedNames!=\'\''.format(
             ','.join(FriendInfo.SELECTED_COLUMNS))).fetchone()
 
         FriendInfo(record)  # Pass

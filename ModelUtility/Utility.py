@@ -15,7 +15,7 @@ def load_json(file_path):
 
 
 def convert_str_to_date(date_str):
-    return datetime.strptime(date_str, "%Y-%m-%d").date() if date_str is not None else None
+    return datetime.strptime(date_str, "%Y-%m-%d").date() if date_str else None
 
 
 def is_any_japanese_character_contain(variable):
