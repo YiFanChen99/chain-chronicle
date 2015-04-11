@@ -39,7 +39,7 @@ class CharacterPowerFrame(MainFrameWithTable):
         self.state_str = StringVar(value='ToFull')
         self.state = Button(self, textvariable=self.state_str, width=8, font=(SCP, 10), relief=RIDGE)
         self.state.is_full = False
-        self.state['command'] = lambda : (self.toggle_state(), self._updating_status())
+        self.state['command'] = lambda: (self.toggle_state(), self._updating_status())
         self.state.place(x=640, y=1)
 
     def _updating_status(self):

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from UI.Utility.BasicMainFrame import *
 from UI.MyCharacter.CharacterWeaponWindow import *
+from UI.Character.CharacterWindow import *
 from UI.Utility.Button import ToggleButton
 from UI.Utility.Combobox import FilteredCombobox
 from ModelUtility.DataObject import CharacterWeapon
@@ -12,6 +13,8 @@ from Model import CharacterWeaponModel
 class CharacterWeaponFrame(MainFrameWithTable):
     def __init__(self, master, **kwargs):
         MainFrameWithTable.__init__(self, master, **kwargs)
+        # 滑鼠中鍵事件註冊，設定為更改角色詳細資訊，並選取該列
+        self.table_view.bind("<Button-2>", lambda event: self.opening_character_update_window(event))
         self.set_table_place(6, 31)
         self.filter_manager = FilterRuleManager()
         self.table_model = TableModelAdvance()
@@ -45,8 +48,14 @@ class CharacterWeaponFrame(MainFrameWithTable):
     def update_table(self):
         results = self.filter_manager.filter(self.characters)
         self.table_model.set_rows([result.get_table_view_info() for result in results])
-        self.table_model.setSortOrder(columnName='Total Left', reverse=1)
+        self.table_model.setSortOrder(columnName='Left', reverse=1)
         self.redisplay_table()
+
+    # 更改角色資訊
+    def opening_character_update_window(self, event):
+        self.table_view.handle_left_click(event)
+        character = self.get_corresponding_character_weapon_in_row(self.table_view.get_row_clicked(event)).character
+        open_updating_character_window(self, character, lambda: None)
 
     # 編輯武器狀態
     def do_double_clicking(self, event):

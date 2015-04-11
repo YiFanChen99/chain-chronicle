@@ -20,7 +20,7 @@ class IndexFrame(MainFrame):
 
         PowerConverterCanvas(self, 'Fuji Account').place(x=5, y=15)
         PowerConverterCanvas(self, 'Yama Account').place(x=196, y=15)
-        PowerConverterCanvas(self, 'Shiki Account').place(x=387, y=15)
+        PowerConverterCanvas(self, 'Happy Account').place(x=387, y=15)
 
         DailyDroppedRecorder(self).place(x=576, y=0)
 

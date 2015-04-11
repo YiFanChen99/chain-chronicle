@@ -497,7 +497,7 @@ class CharacterWeapon(object):
                 'CurrentAtk', 'CurrentCritical', 'CurrentArmor']
     SELECTED_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 Account 外的所有欄位
     UPDATED_COLUMNS = DB_TABLE[1:len(DB_TABLE)]  # 除了 Account 外的所有欄位
-    TABLE_VIEW_COLUMNS = ['Character', 'Weapon', 'Atk Left', 'Critical Left', 'Armor Left', 'Total Left']
+    TABLE_VIEW_COLUMNS = ['Character', 'Weapon', 'Atk', 'Critical', 'Armor', 'Total', 'Left']
 
     def __init__(self, record, character):
         properties = iter(record)
@@ -526,6 +526,10 @@ class CharacterWeapon(object):
         return self.max_armor - self.current_armor
 
     @property
+    def max_total(self):
+        return self.max_atk + self.max_critical + self.max_armor
+
+    @property
     def unforged(self):
         return self.unforged_atk + self.unforged_critical + self.unforged_armor
 
@@ -549,7 +553,7 @@ class CharacterWeapon(object):
 
     def get_table_view_info(self):
         return [self.character.nickname.encode('utf-8'), self.weapon_type.encode('utf-8'),
-                self.unforged_atk, self.unforged_critical, self.unforged_armor, self.unforged]
+                self.max_atk, self.max_critical, self.max_armor, self.max_total, self.unforged]
 
     def __getitem__(*args, **kwargs):
         return getattr(*args, **kwargs)

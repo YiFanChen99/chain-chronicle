@@ -34,8 +34,8 @@ class MenuFrame(BasicMenuFrame):
                           command=lambda: self.change_to_account_frame('Fuji')),
                    Button(self, text='Yama Account', width=14, font=(SCP, 11),
                           command=lambda: self.change_to_account_frame('Yama')),
-                   Button(self, text='Shiki Account', width=14, font=(SCP, 11),
-                          command=lambda: self.change_to_account_frame('Shiki'))]
+                   Button(self, text='Happy Account', width=14, font=(SCP, 11),
+                          command=lambda: self.change_to_account_frame('Happy'))]
 
         for index, button in enumerate(buttons):
             button.place(x=70 + 150 * index, y=-1)
