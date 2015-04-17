@@ -17,6 +17,9 @@ class RecordFrame(MainFrame):
         self.monthly_dropped_2 = MonthlyDroppedCanvas(self, '廚魔月間', 'CN Monthly 2')
         self.monthly_dropped_2.place(x=390, y=12)
 
+        self.the_stage_dropped = SpecificStageDroppedCanvas(self, 'Specific Stage 1', width=163)
+        self.the_stage_dropped.place(x=582, y=12)
+
 
 class JPAdvancedDailyDroppedCanvas(Canvas):
     SECTION = 'JP Advanced Daily'
@@ -145,6 +148,82 @@ class MonthlyDroppedCanvas(Canvas):
         data_record[self.KEY_TOTAL] = self.statistic_tacker.times
         data_record[self.KEY_FERTILIZER] = self.statistic_tacker.drops[0]
         data_record[self.KEY_CHARACTER] = self.statistic_tacker.drops[1]
+        save_data_record()
+
+        self._init_buttons_state()
+        self._update_statistics()
+
+
+class SpecificStageDroppedCanvas(Canvas):
+    KEY_TOTAL = 'total'
+    KEY_DROPS = "drops"
+    KEY_VALUES = "values"
+
+    def __init__(self, master, section, **kwargs):
+        Canvas.__init__(self, master, **kwargs)
+        self.title = StringVar()
+        self.section = section
+        self._init_frame()
+        self._init_fields()
+
+    def _init_frame(self):
+        Label(self, textvariable=self.title, width=13, font=(MS_JH, 14)).place(x=7, y=5)
+        self.box_1_button = ToggleButton(self, text='1st', width=3, font=(SCP, 11), relief=RIDGE)
+        self.box_1_button.place(x=5 + 40 * 0, y=39)
+        self.box_2_button = ToggleButton(self, text='2nd', width=3, font=(SCP, 11), relief=RIDGE)
+        self.box_2_button.place(x=5 + 40 * 1, y=39)
+        self.box_3_button = ToggleButton(self, text='3rd', width=3, font=(SCP, 11), relief=RIDGE)
+        self.box_3_button.place(x=5 + 40 * 2, y=39)
+        self.box_4_button = ToggleButton(self, text='4th', width=3, font=(SCP, 11), relief=RIDGE)
+        self.box_4_button.place(x=5 + 40 * 3, y=39)
+
+        submit_button = Button(self, text='Submit', width=16, font=(SCP, 11), relief=RIDGE)
+        submit_button.place(x=6, y=76)
+        submit_button.bind('<Button-1>', lambda event: self.submitting())
+
+        current_y = 114
+        self.total_desc = StringVar()
+        Label(self, textvariable=self.total_desc, width=16, font=(SCP, 11)).place(x=8, y=current_y)
+        current_y += 28
+        self.drop_vars = [IntVar(), IntVar(), IntVar(), IntVar()]
+        for i in range(4):
+            Label(self, textvariable=self.drop_vars[i], width=3, font=(SCP, 11), relief=GROOVE).\
+                place(x=7 + 40 * i, y=current_y)
+        self._init_buttons_state()
+        current_y += 25
+        self.values_desc = StringVar()
+        Label(self, textvariable=self.values_desc, width=16, font=(SCP, 11)).place(x=8, y=current_y)
+
+    def _init_fields(self):
+        data_record = get_data_record(self.section)
+        self.title.set(data_record['title'])
+        self.statistic_tacker = DroppedStatisticTacker(4)
+        self.statistic_tacker.set(data_record[self.KEY_TOTAL], data_record[self.KEY_DROPS])
+        self.values = data_record[self.KEY_VALUES]
+
+        self._update_statistics()
+
+    def _update_statistics(self):
+        from itertools import izip
+        self.total_desc.set('Times : %2d ' % self.statistic_tacker.times)
+        for i in range(4):
+            self.drop_vars[i].set(self.statistic_tacker.drops[i])
+        self.values_desc.set('Value : %2d ' % (sum(p*q for p,q in izip(
+            self.values, self.statistic_tacker.get_statistics_ratio())) / 100))
+
+    def _init_buttons_state(self):
+        self.box_1_button.set_is_selected(True)
+        self.box_2_button.set_is_selected(True)
+        self.box_3_button.set_is_selected(False)
+        self.box_4_button.set_is_selected(False)
+
+    def submitting(self):
+        self.statistic_tacker.record([self.box_1_button.is_selected, self.box_2_button.is_selected,
+                                      self.box_3_button.is_selected, self.box_4_button.is_selected])
+
+        data_record = get_data_record(self.section)
+        data_record[self.KEY_TOTAL] = self.statistic_tacker.times
+        data_record[self.KEY_DROPS] = self.statistic_tacker.drops
         save_data_record()
 
         self._init_buttons_state()
