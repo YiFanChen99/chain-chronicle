@@ -3,6 +3,7 @@ from UI.Utility.BasicMainFrame import *
 from UI.Utility.Combobox import FilteredCombobox, IntFilteredCombobox, FilteredObjectCombobox
 from UI.DrawLots.RecordOfDrawLotsWindow import *
 from UI.DrawLots.EventOfDrawLotsWindow import *
+from UI.Character.CharacterWindow import open_updating_character_window
 from ModelUtility.DataObject import RecordOfDrawLots
 from ModelUtility.Filter import FilterRuleManager
 from Model import DrawLotsModel
@@ -14,6 +15,8 @@ class DrawLotsFrame(MainFrameWithTable):
         self.set_table_place(34, 29)
         self.table_model = TableModelAdvance()
         self.table_model.set_columns(RecordOfDrawLots.TABLE_VIEW_COLUMNS)
+        # 滑鼠中鍵事件註冊，設定為更改角色詳細資訊，並選取該列
+        self.table_view.bind("<Button-2>", lambda event: self.opening_character_update_window(event))
         self.table_view.setModel(self.table_model)
 
         self.filter_manager = FilterRuleManager()
@@ -167,6 +170,13 @@ class DrawLotsFrame(MainFrameWithTable):
         for each_record in self.records:
             if each_record.order == order:
                 return each_record
+
+    # 更改角色資訊
+    def opening_character_update_window(self, event):
+        self.table_view.handle_left_click(event)
+        character = self.get_record_by_order(
+            self.table_model.getCellRecord(self.table_view.get_row_clicked(event), 0)).character
+        open_updating_character_window(self, character, lambda: None)
 
 
 # 確認刪除後，才從 DB 刪除並通知 caller
