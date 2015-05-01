@@ -26,6 +26,7 @@ class IndexFrame(MainFrame):
 
 
 class PowerConverterCanvas(Canvas):
+    KEY_CURRENT_AP = 'current_ap'
     KEY_MAX_AP = 'max_ap'
     KEY_LAST_TIME = 'last_time'
     KEY_DIFFERENCE = 'difference'
@@ -41,6 +42,7 @@ class PowerConverterCanvas(Canvas):
         # Loading data
         data_record = get_data_record(title)
         self.last_calculation.set(data_record[self.KEY_LAST_TIME])
+        self.current_ap.set(data_record[self.KEY_CURRENT_AP])
         self.max_ap.set(data_record[self.KEY_MAX_AP])
         self.difference_for_max.set(data_record[self.KEY_DIFFERENCE])
         self.time_reaching_max_ap.set(data_record[self.KEY_REACHED_TIME])
@@ -60,9 +62,11 @@ class PowerConverterCanvas(Canvas):
         row += 1
         Label(self, text='Current AP', font=(MS_JH, 12)).grid(row=row, sticky=N+E+S+W)
         self.current_ap = StringVar(value='')
-        entry = Entry(self, width=4, textvariable=self.current_ap, font=(MS_JH, 12))
-        entry.grid(row=row, **entry_config)
-        entry.bind('<Return>', lambda event: self.calculate_for_max_ap())
+        current_ap_entry = Entry(self, width=4, textvariable=self.current_ap, font=(MS_JH, 12))
+        current_ap_entry.grid(row=row, **entry_config)
+        current_ap_entry.bind('<Return>', lambda event: self.calculate_for_max_ap())
+        current_ap_entry.bind('<FocusIn>', lambda event: (
+            current_ap_entry.focus_set(), current_ap_entry.selection_range(0, END)))
 
         row += 1
         Label(self, text='Max AP', font=(MS_JH, 12)).grid(row=row, sticky=N+E+S+W)
@@ -82,7 +86,7 @@ class PowerConverterCanvas(Canvas):
 
         row += 1
         self.difference_for_max = StringVar(value='')
-        Label(self, textvariable=self.difference_for_max, font=(MS_JH, 10)).grid(row=row, padx=5, pady=2, **span_config)
+        Label(self, textvariable=self.difference_for_max, font=(MS_JH, 11)).grid(row=row, padx=5, pady=1, **span_config)
 
         row += 1
         self.time_reaching_max_ap = StringVar(value='')
@@ -117,14 +121,14 @@ class PowerConverterCanvas(Canvas):
         difference_ap = int(self.max_ap.get()) - current_ap - adjustment_ap
         difference_time = APTimeCalculator.convert_ap_to_timedelta(difference_ap)
         self.last_calculation.set('Current :  ' + self.convert_time_to_str(datetime.now()))
-        self.difference_for_max.set('%02d+%02d AP --> ' % (current_ap, difference_ap) +
-                                    self.convert_timedelta_to_str(difference_time))
+        self.difference_for_max.set('%02d AP --> ' % difference_ap + self.convert_timedelta_to_str(difference_time))
         self.time_reaching_max_ap.set('Reached :  ' +
                                       self.convert_time_to_str(datetime.now() + difference_time))
 
         # Saving data
         data_record = get_data_record(self.title)
         data_record[self.KEY_LAST_TIME] = self.last_calculation.get()
+        data_record[self.KEY_CURRENT_AP] = self.current_ap.get()
         data_record[self.KEY_MAX_AP] = self.max_ap.get()
         data_record[self.KEY_DIFFERENCE] = self.difference_for_max.get()
         data_record[self.KEY_REACHED_TIME] = self.time_reaching_max_ap.get()

@@ -1,39 +1,41 @@
 {
     "CN Monthly 1": {
         "character": 0,
-        "fertilizer": 18,
-        "total": 9
+        "fertilizer": 32,
+        "total": 15
     },
     "CN Monthly 2": {
         "character": 0,
-        "fertilizer": 60,
-        "total": 28
+        "fertilizer": 70,
+        "total": 32
     },
     "Fuji Account": {
-        "difference": "10+80 AP --> 10 \u6642 40 \u5206",
-        "last_time": "Current :  12:54 AM",
+        "current_ap": "31",
+        "difference": "59 AP --> 07 \u6642 52 \u5206",
+        "last_time": "Current :  09:18 AM",
         "max_ap": "90",
-        "reached_time": "Reached :  11:34 PM"
+        "reached_time": "Reached :  05:10 PM"
     },
     "Happy Account": {
-        "difference": "02+67 AP --> 08 \u6642 56 \u5206",
-        "last_time": "Current :  01:11 PM",
-        "max_ap": "69",
-        "reached_time": "Reached :  10:07 PM"
+        "current_ap": "18",
+        "difference": "53 AP --> 07 \u6642 04 \u5206",
+        "last_time": "Current :  09:01 AM",
+        "max_ap": "71",
+        "reached_time": "Reached :  04:05 PM"
     },
     "JP Advanced Daily": {
-        "dropped": 241,
-        "total": 212
+        "dropped": 245,
+        "total": 215
     },
     "Specific Stage 1": {
         "drops": [
-            15,
-            14,
-            10,
-            6
+            181,
+            112,
+            74,
+            90
         ],
-        "title": "\u968a\u54e1\u96c6\u5408 (AC)",
-        "total": 16,
+        "title": "\u968a\u54e1\u96c6\u548c (AC)",
+        "total": 200,
         "values": [
             200,
             300,
@@ -42,9 +44,10 @@
         ]
     },
     "Yama Account": {
-        "difference": "05+73 AP --> 09 \u6642 44 \u5206",
-        "last_time": "Current :  01:08 PM",
-        "max_ap": "78",
-        "reached_time": "Reached :  10:52 PM"
+        "current_ap": "9",
+        "difference": "71 AP --> 09 \u6642 28 \u5206",
+        "last_time": "Current :  09:21 AM",
+        "max_ap": "80",
+        "reached_time": "Reached :  06:49 PM"
     }
 }
