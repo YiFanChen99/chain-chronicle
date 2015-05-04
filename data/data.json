@@ -1,13 +1,15 @@
 {
     "CN Monthly 1": {
         "character": 0,
-        "fertilizer": 32,
-        "total": 15
+        "fertilizer": 0,
+        "title": "\u98a8\u5b50\u6708\u9593",
+        "total": 0
     },
     "CN Monthly 2": {
         "character": 0,
-        "fertilizer": 70,
-        "total": 32
+        "fertilizer": 0,
+        "title": "\u5149\u8f1d\u6708\u9593",
+        "total": 0
     },
     "Fuji Account": {
         "current_ap": "31",

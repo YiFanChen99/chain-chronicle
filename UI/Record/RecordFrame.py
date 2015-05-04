@@ -12,9 +12,9 @@ class RecordFrame(MainFrame):
         self.jp_advanced_daily_dropped = JPAdvancedDailyDroppedCanvas(self)
         self.jp_advanced_daily_dropped.place(x=15, y=12)
 
-        self.monthly_dropped = MonthlyDroppedCanvas(self, '砂精月間', 'CN Monthly 1')
+        self.monthly_dropped = MonthlyDroppedCanvas(self, 'CN Monthly 1')
         self.monthly_dropped.place(x=200, y=12)
-        self.monthly_dropped_2 = MonthlyDroppedCanvas(self, '廚魔月間', 'CN Monthly 2')
+        self.monthly_dropped_2 = MonthlyDroppedCanvas(self, 'CN Monthly 2')
         self.monthly_dropped_2.place(x=390, y=12)
 
         self.the_stage_dropped = SpecificStageDroppedCanvas(self, 'Specific Stage 1', width=163)
@@ -80,15 +80,15 @@ class MonthlyDroppedCanvas(Canvas):
     KEY_FERTILIZER = 'fertilizer'
     KEY_CHARACTER = 'character'
 
-    def __init__(self, master, title, section, **kwargs):
+    def __init__(self, master, section, **kwargs):
         Canvas.__init__(self, master, **kwargs)
-        self.title = title
+        self.title = StringVar()
         self.section = section
         self._init_frame()
         self._init_fields()
 
     def _init_frame(self):
-        Label(self, text=self.title, width=8, font=(MS_JH, 14)).place(x=43, y=5)
+        Label(self, textvariable=self.title, width=8, font=(MS_JH, 14)).place(x=43, y=5)
         self.box_12_button = ToggleButton(self, text='1&2', width=4, font=(SCP, 11), relief=RIDGE)
         self.box_12_button.place(x=18 + 51 * 0, y=39)
         self.box_3_button = ToggleButton(self, text='3', width=4, font=(SCP, 11), relief=RIDGE)
@@ -122,6 +122,7 @@ class MonthlyDroppedCanvas(Canvas):
 
     def _init_fields(self):
         data_record = get_data_record(self.section)
+        self.title.set(data_record['title'])
         self.statistic_tacker = DroppedStatisticTacker(2)
         self.statistic_tacker.set(data_record[self.KEY_TOTAL],
                                   [data_record[self.KEY_FERTILIZER], data_record[self.KEY_CHARACTER]])
