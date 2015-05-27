@@ -9,8 +9,8 @@ class RecordFrame(MainFrame):
     def __init__(self, master, **kwargs):
         MainFrame.__init__(self, master, **kwargs)
 
-        self.jp_advanced_daily_dropped = JPAdvancedDailyDroppedCanvas(self)
-        self.jp_advanced_daily_dropped.place(x=15, y=12)
+        self.advanced_daily_dropped = AdvancedDailyDroppedCanvas(self)
+        self.advanced_daily_dropped.place(x=15, y=12)
 
         self.monthly_dropped = MonthlyDroppedCanvas(self, 'CN Monthly 1')
         self.monthly_dropped.place(x=200, y=12)
@@ -21,8 +21,8 @@ class RecordFrame(MainFrame):
         self.the_stage_dropped.place(x=582, y=12)
 
 
-class JPAdvancedDailyDroppedCanvas(Canvas):
-    SECTION = 'JP Advanced Daily'
+class AdvancedDailyDroppedCanvas(Canvas):
+    SECTION = 'Advanced Daily'
     KEY_TOTAL = 'total'
     KEY_DROPPED = 'dropped'
 
@@ -209,7 +209,7 @@ class SpecificStageDroppedCanvas(Canvas):
         self.total_desc.set('Times : %2d ' % self.statistic_tacker.times)
         for i in range(4):
             self.drop_vars[i].set(self.statistic_tacker.drops[i])
-        self.values_desc.set('Value : %2d ' % (sum(p*q for p,q in izip(
+        self.values_desc.set('Value : %1.2f' % (sum(p*q for p,q in izip(
             self.values, self.statistic_tacker.get_statistics_ratio())) / 100))
 
     def _init_buttons_state(self):

@@ -12,44 +12,44 @@
         "total": 0
     },
     "Fuji Account": {
-        "current_ap": "31",
-        "difference": "59 AP --> 07 \u6642 52 \u5206",
-        "last_time": "Current :  09:18 AM",
-        "max_ap": "90",
-        "reached_time": "Reached :  05:10 PM"
+        "current_ap": "5",
+        "difference": "86 AP --> 11 \u6642 28 \u5206",
+        "last_time": "Current :  12:58 AM",
+        "max_ap": "91",
+        "reached_time": "Reached :  00:26 AM"
     },
     "Happy Account": {
-        "current_ap": "18",
-        "difference": "53 AP --> 07 \u6642 04 \u5206",
-        "last_time": "Current :  09:01 AM",
-        "max_ap": "71",
-        "reached_time": "Reached :  04:05 PM"
+        "current_ap": "15",
+        "difference": "57 AP --> 07 \u6642 36 \u5206",
+        "last_time": "Current :  12:52 AM",
+        "max_ap": "72",
+        "reached_time": "Reached :  08:28 PM"
     },
-    "JP Advanced Daily": {
-        "dropped": 245,
-        "total": 215
+    "Advanced Daily": {
+        "dropped": 6,
+        "total": 7
     },
     "Specific Stage 1": {
         "drops": [
-            181,
-            112,
-            74,
-            90
+            7,
+            7,
+            7,
+            3
         ],
-        "title": "\u968a\u54e1\u96c6\u548c (AC)",
-        "total": 200,
+        "title": "\u6c99\u7058\u7684\u5927\u6c7a\u6230",
+        "total": 7,
         "values": [
-            200,
-            300,
-            500,
-            600
+            0,
+            0,
+            1.0,
+            1.0
         ]
     },
     "Yama Account": {
-        "current_ap": "9",
-        "difference": "71 AP --> 09 \u6642 28 \u5206",
-        "last_time": "Current :  09:21 AM",
-        "max_ap": "80",
-        "reached_time": "Reached :  06:49 PM"
+        "current_ap": "1",
+        "difference": "81 AP --> 10 \u6642 48 \u5206",
+        "last_time": "Current :  01:14 PM",
+        "max_ap": "82",
+        "reached_time": "Reached :  00:02 AM"
     }
 }
