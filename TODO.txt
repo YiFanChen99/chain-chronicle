@@ -3,6 +3,7 @@ CharacterCondition 追加，考慮 Character、MyChar.、DrawRecord
 
 記錄每週帳號相關資訊，含等級與道具（圖表）
 	可用 plotly https://plot.ly/python/getting-started/
+	Date、Gem、Money、AC、Ring、Depository、Rank、ExpLeft、PowerFruit、ManaFruit、ReviveFruit、Ticket、SlicedFruit
 
 所有角色的註記型能力特質
 	確認資料庫的連動關係，是否能保證左有右有
