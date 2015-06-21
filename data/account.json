@@ -1,13 +1,6 @@
 {
     "Fuji": {
         "name": "Fuji",
-        "last_page": 0,
-        "enabled_pages": [
-            1,
-            1,
-            1,
-            1
-        ],
         "server": "JP"
     },
     "Happy": {
@@ -28,7 +21,7 @@
             1,
             1,
             1,
-            0
+            1
         ],
         "server": "CN"
     }

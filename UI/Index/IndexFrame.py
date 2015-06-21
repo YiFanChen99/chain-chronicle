@@ -18,11 +18,10 @@ class IndexFrame(MainFrame):
     def __init__(self, master, **kwargs):
         MainFrame.__init__(self, master, **kwargs)
 
-        PowerConverterCanvas(self, 'Fuji Account').place(x=5, y=15)
-        PowerConverterCanvas(self, 'Yama Account').place(x=196, y=15)
-        PowerConverterCanvas(self, 'Happy Account').place(x=387, y=15)
+        PowerConverterCanvas(self, 'Yama Account').place(x=25, y=15)
+        PowerConverterCanvas(self, 'Happy Account').place(x=256, y=15)
 
-        DailyDroppedRecorder(self).place(x=576, y=0)
+        DailyDroppedRecorder(self).place(x=546, y=0)
 
 
 class PowerConverterCanvas(Canvas):

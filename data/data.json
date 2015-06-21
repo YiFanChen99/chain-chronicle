@@ -23,9 +23,9 @@
     },
     "CN Monthly 1": {
         "character": 1,
-        "fertilizer": 178,
+        "fertilizer": 219,
         "title": "\u767d\u92fc\u6708\u9593",
-        "total": 77
+        "total": 94
     },
     "CN Monthly 2": {
         "character": 0,
@@ -33,47 +33,40 @@
         "title": "\u66c9\u6708\u9593",
         "total": 0
     },
-    "Fuji Account": {
-        "current_ap": "61",
-        "difference": "30 AP --> 04 \u6642 00 \u5206",
-        "last_time": "Current :  10:51 AM",
-        "max_ap": "91",
-        "reached_time": "Reached :  02:51 PM"
-    },
     "Happy Account": {
-        "current_ap": "22",
-        "difference": "52 AP --> 06 \u6642 56 \u5206",
-        "last_time": "Current :  09:07 AM",
+        "current_ap": "6",
+        "difference": "68 AP --> 09 \u6642 04 \u5206",
+        "last_time": "Current :  09:20 PM",
         "max_ap": "74",
-        "reached_time": "Reached :  04:03 PM"
+        "reached_time": "Reached :  06:24 AM"
     },
     "Stage 1": {
         "defaults": [
             1,
             1,
-            0,
+            1,
             0
         ],
         "drops": [
-            7,
-            7,
-            7,
-            3
+            19,
+            18,
+            18,
+            5
         ],
-        "title": "\u6c99\u7058\u7684\u5927\u6c7a\u6230",
-        "total": 7,
+        "title": "\u9031\u5e74\u6d3b\u52d5",
+        "total": 19,
         "values": [
             0,
             0,
-            1.0,
+            0,
             1.0
         ]
     },
     "Yama Account": {
-        "current_ap": "5",
-        "difference": "77 AP --> 10 \u6642 16 \u5206",
-        "last_time": "Current :  09:19 AM",
+        "current_ap": "10",
+        "difference": "72 AP --> 09 \u6642 36 \u5206",
+        "last_time": "Current :  09:08 PM",
         "max_ap": "82",
-        "reached_time": "Reached :  07:35 PM"
+        "reached_time": "Reached :  06:44 AM"
     }
 }
