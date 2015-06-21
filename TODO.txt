@@ -1,4 +1,6 @@
 ﻿
+新增更強的篩選選擇器
+
 CharacterCondition 追加，考慮 Character、MyChar.、DrawRecord
 
 記錄每週帳號相關資訊，含等級與道具（圖表）

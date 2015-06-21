@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from ModelUtility.DBAccessor import *
 from ModelUtility.DataObject import Character
+from ModelUtility.DataHolder import DataHolder
 
 
 def select_character_by_specific_column(column_name, key):
@@ -49,3 +50,20 @@ def create_new_cn_character():
     max_id = DBAccessor.execute('select max(ID) from Character').fetchone()[0]
     character.c_id = max_id + 1 if max_id > 6000 else 6001
     return character
+
+
+class CharacterDataHolder(DataHolder):
+    def __init__(self, data_getter):
+        DataHolder.__init__(self, data_getter)
+        self._init_comparison_rules()
+
+    def _init_comparison_rules(self):
+        self.set_comparison_rule('full_name')
+        self.set_comparison_rule('nickname')
+        self.set_comparison_rule('active')
+        self.set_comparison_rule('passive_1')
+        self.set_comparison_rule('passive_2')
+        self.set_comparison_rule('attachment')
+
+    def get_filtered_data(self, request):
+        return self.filter_manager.filter(self.data, request)

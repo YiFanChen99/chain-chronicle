@@ -2,10 +2,11 @@
 from Comparator import *
 
 
-class FilterRuleManager():
+class FilterRuleManager(object):
     def __init__(self):
         self._comparison_rules = {}
         self._specific_conditions = {}
+        self._sub_object_filters = {}
 
     def set_comparison_rule(self, key, rule=sub_match_request):
         self._comparison_rules[key] = rule
@@ -19,8 +20,17 @@ class FilterRuleManager():
     def clean_specific_condition(self):
         self._specific_conditions = {}
 
+    def set_sub_object_filter(self, key, sub_filter):
+        self._sub_object_filters[key] = sub_filter
+
+    def clean_sub_object_filter(self):
+        self._sub_object_filters = {}
+
+    # 分別對三類條件進行篩選
     def filter(self, records, multi_request=''):
-        return self._filter_by_comparison_rules(self._filter_by_specific_conditions(records), multi_request)
+        results = self._filter_by_specific_conditions(records)
+        results = self._filter_by_comparison_rules(results, multi_request)
+        return self._filter_by_sub_object_filters(results)
 
     def _filter_by_comparison_rules(self, records, multi_request):
         results = records
@@ -49,4 +59,28 @@ class FilterRuleManager():
         results = records
         for key, (request, rule) in self._specific_conditions.iteritems():
             results = [element for element in results if rule(element[key], request)]
+        return results
+
+    def _filter_by_sub_object_filters(self, records):
+        results = records
+        for key, sub_filter in self._sub_object_filters.iteritems():
+            results = sub_filter.filter(results)
+        return results
+
+
+class SubObjectFilterRuleManager(object):
+    def __init__(self, sub_object_getter):
+        self.sub_object_getter = sub_object_getter
+        self.conditions = {}
+
+    def set_condition(self, key, request, rule=match_request):
+        self.conditions[key] = (request, rule)
+
+    def clean_condition(self):
+        self.conditions = {}
+
+    def filter(self, records):
+        results = records
+        for key, (request, rule) in self.conditions.iteritems():
+            results = [result for result in results if rule(self.sub_object_getter(result)[key], request)]
         return results
