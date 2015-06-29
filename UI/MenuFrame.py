@@ -30,10 +30,10 @@ class MenuFrame(BasicMenuFrame):
     def _init_button_group(self):
         buttons = [Button(self, text='Static Info', width=14, font=(SCP, 11),
                           command=lambda: self.master.change_sub_menu_frame(StaticGroupFrame(self.master))),
+                   Button(self, text='YamaT Account', width=14, font=(SCP, 11),
+                          command=lambda: self.change_to_account_frame('YamaT')),
                    Button(self, text='Yama Account', width=14, font=(SCP, 11),
                           command=lambda: self.change_to_account_frame('Yama')),
-                   Button(self, text='Happy Account', width=14, font=(SCP, 11),
-                          command=lambda: self.change_to_account_frame('Happy')),
                    Button(self, text='Specials', width=14, font=(SCP, 11),
                           command=lambda: self.master.change_sub_menu_frame(SpecialsFrame(self.master)))]
 
