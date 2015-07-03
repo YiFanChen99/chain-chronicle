@@ -3,8 +3,8 @@
         "name": "Fuji",
         "server": "JP"
     },
-    "YamaT": {
-        "name": "YamaT",
+    "Yama": {
+        "name": "Yama",
         "last_page": 0,
         "enabled_pages": [
             1,
@@ -13,16 +13,5 @@
             1
         ],
         "server": "TW"
-    },
-    "Yama": {
-        "name": "Yama",
-        "last_page": 0,
-        "enabled_pages": [
-            1,
-            1,
-            1,
-            0
-        ],
-        "server": "CN"
     }
 }

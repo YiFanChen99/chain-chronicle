@@ -3,7 +3,6 @@ import os
 from ModelUtility.CommonState import *
 from ModelUtility.GroupController import *
 from UI.Utility.BasicMainFrame import *
-from UI.Index.IndexFrame import IndexFrame
 from UI.Character.CharacterFrame import CharacterFrame
 from UI.Record.RecordFrame import RecordFrame
 from UI.Event.EventFrame import EventFrame
@@ -30,8 +29,6 @@ class MenuFrame(BasicMenuFrame):
     def _init_button_group(self):
         buttons = [Button(self, text='Static Info', width=14, font=(SCP, 11),
                           command=lambda: self.master.change_sub_menu_frame(StaticGroupFrame(self.master))),
-                   Button(self, text='YamaT Account', width=14, font=(SCP, 11),
-                          command=lambda: self.change_to_account_frame('YamaT')),
                    Button(self, text='Yama Account', width=14, font=(SCP, 11),
                           command=lambda: self.change_to_account_frame('Yama')),
                    Button(self, text='Specials', width=14, font=(SCP, 11),
@@ -66,9 +63,7 @@ class StaticGroupFrame(BasicMenuFrame):
 
     def _init_button_group(self):
         change_main_frame = lambda new_frame: self.master.change_main_frame(new_frame)
-        buttons = [Button(self, text='Index', width=15, font=(SCP, 10),
-                          command=lambda: change_main_frame(IndexFrame(self.master))),
-                   Button(self, text='Record', width=15, font=(SCP, 10),
+        buttons = [Button(self, text='Record', width=15, font=(SCP, 10),
                           command=lambda: change_main_frame(RecordFrame(self.master))),
                    Button(self, text='Character', width=15, font=(SCP, 10),
                           command=lambda: change_main_frame(CharacterFrame(self.master))),

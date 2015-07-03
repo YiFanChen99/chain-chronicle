@@ -21,26 +21,35 @@
             1.0
         ]
     },
-    "CN Monthly 1": {
-        "character": 1,
-        "fertilizer": 290,
-        "title": "\u767d\u92fc\u6708\u9593",
-        "total": 124
-    },
-    "CN Monthly 2": {
+    "Monthly": {
         "character": 0,
         "fertilizer": 0,
-        "title": "\u66c9\u6708\u9593",
+        "title": "自暴月間",
         "total": 0
     },
-    "YamaT Account": {
-        "current_ap": "21",
-        "difference": "54 AP --> 07 \u6642 12 \u5206",
-        "last_time": "Current :  04:08 PM",
-        "max_ap": "75",
-        "reached_time": "Reached :  11:20 PM"
-    },
     "Stage 1": {
+        "defaults": [
+            1,
+            1,
+            0,
+            0
+        ],
+        "drops": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "title": "未知關卡",
+        "total": 0,
+        "values": [
+            0,
+            0,
+            0,
+            1.0
+        ]
+    },
+    "Stage 2": {
         "defaults": [
             1,
             1,
@@ -63,10 +72,10 @@
         ]
     },
     "Yama Account": {
-        "current_ap": "8",
-        "difference": "75 AP --> 10 \u6642 00 \u5206",
-        "last_time": "Current :  09:07 AM",
-        "max_ap": "83",
-        "reached_time": "Reached :  07:07 PM"
+        "current_ap": "62",
+        "difference": "18 AP --> 02 \u6642 24 \u5206",
+        "last_time": "Current :  11:13 PM",
+        "max_ap": "80",
+        "reached_time": "Reached :  01:37 AM"
     }
 }

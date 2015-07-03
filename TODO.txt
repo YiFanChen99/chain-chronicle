@@ -5,6 +5,11 @@
 
 CharacterCondition 追加，考慮 Character、MyChar.、DrawRecord
 
+帳號擁有的角色與其狀態之列表
+	MyCharacter(object): ['Account', 'CharacterID', 'Level', 'Promoted', 'Tag']
+
+
+
 記錄每週帳號相關資訊，含等級與道具（圖表）
 	可用 plotly https://plot.ly/python/getting-started/
 	Date、Gem、Money、AC、Ring、Depository、Rank、ExpLeft、PowerFruit、ManaFruit、ReviveFruit、Ticket、SlicedFruit
@@ -12,14 +17,6 @@ CharacterCondition 追加，考慮 Character、MyChar.、DrawRecord
 所有角色的註記型能力特質
 	確認資料庫的連動關係，是否能保證左有右有
 
-帳號擁有的角色與其狀態之列表
-
-計算AP與踏破效率的頁面
-
-MyCharacter(object): ['Account', 'CharacterID', 'Level', 'Promoted', 'Tag']
-
 ap效益maybe? 打幾場升級，關卡註記
 
-次要（有按順序）：
 CharacterPage 內的 CharacterInfoWindow 的職業與等級選擇用 Canvas。
-IndexFrame 改用 StatisticTacker 作業。

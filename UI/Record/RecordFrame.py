@@ -1,28 +1,167 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 from UI.Utility.BasicMainFrame import *
 from UI.Utility.Button import ToggleButton
 from ModelUtility.StatisticTacker import DroppedStatisticTacker
 from ModelUtility.CommonState import *
+from ModelUtility import APTimeCalculator
 
 
 class RecordFrame(MainFrame):
     def __init__(self, master, **kwargs):
         MainFrame.__init__(self, master, **kwargs)
+
+        PowerConverterCanvas(self, 'Yama Account').place(x=70, y=15)
+
         self.canvases = []
         self._init_canvases()
         self._place_canvases()
 
     def _init_canvases(self):
         self.canvases.append(SpecificStageDroppedCanvas(self, 'Advanced Daily', width=174))
-        self.canvases.append(MonthlyDroppedCanvas(self, 'CN Monthly 1', width=174))
-        self.canvases.append(MonthlyDroppedCanvas(self, 'CN Monthly 2', width=174))
+        self.canvases.append(MonthlyDroppedCanvas(self, 'Monthly', width=174))
         self.canvases.append(SpecificStageDroppedCanvas(self, 'Stage 1', width=174))
+        self.canvases.append(SpecificStageDroppedCanvas(self, 'Stage 2', width=174))
 
     def _place_canvases(self):
         for i in range(len(self.canvases)):
-            x = 8 + 189 * (i % 4)
-            y = -1 + 212 * (i >= 4)
+            x = 386 + 189 * (i % 2)
+            y = -1 + 210 * (i >= 2)
             self.canvases[i].place(x=x, y=y)
+
+
+class PowerConverterCanvas(Canvas):
+    KEY_CURRENT_AP = 'current_ap'
+    KEY_MAX_AP = 'max_ap'
+    KEY_LAST_TIME = 'last_time'
+    KEY_DIFFERENCE = 'difference'
+    KEY_REACHED_TIME = 'reached_time'
+
+    def __init__(self, master, title, **kwargs):
+        Canvas.__init__(self, master, height=MIN_HEIGHT, highlightthickness=0, **kwargs)
+        self.pack(fill=BOTH, expand=1)
+
+        self.title = title
+        self._init_widgets()
+
+        # Loading data
+        data_record = get_data_record(title)
+        self.last_calculation.set(data_record[self.KEY_LAST_TIME])
+        self.current_ap.set(data_record[self.KEY_CURRENT_AP])
+        self.max_ap.set(data_record[self.KEY_MAX_AP])
+        self.difference_for_max.set(data_record[self.KEY_DIFFERENCE])
+        self.time_reaching_max_ap.set(data_record[self.KEY_REACHED_TIME])
+
+    def _init_widgets(self):
+        self.columnconfigure(0, weight=4)
+        self.columnconfigure(2, weight=1)
+        span_config = {'columnspan': 3, 'sticky': N+E+S+W}
+        entry_config = {'column': 1, 'sticky': N+S, 'pady': 3, 'ipady': 2}
+
+        row = 0
+        Label(self, text=self.title, font=(MS_JH, 12)).grid(row=row, pady=5, **span_config)
+
+        row += 1
+        self._insert_separator(row, span_config)
+
+        row += 1
+        Label(self, text='Current AP', font=(MS_JH, 12)).grid(row=row, sticky=N+E+S+W)
+        self.current_ap = StringVar(value='')
+        current_ap_entry = Entry(self, width=4, textvariable=self.current_ap, font=(MS_JH, 12))
+        current_ap_entry.grid(row=row, **entry_config)
+        current_ap_entry.bind('<Return>', lambda event: self.calculate_for_max_ap())
+        current_ap_entry.bind('<FocusIn>', lambda event: (
+            current_ap_entry.focus_set(), current_ap_entry.selection_range(0, END)))
+
+        row += 1
+        Label(self, text='Max AP', font=(MS_JH, 12)).grid(row=row, sticky=N+E+S+W)
+        self.max_ap = StringVar(value='89')
+        entry = Entry(self, width=4, textvariable=self.max_ap, font=(MS_JH, 12))
+        entry.grid(row=row, **entry_config)
+        entry.bind('<Return>', lambda event: self.calculate_for_max_ap())
+
+        row += 1
+        Label(self, text='Adjustment', font=(MS_JH, 12)).grid(row=row, sticky=N+E+S+W)
+        self.adjustment = StringVar(value='')
+        Entry(self, width=4, textvariable=self.adjustment, font=(MS_JH, 12)).grid(row=row, **entry_config)
+
+        row += 1
+        self.last_calculation = StringVar(value='')
+        Label(self, textvariable=self.last_calculation, font=(MS_JH, 11)).grid(row=row, pady=5, **span_config)
+
+        row += 1
+        self.difference_for_max = StringVar(value='')
+        Label(self, textvariable=self.difference_for_max, font=(MS_JH, 11)).grid(row=row, padx=5, pady=1, **span_config)
+
+        row += 1
+        self.time_reaching_max_ap = StringVar(value='')
+        Label(self, textvariable=self.time_reaching_max_ap, width=20, font=(MS_JH, 11)).\
+            grid(row=row, pady=3, **span_config)
+
+        row += 1
+        self._insert_separator(row, span_config)
+
+        row += 1
+        Label(self, text='Goad AP', font=(MS_JH, 12)).grid(row=row, sticky=N+E+S+W, pady=3)
+        self.goal = StringVar(value='')
+        entry = Entry(self, width=4, textvariable=self.goal, font=(MS_JH, 12))
+        entry.grid(row=row, **entry_config)
+        entry.bind('<Return>', lambda event: self.calculate_for_goal_ap())
+
+        row += 1
+        self.difference_for_goal = StringVar(value='')
+        Label(self, textvariable=self.difference_for_goal, font=(MS_JH, 10)).grid(row=row, pady=4, **span_config)
+
+        row += 1
+        self.time_reaching_goal_ap = StringVar(value='')
+        Label(self, textvariable=self.time_reaching_goal_ap, font=(MS_JH, 11)).grid(row=row, **span_config)
+
+    def _insert_separator(self, row, config):
+        ttk.Separator(self, orient=HORIZONTAL).grid(row=row, pady=6, **config)
+
+    def calculate_for_max_ap(self):
+        # 計算並改動
+        current_ap = int(self.current_ap.get()) if self.current_ap.get() else 0
+        adjustment_ap = int(self.adjustment.get()) if self.adjustment.get() else 0
+        difference_ap = int(self.max_ap.get()) - current_ap - adjustment_ap
+        difference_time = APTimeCalculator.convert_ap_to_timedelta(difference_ap)
+        self.last_calculation.set('Current :  ' + self.convert_time_to_str(datetime.now()))
+        self.difference_for_max.set('%02d AP --> ' % difference_ap + self.convert_timedelta_to_str(difference_time))
+        self.time_reaching_max_ap.set('Reached :  ' +
+                                      self.convert_time_to_str(datetime.now() + difference_time))
+
+        # Saving data
+        data_record = get_data_record(self.title)
+        data_record[self.KEY_LAST_TIME] = self.last_calculation.get()
+        data_record[self.KEY_CURRENT_AP] = self.current_ap.get()
+        data_record[self.KEY_MAX_AP] = self.max_ap.get()
+        data_record[self.KEY_DIFFERENCE] = self.difference_for_max.get()
+        data_record[self.KEY_REACHED_TIME] = self.time_reaching_max_ap.get()
+        save_data_record()
+
+    def calculate_for_goal_ap(self):
+        # 計算並改動
+        current_ap = int(self.current_ap.get()) if self.current_ap.get() else 0
+        difference_ap = int(self.goal.get()) - current_ap
+        difference_time = APTimeCalculator.convert_ap_to_timedelta(difference_ap)
+        self.difference_for_goal.set('%02d+%02d AP --> ' % (current_ap, difference_ap) +
+                                     self.convert_timedelta_to_str(difference_time))
+        self.time_reaching_goal_ap.set('Reached :  ' +
+                                       self.convert_time_to_str(datetime.now() + difference_time))
+
+    @staticmethod
+    def convert_time_to_str(time):
+        if time.hour > 12:
+            return '%02d:%02d PM' % (time.hour - 12, time.minute)
+        else:
+            return '%02d:%02d AM' % (time.hour, time.minute)
+
+    @staticmethod
+    def convert_timedelta_to_str(the_timedelta):
+        total_minutes = the_timedelta.seconds / 60
+        minute = total_minutes % 60
+        hour = total_minutes / 60
+        return '%02d 時 %02d 分' % (hour, minute)
 
 
 class MonthlyDroppedCanvas(Canvas):

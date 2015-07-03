@@ -173,8 +173,7 @@ class CGDTCharacter(object):
         if replaced_name in BELONGEDS:
             self.belonged = replaced_name
         else:
-            raise ValueError('Invalid Belonged name {0} for {1}.'.format(
-                name.encode('utf-8'), self.full_name.encode('utf-8')))
+            self.belonged = u'?未知'
 
     def __str__(self):
         return 'CGDTCharacter: ID={0}, FullName={1}, Nickname={2}'.format(
