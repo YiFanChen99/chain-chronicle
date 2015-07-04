@@ -2,7 +2,7 @@
 from datetime import timedelta, date
 from ModelUtility.CommonState import *
 from ModelUtility.DBAccessor import *
-from ModelUtility.CommonValue import *
+from ModelUtility.DataHolder import *
 from ModelUtility.Utility import convert_str_to_date
 from ModelUtility.DataObject import FriendInfo, FriendRecord
 
@@ -82,6 +82,40 @@ def take_statistic_to_update_friend_info():
         statistic_taker.take_statistic(records)
         statistic_taker.update_into_memory_db()
     DBAccessor.commit()
+
+
+class FriendInfoModel(DataHolder):
+    def __init__(self):
+        DataHolder.__init__(self, data_getter=select_friend_info_list)
+        self._init_comparison_rules()
+        self._existed_ids = []
+
+    def _init_comparison_rules(self):
+        self.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)
+        self.set_comparison_rule('defect')
+        self.set_comparison_rule('relation')
+        self.set_comparison_rule('used_characters')
+
+    def get_displaying_data(self, request):
+        return [character.get_table_view_info() for character in self.get_matched_data(request)
+                if not (character.f_id in self._existed_ids)]
+
+    def set_friend_existed(self, friend_info):
+        self._existed_ids.append(friend_info.f_id)
+
+    def clear_existed_ids(self):
+        self._existed_ids = []
+
+    def get_friend_number(self):
+        return len(self._data)
+
+    def try_adding_new_friend(self, callback_when_success, callback_when_invalid):
+        try:
+            friend_info = select_unused_friend_info()
+        except ValueError:
+            callback_when_invalid()
+            return
+        callback_when_success(friend_info, lambda: self.append(friend_info))
 
 
 # noinspection PyAttributeOutsideInit

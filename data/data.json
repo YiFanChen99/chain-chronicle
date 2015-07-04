@@ -24,7 +24,7 @@
     "Monthly": {
         "character": 0,
         "fertilizer": 0,
-        "title": "自暴月間",
+        "title": "\u81ea\u66b4\u6708\u9593",
         "total": 0
     },
     "Stage 1": {
@@ -40,7 +40,7 @@
             0,
             0
         ],
-        "title": "未知關卡",
+        "title": "\u672a\u77e5\u95dc\u5361",
         "total": 0,
         "values": [
             0,
@@ -72,10 +72,10 @@
         ]
     },
     "Yama Account": {
-        "current_ap": "62",
-        "difference": "18 AP --> 02 \u6642 24 \u5206",
-        "last_time": "Current :  11:13 PM",
+        "current_ap": "28",
+        "difference": "52 AP --> 06 \u6642 56 \u5206",
+        "last_time": "Current :  01:12 PM",
         "max_ap": "80",
-        "reached_time": "Reached :  01:37 AM"
+        "reached_time": "Reached :  08:08 PM"
     }
 }

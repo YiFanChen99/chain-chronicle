@@ -52,9 +52,9 @@ def create_new_cn_character():
     return character
 
 
-class CharacterDataHolder(DataHolder):
-    def __init__(self, data_getter):
-        DataHolder.__init__(self, data_getter)
+class CharacterFrameModel(DataHolder):
+    def __init__(self):
+        DataHolder.__init__(self, data_getter=select_character_list)
         self._init_comparison_rules()
 
     def _init_comparison_rules(self):
@@ -65,5 +65,5 @@ class CharacterDataHolder(DataHolder):
         self.set_comparison_rule('passive_2')
         self.set_comparison_rule('attachment')
 
-    def get_filtered_data(self, request):
-        return self.filter_manager.filter(self.data, request)
+    def get_displaying_data(self, request):
+        return [character.get_table_view_info() for character in self.get_matched_data(request)]

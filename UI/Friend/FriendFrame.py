@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from UI.Utility.BasicMainFrame import *
 from UI.Friend.FriendWindow import *
+from UI.Utility.Button import ToggleButton
 from ModelUtility.Filter import FilterRuleManager
 from ModelUtility.DataObject import *
 from ModelUtility.Utility import bind_check_box_and_label
@@ -11,23 +12,21 @@ from Model import FriendModel
 class FriendInfoFrame(MainFrameWithTable):
     def __init__(self, master):
         MainFrameWithTable.__init__(self, master)
+        self.model = FriendModel.FriendInfoModel()
         self.set_table_place(34, 29)
         self.table_model = TableModelAdvance()
         self.table_model.set_columns(FriendInfo.TABLE_VIEW_COLUMNS, main_column='UsedNames')
         self.table_view.setModel(self.table_model)
-        self.filter_manager = FilterRuleManager()
-        self.filter_manager.set_comparison_rule('used_names', rule=sub_match_request_or_japanese_character)
-        self.filter_manager.set_comparison_rule('defect')
-        self.filter_manager.set_comparison_rule('relation')
-        self.filter_manager.set_comparison_rule('used_characters')
+        # 滑鼠中鍵事件註冊，若為設定為更新好友資訊，並選取該列
+        self.table_view.bind("<Button-2>", lambda event: (
+            self.table_view.handle_left_click(event),
+            open_updating_friend_info_window(
+                self, self.get_corresponding_friend_info_in_row(self.table_view.get_row_clicked(event)),
+                self.update_table)))
 
-        # Left frame: 切換到記錄好友現況的按鈕
-        button = Button(self, text="記錄好友現況", width=2, height=17, wraplength=1, font=(MS_JH, 12))
-        button.place(x=4, y=44)
-        button["command"] = self.switching_to_friend_record
-
+        self._init_left_frame()
         self._init_upper_frame()
-        self.friend_infos = []
+        self.model.update_data()
         self.update_all()
 
     def _init_upper_frame(self):
@@ -62,19 +61,23 @@ class FriendInfoFrame(MainFrameWithTable):
         since_last_record = 'Since: {0} days ago'.format(FriendModel.get_since_all_record_date())
         Label(self, text=since_last_record, font=(MS_JH, 12)).place(x=basic_x + 17, y=basic_y)
 
+    def _init_left_frame(self):
+        button = Button(self, text="記錄好友現況", width=2, height=12, wraplength=1, font=(MS_JH, 12))
+        button.place(x=4, y=40)
+        button["command"] = self.switching_to_friend_record
+
+        self.friend_existent_mode_button = \
+            ToggleButton(self, text="好友整理", width=2, height=5, wraplength=1, font=(MS_JH, 11))
+        self.friend_existent_mode_button.place(x=5, y=304)
+        self.friend_existent_mode_button["command"] = self.switching_friend_existent_mode
+
     def update_all(self):
-        # 建立 FriendInfoObjects
-        self.friend_infos = FriendModel.select_friend_info_list()
-
-        self.friend_count_var.set('Friends: %02d' % len(self.friend_infos))  # 好友總數
-
+        self.update_friend_count_var()
         self.update_table()
 
     def update_table(self):
         # 將符合名稱篩選的好友加入欲呈現表格中
-        self.table_model.set_rows([info.get_table_view_info()
-                                   for info in self.filter_manager.filter(self.friend_infos, self.queried_name.get())])
-
+        self.table_model.set_rows(self.model.get_displaying_data(self.queried_name.get()))
         self.redisplay_table_by_order_rule()
 
     def redisplay_table_by_order_rule(self):
@@ -97,24 +100,36 @@ class FriendInfoFrame(MainFrameWithTable):
     def switching_to_friend_record(self):
         self.master.change_main_frame(FriendRecordFrame(self.master))
 
+    def switching_friend_existent_mode(self):
+        if self.friend_existent_mode_button.is_selected:
+            pass
+        else:
+            self.model.clear_existed_ids()
+            self.update_table()
+
+    def update_friend_count_var(self):
+        self.friend_count_var.set('Friends: %02d' % self.model.get_friend_number())  # 好友總數
+
     # 取得未使用的 ID，並將新好友指定到該 ID
     def adding_new_friend(self):
-        try:
-            friend_info = FriendModel.select_unused_friend_info()
-        except ValueError:
-            tkMessageBox.showwarning("Can not add any friend", '已達好友上限', parent=self)
-            return
+        self.model.try_adding_new_friend(
+            lambda info, callback: open_updating_friend_info_window(
+                self, info, lambda: (callback(), self.update_all())),
+            lambda: tkMessageBox.showwarning("Can not add any friend", '已達好友上限', parent=self))
 
-        open_updating_friend_info_window(self, friend_info, self.update_all)
-
-    # 更改好友資訊，或顯示其歷史角色訊息
+    # 記錄該好友存在，或更改好友資訊，或顯示其歷史角色訊息
     def do_double_clicking(self, event):
         friend_info = self.get_corresponding_friend_info_in_row(self.table_view.get_row_clicked(event))
-        # 雙擊歷史角色欄位時顯示其訊息，否則更改好友資訊
-        if self.table_view.get_col_clicked(event) == 6:
-            tkMessageBox.showinfo("Characters", friend_info.used_characters, parent=self)
+        if self.friend_existent_mode_button.is_selected:
+            self.model.set_friend_existed(friend_info)
+            self.queried_name.set('')  # 此時的篩選應是為了找此人，故處理後清空條件
+            self.update_table()
         else:
-            open_updating_friend_info_window(self, friend_info, self.update_table)
+            # 雙擊歷史角色欄位時顯示其訊息，否則更改好友資訊
+            if self.table_view.get_col_clicked(event) == 6:
+                tkMessageBox.showinfo("Characters", friend_info.used_characters, parent=self)
+            else:
+                open_updating_friend_info_window(self, friend_info, self.update_table)
 
     def do_dragging_along_right(self, row_number):
         friend_info = self.get_corresponding_friend_info_in_row(row_number)
@@ -122,16 +137,14 @@ class FriendInfoFrame(MainFrameWithTable):
                                       lambda: (self.callback_after_deleting_friend(friend_info)))
 
     def callback_after_deleting_friend(self, friend_info):
-        self.friend_infos.remove(friend_info)  # 直接從 list 中拿掉，不用重撈
-        self.friend_count_var.set('Friends: %02d' % len(self.friend_infos))  # 好友總數更新
-        self.queried_name.set('')  # 此時大部分篩選都是為了找此人來刪除，故刪除後清空條件
+        self.model.remove(friend_info)  # 直接從 list 中拿掉，不用重撈
+        self.update_friend_count_var()
+        self.queried_name.set('')  # 此時的篩選應是為了找此人，故處理後清空條件
         self.update_table()
 
     def get_corresponding_friend_info_in_row(self, row_number):
         selected_id = self.table_model.getCellRecord(row_number, 0)
-        for friend_info in self.friend_infos:
-            if friend_info.f_id == selected_id:
-                return friend_info
+        return self.model.get_specific_datum('f_id', selected_id)
 
 
 class FriendRecordFrame(MainFrameWithTable):
@@ -147,7 +160,7 @@ class FriendRecordFrame(MainFrameWithTable):
         self.filter_manager.set_comparison_rule('current_character')
         # 滑鼠中鍵事件註冊，設定為更新好友資訊，並選取該列
         self.table_view.bind("<Button-2>", lambda event: (
-            self.opening_info_update_window(event), self.table_view.handle_left_click(event)))
+            self.table_view.handle_left_click(event), self.opening_info_update_window(event)))
 
         self._init_left_frame()
         self._init_upper_frame()

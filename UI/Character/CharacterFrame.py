@@ -11,16 +11,17 @@ from Model import CharacterModel
 class CharacterFrame(MainFrameWithTable):
     def __init__(self, master, **kwargs):
         MainFrameWithTable.__init__(self, master, **kwargs)
+        self.model = CharacterModel.CharacterFrameModel()
         self.set_table_place(34, 38)
         self.table_model = TableModelAdvance()
         self.table_model.set_columns(Character.TABLE_VIEW_COLUMNS, main_column='Nickname')
         self.table_view.setModel(self.table_model)
-        self.data_holder = CharacterModel.CharacterDataHolder(data_getter=CharacterModel.select_character_list)
 
         self._init_upper_frame()
         self._init_left_frame()
 
-        self.update_all()
+        self.model.update_data()
+        self.update_table()
 
     def _init_left_frame(self):
         self.character_count = IntVar()
@@ -69,15 +70,11 @@ class CharacterFrame(MainFrameWithTable):
         button.place(x=667, y=3)
         button["command"] = self.clearing_filters
 
-    def update_all(self):
-        self.data_holder.update_data()
-        self.update_table()
-
     def update_table(self):
-        results = self.data_holder.get_filtered_data(self.request.get())
-        self.character_count.set(len(results))
         # 將符合篩選條件的角色加入欲呈現表格中
-        self.table_model.set_rows([character.get_table_view_info() for character in results])
+        results = self.model.get_displaying_data(self.request.get())
+        self.character_count.set(len(results))
+        self.table_model.set_rows(results)
 
         self.table_model.setSortOrder(columnName='Rank', reverse=1)
         self.table_model.setSortOrder(columnName='Profession')
@@ -86,26 +83,26 @@ class CharacterFrame(MainFrameWithTable):
         self.table_view.hide_column('ID')
 
     def callback_after_adding_character(self, character):
-        self.data_holder.data.append(character)
+        self.model.append(character)
         self.update_table()
 
     def updating_profession(self, request):
-        self.data_holder.set_specific_condition('profession', request)
+        self.model.set_specific_condition('profession', request)
         self.update_table()
 
     def updating_rank(self, request):
-        self.data_holder.set_specific_condition('rank', request, match_requested_rank)
+        self.model.set_specific_condition('rank', request, match_requested_rank)
         self.update_table()
 
     def updating_belonged(self):
-        self.data_holder.set_specific_condition('belonged', self.belonged.get())
+        self.model.set_specific_condition('belonged', self.belonged.get())
         self.update_table()
 
     def clearing_filters(self):
         self.profession_selector.clean_current_selection()
         self.rank_selector.clean_current_selection()
         self.belonged.set('')
-        self.data_holder.clean_specific_condition()
+        self.model.clean_specific_condition()
         self.request.set('')
         self.update_table()
 
@@ -117,13 +114,11 @@ class CharacterFrame(MainFrameWithTable):
     def do_dragging_along_right(self, row_number):
         character = self.get_corresponding_character_in_row(row_number)
         delete_character_with_conforming(self, character, lambda: (
-            self.data_holder.data.remove(character), self.update_table()))  # 直接從 list 中拿掉，不用重撈
+            self.model.remove(character), self.update_table()))  # 直接從 list 中拿掉，不用重撈
 
     def get_corresponding_character_in_row(self, row_number):
         selected_id = self.table_model.getCellRecord(row_number, 0)
-        for character in self.data_holder.data:
-            if character.c_id == selected_id:
-                return character
+        return self.model.get_specific_datum('c_id', selected_id)
 
 
 # 確認刪除後，才從 DB 刪除並通知 caller
