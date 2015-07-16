@@ -1,12 +1,14 @@
 ﻿
-新增更強的篩選選擇器
-
 踏破計算器：Map、Stage、Lv、AP、Drop、Bonus、Factor、Extra
 
-CharacterCondition 追加，考慮 Character、MyChar.、DrawRecord
+新增更強的篩選選擇器
+	CharacterCondition 追加，考慮 Character、MyChar.、DrawRecord
+	參考TODO圖1
 
 帳號擁有的角色與其狀態之列表
-	MyCharacter(object): ['Account', 'CharacterID', 'Level', 'Promoted', 'Tag']
+	MyCharacter[Character、Weapon、Power]
+		ActiveFactor 改進 Type[AtkBase, HPBase, Sup, Fixed](or hybrid) + factor
+	MyCharacterTag
 
 
 
